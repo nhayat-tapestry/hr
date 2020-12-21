@@ -1,0 +1,750 @@
+
+DECLARE IDMQueryCache SHARED ROW;
+DECLARE isIDMQueryCacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE IDM_SYNC_QUERY_SetRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE posTAB1 INTEGER;
+		DECLARE posTAB2 INTEGER;
+		DECLARE tmpID CHARACTER;
+		DECLARE tmpCHAR CHARACTER;
+		DECLARE tmpXML CHARACTER;
+
+		CALL CopyMessageHeaders();
+		--Call procedure SetProperties to set values for webservice url, user name, password and file directory
+		DECLARE envRef REFERENCE TO Environment;
+
+		CALL setConfigurableProperties(envRef);
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMQueryCache.destinations.url;
+		SET Environment.BLOB1 = InputRoot.BLOB.BLOB;
+		SET tmpCHAR = CAST(Environment.BLOB1 AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId
+		ENCODING InputRoot.Properties.Encoding);
+
+		SET posTAB1 = POSITION('<NS1:transactionId>' IN tmpCHAR);
+		IF posTAB1 > 0 THEN /* If transactionId EXIST */
+			SET posTAB2 = POSITION('</NS1:transactionId>' IN tmpCHAR);
+			SET tmpID = CAST(SUBSTRING(tmpCHAR FROM posTAB1+19 FOR posTAB2-posTAB1-19) AS CHARACTER CCSID 819);
+			-- with BLOB
+			SET tmpXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://tews6/wsdl">' ||
+			'<soapenv:Header>' ||
+			'<wsdl:TaskStatusSearchTaskContext>' ||
+			'<wsdl:admin_id>' || IDMQueryCache.username || '</wsdl:admin_id>' ||
+			'<wsdl:admin_password>' ||REPLACE(IDMQueryCache.encodedpassword,'&','&amp;') || '</wsdl:admin_password>' ||
+			'</wsdl:TaskStatusSearchTaskContext>' ||
+			'</soapenv:Header>' ||
+			'<soapenv:Body>' ||
+			'<wsdl:TaskStatusSearch>' ||
+			'<wsdl:Filter index="?">' ||
+			'<wsdl:TaskId>' || tmpID || '</wsdl:TaskId>' ||
+			'</wsdl:Filter>' ||
+			'</wsdl:TaskStatusSearch>' ||
+			'</soapenv:Body>' ||
+			'</soapenv:Envelope>';
+
+			SET OutputRoot.BLOB.BLOB = CAST(tmpXML AS BLOB CCSID 819);
+			PROPAGATE TO TERMINAL 'out';
+
+		ELSE /*transactionId NOT EXIST? */
+			SET OutputRoot.BLOB.BLOB = Environment.BLOB1 || CAST(' : transactionId NOTF ERROR IN IDM CREATE SUCCESS FILE' AS BLOB CCSID 819);
+			PROPAGATE TO TERMINAL 'out1';
+		END IF;
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+	BEGIN
+		IF isIDMQueryCacheExist THEN
+
+		ELSE
+			--SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+			
+			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+			END IF;
+
+			DECLARE i INTEGER 1;
+
+			WHILE i <= noOfRecords DO
+
+				IF Environment.Variable.Destination[i].IDENTIFIER = 'WS_URL' THEN
+					SET IDMQueryCache.destinations.url =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST' THEN
+					SET IDMQueryCache.destinations.directory =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+					SET IDMQueryCache.destinations.emailaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+					SET IDMQueryCache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL1' THEN
+					SET IDMQueryCache.destinations.toaddress1 =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='USR' THEN
+					SET IDMQueryCache.username =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD' THEN
+					SET IDMQueryCache.password =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD_EN' THEN
+					SET IDMQueryCache.encodedpassword =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;		
+
+
+				SET i = i + 1;
+			END WHILE;
+
+			SET isIDMQueryCacheExist = TRUE;
+		END IF;
+	END;
+
+END MODULE;
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_TaskSuccess1
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE tmpBLOB BLOB;
+--
+--		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError);
+--
+--		DECLARE rispostaBitStream BLOB
+--		CAST(ASBITSTREAM(InputRoot.XMLNSC
+--		OPTIONS parseOptions
+--		SET InputRoot.Properties.MessageSet
+--		TYPE InputRoot.Properties.MessageType
+--		FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+--
+--		CALL CopyMessageHeaders();
+--		CALL CopyEntireMessage();
+--
+--		SET tmpBLOB = rispostaBitStream;
+--
+--		SET OutputRoot.BLOB.BLOB = Environment.BLOB1 ||
+--		CAST(' : ' AS BLOB CCSID 1208) ||
+--		CAST('CREATE TaskStatusQuery SUCCESS - RESPONSE MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+--		CAST(' - ' AS BLOB CCSID 1208) ||
+--		tmpBLOB;
+--		SET OutputLocalEnvironment.Destination.File.Directory = IDMQueryCache.destinations.directory;
+--		PROPAGATE TO TERMINAL 'out';
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+--
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_SetRequest2
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE posTAB1 INTEGER;
+--		DECLARE posTAB2 INTEGER;
+--		DECLARE tmpID CHARACTER;
+--		DECLARE tmpCHAR CHARACTER;
+--		DECLARE tmpXML CHARACTER;
+--
+--		CALL CopyMessageHeaders();
+--		--Call procedure SetProperties to set values for webservice url, user name, password and file directory
+--		DECLARE envRef REFERENCE TO Environment;
+--		CALL setConfigurableProperties(envRef);
+--
+--		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMQueryCache.destinations.url;
+--		SET Environment.BLOB2 = InputRoot.BLOB.BLOB;
+--		SET tmpCHAR = CAST(Environment.BLOB2 AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId
+--		ENCODING InputRoot.Properties.Encoding);
+--
+--		SET posTAB1 = POSITION('<NS1:transactionId>' IN tmpCHAR);
+--		IF posTAB1 > 0 THEN /* If transactionId EXIST */
+--			SET posTAB2 = POSITION('</NS1:transactionId>' IN tmpCHAR);
+--			SET tmpID = CAST(SUBSTRING(tmpCHAR FROM posTAB1+19 FOR posTAB2-posTAB1-19) AS CHARACTER CCSID 819);
+--			-- with BLOB
+--			SET tmpXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://tews6/wsdl">' ||
+--			'<soapenv:Header>' ||
+--			'<wsdl:TaskStatusSearchTaskContext>' ||
+--			'<wsdl:admin_id>' || IDMQueryCache.username || '</wsdl:admin_id>' ||
+--			'<wsdl:admin_password>' || REPLACE(IDMQueryCache.encodedpassword,'&','&amp;')|| '</wsdl:admin_password>' ||
+--			'</wsdl:TaskStatusSearchTaskContext>' ||
+--			'</soapenv:Header>' ||
+--			'<soapenv:Body>' ||
+--			'<wsdl:TaskStatusSearch>' ||
+--			'<wsdl:Filter index="?">' ||
+--			'<wsdl:TaskId>' || tmpID || '</wsdl:TaskId>' ||
+--			'</wsdl:Filter>' ||
+--			'</wsdl:TaskStatusSearch>' ||
+--			'</soapenv:Body>' ||
+--			'</soapenv:Envelope>';
+--
+--			SET OutputRoot.BLOB.BLOB = CAST(tmpXML AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out';
+--
+--		ELSE /*transactionId NOT EXIST? */
+--			SET OutputRoot.BLOB.BLOB = Environment.BLOB2 || CAST(' : transactionId NOTF ERROR IN IDM MODIFY SUCCESS1 FILE' AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out1';
+--		END IF;
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--
+--	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+--
+--	BEGIN
+--		IF isIDMQueryCacheExist THEN
+--
+--		ELSE
+--			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+--
+--			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+--			IF noOfRecords ='0' THEN
+--				THROW USER EXCEPTION MESSAGE 1000 VALUES
+--				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+--			END IF;
+--
+--			DECLARE i INTEGER 1;
+--
+--			WHILE i <= noOfRecords DO
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER = 'WS_URL' THEN
+--					SET IDMQueryCache.destinations.url =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST' THEN
+--					SET IDMQueryCache.destinations.directory =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+--					SET IDMQueryCache.destinations.emailaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+--					SET IDMQueryCache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL1' THEN
+--					SET IDMQueryCache.destinations.toaddress1 =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='USR' THEN
+--					SET IDMQueryCache.username =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD' THEN
+--					SET IDMQueryCache.password =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD_EN' THEN
+--					SET IDMQueryCache.encodedpassword =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;		
+--
+--
+--				SET i = i + 1;
+--			END WHILE;
+--
+--			SET isIDMQueryCacheExist = TRUE;
+--		END IF;
+--	END;
+--
+--END MODULE;
+--
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_TaskSuccess2
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE tmpBLOB BLOB;
+--
+--		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError);
+--
+--		DECLARE rispostaBitStream BLOB
+--		CAST(ASBITSTREAM(InputRoot.XMLNSC
+--		OPTIONS parseOptions
+--		SET InputRoot.Properties.MessageSet
+--		TYPE InputRoot.Properties.MessageType
+--		FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+--
+--		CALL CopyMessageHeaders();
+--		CALL CopyEntireMessage();
+--
+--		SET tmpBLOB = rispostaBitStream;
+--
+--		SET OutputRoot.BLOB.BLOB = Environment.BLOB2 ||
+--		CAST(' : ' AS BLOB CCSID 1208) ||
+--		CAST('MODIFY1 TaskStatusQuery SUCCESS - RESPONSE MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+--		CAST(' - ' AS BLOB CCSID 1208) ||
+--		tmpBLOB;
+--		SET OutputLocalEnvironment.Destination.File.Directory = IDMQueryCache.destinations.directory;
+--		PROPAGATE TO TERMINAL 'out';
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_SetRequest3
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE posTAB1 INTEGER;
+--		DECLARE posTAB2 INTEGER;
+--		DECLARE tmpID CHARACTER;
+--		DECLARE tmpCHAR CHARACTER;
+--		DECLARE tmpXML CHARACTER;
+--
+--		CALL CopyMessageHeaders();
+--		--Call procedure SetProperties to set values for webservice url, user name, password and file directory
+--		DECLARE envRef REFERENCE TO Environment;
+--
+--		CALL setConfigurableProperties(envRef);
+--		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMQueryCache.destinations.url;
+--		SET Environment.BLOB3 = InputRoot.BLOB.BLOB;
+--		SET tmpCHAR = CAST(Environment.BLOB3 AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId
+--		ENCODING InputRoot.Properties.Encoding);
+--
+--		SET posTAB1 = POSITION('<NS1:transactionId>' IN tmpCHAR);
+--		IF posTAB1 > 0 THEN /* If transactionId EXIST */
+--			SET posTAB2 = POSITION('</NS1:transactionId>' IN tmpCHAR);
+--			SET tmpID = CAST(SUBSTRING(tmpCHAR FROM posTAB1+19 FOR posTAB2-posTAB1-19) AS CHARACTER CCSID 819);
+--			-- with BLOB
+--			SET tmpXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://tews6/wsdl">' ||
+--			'<soapenv:Header>' ||
+--			'<wsdl:TaskStatusSearchTaskContext>' ||
+--			'<wsdl:admin_id>' || IDMQueryCache.username || '</wsdl:admin_id>' ||
+--			'<wsdl:admin_password>' || IDMQueryCache.encodedpassword || '</wsdl:admin_password>' ||
+--			'</wsdl:TaskStatusSearchTaskContext>' ||
+--			'</soapenv:Header>' ||
+--			'<soapenv:Body>' ||
+--			'<wsdl:TaskStatusSearch>' ||
+--			'<wsdl:Filter index="?">' ||
+--			'<wsdl:TaskId>' || tmpID || '</wsdl:TaskId>' ||
+--			'</wsdl:Filter>' ||
+--			'</wsdl:TaskStatusSearch>' ||
+--			'</soapenv:Body>' ||
+--			'</soapenv:Envelope>';
+--
+--			SET OutputRoot.BLOB.BLOB = CAST(tmpXML AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out';
+--
+--		ELSE /*transactionId NOT EXIST? */
+--			SET OutputRoot.BLOB.BLOB = Environment.BLOB3 || CAST(' : transactionId NOTF ERROR IN IDM MODIFY SUCCESS2 FILE' AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out1';
+--		END IF;
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--
+--	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+--
+--	BEGIN
+--		IF isIDMQueryCacheExist THEN
+--
+--		ELSE
+--			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+--
+--			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+--			IF noOfRecords ='0' THEN
+--				THROW USER EXCEPTION MESSAGE 1000 VALUES
+--				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+--			END IF;
+--
+--			DECLARE i INTEGER 1;
+--
+--			WHILE i <= noOfRecords DO
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER = 'WS_URL' THEN
+--					SET IDMQueryCache.destinations.url =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST' THEN
+--					SET IDMQueryCache.destinations.directory =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+--					SET IDMQueryCache.destinations.emailaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+--					SET IDMQueryCache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL1' THEN
+--					SET IDMQueryCache.destinations.toaddress1 =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='USR' THEN
+--					SET IDMQueryCache.username =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD' THEN
+--					SET IDMQueryCache.password =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD_EN' THEN
+--					SET IDMQueryCache.encodedpassword =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;		
+--
+--
+--				SET i = i + 1;
+--			END WHILE;
+--
+--			SET isIDMQueryCacheExist = TRUE;
+--		END IF;
+--	END;
+--END MODULE;
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_TaskSuccess3
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE tmpBLOB BLOB;
+--
+--		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError);
+--
+--		DECLARE rispostaBitStream BLOB
+--		CAST(ASBITSTREAM(InputRoot.XMLNSC
+--		OPTIONS parseOptions
+--		SET InputRoot.Properties.MessageSet
+--		TYPE InputRoot.Properties.MessageType
+--		FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+--
+--		CALL CopyMessageHeaders();
+--		CALL CopyEntireMessage();
+--
+--		SET tmpBLOB = rispostaBitStream;
+--
+--		SET OutputRoot.BLOB.BLOB = Environment.BLOB3 ||
+--		CAST(' : ' AS BLOB CCSID 1208) ||
+--		CAST('MODIFY2 TaskStatusQuery SUCCESS - RESPONSE MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+--		CAST(' - ' AS BLOB CCSID 1208) ||
+--		tmpBLOB;
+--		SET OutputLocalEnvironment.Destination.File.Directory = IDMQueryCache.destinations.directory;
+--		PROPAGATE TO TERMINAL 'out';
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_SetRequest4
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE posTAB1 INTEGER;
+--		DECLARE posTAB2 INTEGER;
+--		DECLARE tmpID CHARACTER;
+--		DECLARE tmpCHAR CHARACTER;
+--		DECLARE tmpXML CHARACTER;
+--
+--		CALL CopyMessageHeaders();
+--		--Call procedure SetProperties to set values for webservice url, user name, password and file directory
+--		DECLARE envRef REFERENCE TO Environment;
+--
+--		CALL setConfigurableProperties(envRef);
+--		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMQueryCache.destinations.url;
+--		SET Environment.BLOB3 = InputRoot.BLOB.BLOB;
+--		SET tmpCHAR = CAST(Environment.BLOB3 AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId
+--		ENCODING InputRoot.Properties.Encoding);
+--
+--		SET posTAB1 = POSITION('<NS1:transactionId>' IN tmpCHAR);
+--		IF posTAB1 > 0 THEN /* If transactionId EXIST */
+--			SET posTAB2 = POSITION('</NS1:transactionId>' IN tmpCHAR);
+--			SET tmpID = CAST(SUBSTRING(tmpCHAR FROM posTAB1+19 FOR posTAB2-posTAB1-19) AS CHARACTER CCSID 819);
+--			-- with BLOB
+--			SET tmpXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsdl="http://tews6/wsdl">' ||
+--			'<soapenv:Header>' ||
+--			'<wsdl:TaskStatusSearchTaskContext>' ||
+--			'<wsdl:admin_id>' || IDMQueryCache.username || '</wsdl:admin_id>' ||
+--			'<wsdl:admin_password>' || IDMQueryCache.encodedpassword || '</wsdl:admin_password>' ||
+--			'</wsdl:TaskStatusSearchTaskContext>' ||
+--			'</soapenv:Header>' ||
+--			'<soapenv:Body>' ||
+--			'<wsdl:TaskStatusSearch>' ||
+--			'<wsdl:Filter index="?">' ||
+--			'<wsdl:TaskId>' || tmpID || '</wsdl:TaskId>' ||
+--			'</wsdl:Filter>' ||
+--			'</wsdl:TaskStatusSearch>' ||
+--			'</soapenv:Body>' ||
+--			'</soapenv:Envelope>';
+--
+--			SET OutputRoot.BLOB.BLOB = CAST(tmpXML AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out';
+--
+--		ELSE /*transactionId NOT EXIST? */
+--			SET OutputRoot.BLOB.BLOB = Environment.BLOB3 || CAST(' : transactionId NOTF ERROR IN IDM MODIFY SUCCESS3 FILE' AS BLOB CCSID 819);
+--			PROPAGATE TO TERMINAL 'out1';
+--		END IF;
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--
+--	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+--
+--	BEGIN
+--		IF isIDMQueryCacheExist THEN
+--
+--		ELSE
+--			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+--
+--			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+--			IF noOfRecords ='0' THEN
+--				THROW USER EXCEPTION MESSAGE 1000 VALUES
+--				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+--			END IF;
+--
+--			DECLARE i INTEGER 1;
+--
+--			WHILE i <= noOfRecords DO
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER = 'WS_URL' THEN
+--					SET IDMQueryCache.destinations.url =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST' THEN
+--					SET IDMQueryCache.destinations.directory =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+--					SET IDMQueryCache.destinations.emailaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+--					SET IDMQueryCache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL1' THEN
+--					SET IDMQueryCache.destinations.toaddress1 =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='USR' THEN
+--					SET IDMQueryCache.username =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD' THEN
+--					SET IDMQueryCache.password =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;
+--
+--				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD_EN' THEN
+--					SET IDMQueryCache.encodedpassword =Environment.Variable.Destination[i].ATTRIBUTES;
+--				END IF;		
+--
+--
+--				SET i = i + 1;
+--			END WHILE;
+--
+--			SET isIDMQueryCacheExist = TRUE;
+--		END IF;
+--	END;
+--END MODULE;
+--
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_TaskSuccess4
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE tmpBLOB BLOB;
+--
+--		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError);
+--
+--		DECLARE rispostaBitStream BLOB
+--		CAST(ASBITSTREAM(InputRoot.XMLNSC
+--		OPTIONS parseOptions
+--		SET InputRoot.Properties.MessageSet
+--		TYPE InputRoot.Properties.MessageType
+--		FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+--
+--		CALL CopyMessageHeaders();
+--		CALL CopyEntireMessage();
+--
+--		SET tmpBLOB = rispostaBitStream;
+--
+--		SET OutputRoot.BLOB.BLOB = Environment.BLOB3 ||
+--		CAST(' : ' AS BLOB CCSID 1208) ||
+--		CAST('MODIFY3 TaskStatusQuery SUCCESS - RESPONSE MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+--		CAST(' - ' AS BLOB CCSID 1208) ||
+--		tmpBLOB;
+--		SET OutputLocalEnvironment.Destination.File.Directory = IDMQueryCache.destinations.directory;
+--		PROPAGATE TO TERMINAL 'out';
+--
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+--
+--
+--
+--
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_CheckEOF
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		CALL CopyMessageHeaders();
+--		SET OutputLocalEnvironment.Destination.File.Directory = IDMQueryCache.destinations.directory;
+--		PROPAGATE TO TERMINAL 'out';
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--END MODULE;
+--
+--
+--
+--
+--
+----
+--CREATE COMPUTE MODULE IDM_SYNC_QUERY_Compute
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		--CALL CopyMessageHeaders();
+--		SET OutputRoot.Properties = InputRoot.Properties;
+--		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+--		SET OutputRoot.BLOB = InputRoot.BLOB;
+--		--CALL CopyEntireMessage();
+--		RETURN TRUE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+--
+--
+--

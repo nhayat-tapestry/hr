@@ -1,0 +1,235 @@
+
+/***************************************/
+DECLARE InhibitQueue EXTERNAL CHARACTER 'Q_To_Inhibit';
+
+
+CREATE COMPUTE MODULE Retry_CreateMsgForDP
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+		SET Environment.Variables.OriginalRFH2 = InputRoot.MQRFH2;
+		SET Environment.Variables.OriginalInput = InputRoot.BLOB.BLOB;
+		RETURN TRUE;
+
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Retry_NoMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		SET OutputRoot.Properties.CodedCharSetId = 1208;
+		SET OutputRoot.Properties.Encoding = 473;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;
+		SET OutputRoot.MQMD.Encoding = 473;
+		SET OutputRoot.MQRFH2 = Environment.Variables.OriginalRFH2;
+		--CREATE NEXTSIBLING OF OutputRoot.MQRFH2 DOMAIN 'XMLNSC';
+		SET OutputRoot.BLOB.BLOB = Environment.Variables.OriginalInput;
+		SET Environment.Variables.RetryType = 'NoMessage';
+		PROPAGATE TO TERMINAL 'out' DELETE NONE; -- To Retry
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Retry_ProcessResponse
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyEntireMessage();
+		--Check whether the response has a SOAP FAULT
+		IF (EXISTS(InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault[])) THEN
+			--Check whehther the faultType is Technical, If so it has to be retried and route to terminal out2
+			IF (InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:faultType='Technical') THEN
+				IF(InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:message.*:formattederrorText <> NULL
+				AND InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:message.*:formattederrorText='Malformed content') THEN
+				-- PROPAGATE TO TERMINAL 'out1';--business fault
+				PROPAGATE TO TERMINAL 'out'; --business fault
+				RETURN FALSE;
+			ELSE
+				PROPAGATE TO TERMINAL 'out2'; --technical fault
+				RETURN FALSE;
+			END IF;
+		ELSE
+			-- PROPAGATE TO TERMINAL 'out1';
+			PROPAGATE TO TERMINAL 'out'; --business fault
+			RETURN FALSE;
+		END IF;
+		--If SOAP Fault does not exists then consider as a success
+	ELSE
+		SET Environment.Variables.ShopCtrl.message[] = SELECT T FROM InputRoot.XMLNSC.*:ResponseMessage.*:object.*:string[] as T WHERE T.name = 'Message';
+		IF ( POSITION('deadlocked' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('deadlock victim' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('Rerun the transaction' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			--OR POSITION('Unable to cast object of type' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('System.Threading.Tasks.Task' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('ShopCtrl.API.Models.Order' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0 ) then
+
+			PROPAGATE TO TERMINAL 'out2';
+			RETURN FALSE;
+		ELSE
+			PROPAGATE TO TERMINAL 'out'; --Success
+			RETURN FALSE;
+		END IF;
+
+	END IF;
+END;
+
+CREATE PROCEDURE CopyEntireMessage() BEGIN
+	SET OutputRoot = InputRoot;
+END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Retry_CreateMsgForRetry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		SET OutputRoot.Properties.CodedCharSetId = 1208;
+		SET OutputRoot.Properties.Encoding = 473;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;
+		SET OutputRoot.MQMD.Encoding = 473;
+
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+
+		SET OutputRoot.MQRFH2.usr = Environment.Variables.OriginalRFH2.usr;
+		SET OutputRoot.MQRFH2.usr.RETRY_BusinessID = 'RETRY'||'_'||Environment.Variables.OriginalRFH2.usr.BusinessID||'_'||'1';
+		SET OutputRoot.MQRFH2.usr.RETRY_ID = 'RETRY'||Environment.Variables.OriginalRFH2.usr.BusinessID||'1';
+		-- SET OutputRoot.MQRFH2.usr.Nonce = InputRoot.MQRFH2.usr.Nonce;
+		-- SET OutputRoot.MQRFH2.usr.Created = InputRoot.MQRFH2.usr.Created;
+		-- SET OutputRoot.MQRFH2.usr.HTTP_URL = InputRoot.MQRFH2.usr.HTTP_URL;
+		-- SET OutputRoot.MQRFH2.usr.MQMD_CCSID = Environment.Variables.OriginalRFH2.usr.MQMD_CCSID;
+		-- SET OutputRoot.MQRFH2.usr.MQMD_ENCOD = Environment.Variables.OriginalRFH2.usr.MQMD_ENCOD;
+		-- SET OutputRoot.MQRFH2.usr.MQMD_QUEUE = Environment.Variables.OriginalRFH2.usr.MQMD_QUEUE;
+		-- SET OutputRoot.MQRFH2 = Environment.Variables.OriginalRFH2;
+		-- CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+		-- SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		-- -- SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		-- SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQSTR';
+		-- SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+		-- SET OutputRoot.MQRFH2.usr.ID = Environment.Variables.ID;
+		--SET OutputRoot.MQRFH2.usr.BusinessID = Environment.Variables.BusinessID;
+		--Copy the message stored in Environment to OutputRoot
+		SET OutputRoot.BLOB.BLOB = Environment.Variables.OriginalInput;
+		PROPAGATE TO TERMINAL 'out' DELETE NONE; -- To Retry
+		PROPAGATE TO TERMINAL 'out1' DELETE NONE; --To Timer
+
+		RETURN FALSE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Retry_InhibitGET
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		/* PCF header is following the MQMD header. */
+		SET OutputRoot.Properties.Encoding = 546;
+		SET OutputRoot.MQMD.MsgType = MQMT_REQUEST;
+		SET OutputRoot.MQMD.Format = MQFMT_ADMIN;
+		SET OutputRoot.MQMD.ReplyToQ = 'QL.REPLY.MQPCF.PURGE';
+		SET OutputRoot.MQMD.MsgSeqNumber = 1;
+		/* Command is 'Change Queue: Inhibit GET from queue'. */
+		CREATE FIELD OutputRoot.MQPCF;
+		DECLARE refRequest REFERENCE TO OutputRoot.MQPCF;
+		SET refRequest.Type = MQCFT_COMMAND;
+		SET refRequest.StrucLength = MQCFH_STRUC_LENGTH;
+		SET refRequest.Version = MQCFH_CURRENT_VERSION;
+		SET refRequest.Command = MQCMD_CHANGE_Q;
+		SET refRequest.MsgSeqNumber = 1;
+		SET refRequest.Control = MQCFC_LAST;
+		/* First parameter: Queue Name. */
+		SET refRequest.Parameter[1] = MQCA_Q_NAME;
+		SET refRequest.Parameter[1].* =InhibitQueue;
+		/* Second parameter: Queue Type. */
+		SET refRequest.Parameter[2] = MQIA_Q_TYPE;
+		SET refRequest.Parameter[2].* = MQQT_LOCAL;
+		/* Third parameter: Allow/Inhibit GET.*/
+		SET refRequest.Parameter[3] = MQIA_INHIBIT_GET;
+		SET refRequest.Parameter[3].* = MQQA_GET_INHIBITED;
+
+		set OutputRoot.BLOB.BLOB = asbitstream(OutputRoot.MQPCF);
+		set OutputRoot.MQPCF = null;
+		set OutputRoot.MQRFH2 = null;
+		SET OutputRoot.MQMD.Format = MQFMT_ADMIN;
+		PROPAGATE TO TERMINAL 'out'; -- To inhibit Queue
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Retry_CreateTimerControlMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+		CREATE FIELD OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest;
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Action ='SET';
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Identifier ='STATE_CALL';
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartDate = CURRENT_DATE;
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime = CURRENT_TIME;
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Count ='1';
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Interval ='60';
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

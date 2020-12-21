@@ -1,0 +1,149 @@
+
+
+-- ESQL
+
+DECLARE errorNs NAMESPACE 'http://www.coach.com/Schema/V1.0/ErrorMessage';
+
+CREATE COMPUTE MODULE ErrorHandler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		SET OutputRoot.XMLNSC.ErrorProcessingTransaction.OriginalMessage = InputRoot.XMLNSC;
+		SET OutputRoot.XMLNSC.ErrorProcessingTransaction.ExceptionTree = InputExceptionList;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE test_ErrorHandler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+		DECLARE Error INTEGER;
+		DECLARE Text CHARACTER;
+		DECLARE Place INTEGER;
+		DECLARE LastPlace INTEGER;
+		DECLARE NodeName CHARACTER;
+		DECLARE Label CHARACTER;
+		DECLARE FlowName CHARACTER;
+		-- Set the start point
+		DECLARE start REFERENCE TO InputExceptionList.*[1];
+		set OutputRoot.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Version = '1.0';
+		set OutputRoot.XMLNSC.(XMLNSC.XmlDeclaration)*.(XMLNSC.Attribute)Encoding = 'UTF-8';
+		Declare errorMessage reference to OutputRoot.XMLNSC; -- dummy pointer
+		create lastchild of OutputRoot.XMLNSC as errorMessage namespace errorNs name 'errorMessage' ;
+		if EXISTS(InputRoot.MQMD.*[]) then
+			Set errorMessage.errorNs:messageId = BASE64ENCODE(InputRoot.MQMD.MsgId);
+			declare messageDate char CAST(InputRoot.MQMD.PutDate AS CHAR);
+			set messageDate = SUBSTRING(messageDate AFTER '''');
+			set messageDate = SUBSTRING(messageDate BEFORE '''');
+
+			declare messageTime char CAST(InputRoot.MQMD.PutTime AS CHAR);
+			set messageTime = SUBSTRING(messageTime AFTER '''');
+			set messageTime = SUBSTRING(messageTime BEFORE '''');
+			Set errorMessage.errorNs:messageDate = messageDate||'T'||messageTime;
+		ELSE
+			Set errorMessage.errorNs:messageDate = CURRENT_TIMESTAMP;
+		END IF;
+		set errorMessage.errorNs:brokerName = BrokerName;
+		Set errorMessage.errorNs:executionGroup = ExecutionGroupLabel;
+		set errorMessage.errorNs:flowName = MessageFlowLabel;
+		--Declare flowName reference to errorMessage.errorNs:flowName;
+		set errorMessage.errorNs:nodeName = NodeLabel;
+		--Declare nodeName reference to errorMessage.errorNs:nodeName;
+		if EXISTS(InputBody.*[]) then
+			Set errorMessage.errorNs:messageDomain = FIELDNAME(InputBody);
+			Set errorMessage.errorNs:messageSet = InputRoot.Properties.MessageSet;
+			Set errorMessage.errorNs:messageType = InputRoot.Properties.MessageType;
+			Set errorMessage.errorNs:messageFormat = InputRoot.Properties.MessageFormat;
+			Set errorMessage.errorNs:encoding = InputRoot.Properties.Encoding;
+			Set errorMessage.errorNs:ccsid = InputRoot.Properties.CodedCharSetId;
+			--Set errorMessage.errorNs:messageData = BITSTREAM(InputBody);
+
+			Set errorMessage.errorNs:messageData = BASE64ENCODE(BITSTREAM(InputBody));
+			--Set errorMessage.errorNs:messageData = CAST(errorMessage.errorNs:messageData AS CHARACTER CCSID 819);
+		end if;
+		Declare additionalInfo reference to errorMessage; -- dummy pointer
+		create lastchild of errorMessage as additionalInfo namespace errorNs name 'additionalInfo' ;
+		IF EXISTS(InputLocalEnvironment.Database.*[]) Then
+			create lastchild of additionalInfo from InputLocalEnvironment.Database;
+		END IF;
+		SET OutputRoot.Properties.MessageSet = 'ErrorMessage';
+		Set OutputRoot.Properties.MessageType = '{http://www.coach.com/Schema/V1.0/ErrorMessage}:errorMessage';
+
+		DECLARE I INT 1;
+		WHILE start.Number IS NOT NULL DO
+			SET Label = start.Label;
+			SET Error = start.Number;
+			IF Error = 3001 THEN
+				SET Text = start.Insert.Text;
+			ELSE
+				SET Text = start.Text;
+			END IF;
+			if Label is not null then
+				SET Place = POSITION('.' IN Label);
+				SET LastPlace = Place;
+				WHILE Place <>0 DO
+					SET Label=SUBSTRING(Label FROM (Place+1));
+					SET Place=POSITION('.' IN Label);
+					SET LastPlace = LastPlace + Place;
+				END WHILE;
+				SET Label=start.Label;
+				--SET FlowName=SUBSTRING(Label FROM 1 FOR (LastPlace-1)); -- not used here
+				SET NodeName=SUBSTRING(Label FROM (LastPlace+1));
+			end if;
+			-- Move start to the last child of the field to which it currently points
+			declare inserts char '{';
+			for token as start.Insert[] DO
+				declare something char '[' ||CAST(token.Type AS CHAR)||', '|| token.Text || '] ';
+				--declare somethingElse char inserts || something;
+				SET inserts = inserts || something;
+			end for;
+			set errorMessage.errorNs:exceptionList[I].errorNs:errorNumber = Error;
+			set errorMessage.errorNs:exceptionList[I].errorNs:errorText = Text;
+			set errorMessage.errorNs:exceptionList[I].errorNs:additionalInfo = inserts||'}';
+			MOVE start LASTCHILD;
+			SET I = I+1;
+		END WHILE;
+		if NodeName is null then
+			set errorMessage.errorNs:nodeName = 'Unknown';
+		else
+			set errorMessage.errorNs:nodeName = NodeName;
+		end if;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+END MODULE;

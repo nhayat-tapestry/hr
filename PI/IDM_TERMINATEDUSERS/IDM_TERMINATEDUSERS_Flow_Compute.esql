@@ -1,0 +1,212 @@
+
+------------------------------------------------------------------------------------------
+DECLARE PULLDATA_HRISCache SHARED ROW;
+DECLARE isPULLDATA_HRISCacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE IDM_TERMINATEDUSERS_Flow_MSGBUS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+		CALL setConfigurableProperties();
+
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+
+		SET OutputRoot.MQRFH2.usr.BusinessID = CURRENT_TIMESTAMP;
+		SET OutputRoot.MQRFH2.usr.ID = CURRENT_TIMESTAMP;
+		SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.Encoding;
+
+		SET Environment.Prpoerties = InputRoot.Properties;
+		SET Environment.MQMD = InputRoot.MQMD;
+		SET Environment.MQRFH2=OutputRoot.MQRFH2;
+		-- CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+	CREATE PROCEDURE setConfigurableProperties() BEGIN
+
+
+
+		IF isPULLDATA_HRISCacheExist THEN
+
+		ELSE
+			--SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+			
+			SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variables.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-HRIS to fetch');
+			END IF;
+
+			DECLARE Y INTEGER 1;
+
+			WHILE Y <= noOfRecords DO
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='FROM_EMAIL' THEN
+					SET PULLDATA_HRISCache.FROM_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TO_EMAIL' THEN
+					SET PULLDATA_HRISCache.TO_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SUBJECT' THEN
+					SET PULLDATA_HRISCache.SUBJECT = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SCHEMA' THEN
+					SET PULLDATA_HRISCache.SCHEMA = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				SET Y = Y + 1;
+
+			END WHILE;
+
+			SET isPULLDATA_HRISCacheExist = TRUE;
+
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+CREATE COMPUTE MODULE IDM_TERMINATEDUSERS_Flow_Terminated_PULL
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE SCHEMA_NAME CHARACTER PULLDATA_HRISCache.SCHEMA;
+
+		IF LENGTH(SCHEMA_NAME) = 0 OR upper(SCHEMA_NAME) = 'NONE' OR upper(SCHEMA_NAME) = 'NOSCHEMA' THEN
+			SET Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[] = select * from Database.vw_terminated_employee_for_IDM ;
+		ELSE
+			SET Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[] = select * from Database.{SCHEMA_NAME}.vw_terminated_employee_for_IDM;
+		END IF;
+
+		DECLARE noOfRecordsCount INTEGER CARDINALITY(Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[]);
+
+		IF noOfRecordsCount ='0' THEN
+			-- THROW USER EXCEPTION MESSAGE 1000 VALUES
+			-- ('No Rows found in the table vw_employee_for_IDM for HRIS interface to fetch');
+			DECLARE cr CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE tab CHAR CAST(CAST(X'09' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE newline CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+
+
+			SET OutputRoot.Properties = InputRoot.Properties;
+			SET OutputRoot.EmailOutputHeader.Subject = 'HRIS - IDM-Terminated View,No Rows To Fetch from HRIS Database';
+			SET OutputRoot.EmailOutputHeader.From = PULLDATA_HRISCache.FROM_EMAIL;
+			SET OutputRoot.EmailOutputHeader.To = PULLDATA_HRISCache.TO_EMAIL;
+
+
+			DECLARE ErrorMsg CHARACTER 'Integration: HRIS IDM Terminated View PULL DATA'
+			||newline
+			||newline
+			||'No rows to fetch from HRIS DB for the extract ran on'
+			||SUBSTRING(CAST(CURRENT_TIMESTAMP AS CHARACTER) AFTER 'TIMESTAMP');
+			SET OutputRoot.BLOB.BLOB = CAST(ErrorMsg AS BLOB CCSID 1208 ENCODING 576);
+
+			PROPAGATE TO TERMINAL 'out2';
+		ELSE
+			DECLARE noOfRecordsLoop INTEGER 0;
+			WHILE noOfRecordsLoop < noOfRecordsCount DO
+				SET noOfRecordsLoop = noOfRecordsLoop + 1;
+
+				SET OutputRoot.Properties = InputRoot.Properties;
+				SET OutputRoot.MQMD = InputRoot.MQMD;
+				SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+				SET OutputRoot.MQRFH2.usr.BusinessID=Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[noOfRecordsLoop].EMPLOYEE_ID;
+				SET OutputRoot.MQRFH2.usr.ID=Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[noOfRecordsLoop].EMPLOYEE_ID;
+				SET OutputRoot.XMLNSC.HRISData[1] = Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[noOfRecordsLoop];
+				
+				--update query for terminated users changes on 24May2018 starts here----------
+				PASSTHRU('UPDATE STG_HRIS_PERSON SET idm_sent_flag=? where XPK_PERSON =?', 'Y',Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM[noOfRecordsLoop].EMPLOYEE_ID);
+				COMMIT;
+				--update query for terminated users changes on 24May2018 ends here-----------
+				
+				--new change---
+				SET Environment.XMLNSC.HRISData = OutputRoot.XMLNSC.HRISData[1];
+
+				-- Twilio Changes			
+			DECLARE BOOL_TMP_SMS_NUM BOOLEAN;
+				SET BOOL_TMP_SMS_NUM = EXISTS(Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.TMP_SMS_NUM[]);
+				IF (BOOL_TMP_SMS_NUM = TRUE AND Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.TMP_SMS_NUM <> 'Pending')
+					AND (Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.SMS_FLAG = 'N' OR Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.JOB_EMPLSTATUS = 'T') THEN
+					SET OutputRoot.MQRFH2.usr.TMP_SMS_NUM = Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.TMP_SMS_NUM;				
+					PROPAGATE TO TERMINAL 'out3' DELETE NONE;
+					Update Database.OUTBOUND_HRIS_USER.STG_HRIS_PERSON AS A SET TMP_SMS_NUM = NULL where A.PERSON_ID_EXTERNAL = Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.EMPLOYEE_ID;
+				ELSEIF (BOOL_TMP_SMS_NUM = TRUE AND Environment.Variable.SelectQueryOutput.vw_empvw_terminated_employee_for_IDMloyee_for_IDM.TMP_SMS_NUM = 'Pending')
+					AND (Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.SMS_FLAG = 'N' OR Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.JOB_EMPLSTATUS = 'T') THEN
+					Update Database.OUTBOUND_HRIS_USER.STG_HRIS_PERSON AS A SET TMP_SMS_NUM = NULL where A.PERSON_ID_EXTERNAL = Environment.Variable.SelectQueryOutput.vw_terminated_employee_for_IDM.EMPLOYEE_ID;
+				END IF;
+			-- Twilio Changes
+					
+			RETURN TRUE;
+			END WHILE;
+		END IF;
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+CREATE COMPUTE MODULE IDM_TERMINATEDUSERS_Flow_HandleException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.EmailOutputHeader.From = PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To = PULLDATA_HRISCache.TO_EMAIL;
+		SET OutputRoot.EmailOutputHeader.Subject = PULLDATA_HRISCache.SUBJECT;
+		SET OutputRoot.XMLNSC.HRIS.Exception.ErrorMessage = InputExceptionList;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

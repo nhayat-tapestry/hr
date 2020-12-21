@@ -1,0 +1,48 @@
+
+
+
+
+CREATE COMPUTE MODULE Action_CreateUser_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+		SET OutputRoot.Properties.Encoding = InputRoot.MQMD.Encoding;
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+		SET OutputRoot.MQRFH2.usr.BusinessId = COALESCE(Environment.Variable.employeeNumber, '');
+		SET OutputRoot.MQRFH2.usr.ID = CURRENT_TIMESTAMP;
+		SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.Encoding;
+
+		SET Environment.Prpoerties = InputRoot.Properties;
+		SET Environment.MQMD = InputRoot.MQMD;
+		SET Environment.MQRFH2.(MQRFH2.Field)Version = OutputRoot.MQRFH2.(MQRFH2.Field)Version;
+		SET Environment.MQRFH2.(MQRFH2.Field)Format = OutputRoot.MQRFH2.(MQRFH2.Field)Format;
+		SET Environment.MQRFH2.(MQRFH2.Field)NameValueCCSID = OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID;
+
+		SET Environment.MQRFH2.usr.PROP_CCSID = OutputRoot.MQRFH2.usr.PROP_CCSID;
+		SET Environment.MQRFH2.usr.PROP_ENCOD = OutputRoot.MQRFH2.usr.PROP_ENCOD;
+		SET Environment.MQRFH2.usr.BusinessId = OutputRoot.MQRFH2.usr.BusinessId;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

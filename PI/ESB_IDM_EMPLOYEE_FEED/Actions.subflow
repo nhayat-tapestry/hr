@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:Action_CorpToRetail.subflow="Action_CorpToRetail.subflow" xmlns:Action_CreateUser.subflow="Action_CreateUser.subflow" xmlns:Action_ModifyUser.subflow="Action_ModifyUser.subflow" xmlns:Action_RetailToCorp.subflow="Action_RetailToCorp.subflow" xmlns:Action_TempToPerm.subflow="Action_TempToPerm.subflow" xmlns:Action_TerminateUser.subflow="Action_TerminateUser.subflow" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="Actions.subflow" nsPrefix="Actions.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="Actions" bundleName="Actions" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj16/Actions.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj30/Actions.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="290,20" labelName="MODIFY-USER">
+        <translation xmi:type="utility:ConstantString" string="ModifyUser_LBL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="38,146" labelName="TERMINATE-USER">
+        <translation xmi:type="utility:ConstantString" string="TerminateUser_LBL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="40,80" labelName="RETAIL-TO-CORP">
+        <translation xmi:type="utility:ConstantString" string="RetailToCorp_LBL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="288,144" labelName="TEMP-TO-PERM">
+        <translation xmi:type="utility:ConstantString" string="TempToPerm_LBL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="44,19" labelName="CREATE-USER">
+        <translation xmi:type="utility:ConstantString" string="CreateUser_LBL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="286,80" labelName="CORP-TO-RETAIL">
+        <translation xmi:type="utility:ConstantString" string="CorpToRetail_LBL"/>
+      </nodes>
+      <nodes xmi:type="Action_CorpToRetail.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="390,80">
+        <translation xmi:type="utility:ConstantString" string="Action_CorpToRetail"/>
+      </nodes>
+      <nodes xmi:type="Action_ModifyUser.subflow:FCMComposite_1" xmi:id="FCMComposite_1_11" location="391,20">
+        <translation xmi:type="utility:ConstantString" string="Action_ModifyUser"/>
+      </nodes>
+      <nodes xmi:type="Action_RetailToCorp.subflow:FCMComposite_1" xmi:id="FCMComposite_1_12" location="159,80">
+        <translation xmi:type="utility:ConstantString" string="Action_RetailToCorp"/>
+      </nodes>
+      <nodes xmi:type="Action_TerminateUser.subflow:FCMComposite_1" xmi:id="FCMComposite_1_13" location="153,146">
+        <translation xmi:type="utility:ConstantString" string="Action_TerminateUser"/>
+      </nodes>
+      <nodes xmi:type="Action_TempToPerm.subflow:FCMComposite_1" xmi:id="FCMComposite_1_14" location="402,144">
+        <translation xmi:type="utility:ConstantString" string="Action_TempToPerm"/>
+      </nodes>
+      <nodes xmi:type="Action_CreateUser.subflow:FCMComposite_1" xmi:id="FCMComposite_1_15" location="164,19">
+        <translation xmi:type="utility:ConstantString" string="Action_CreateUser"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_15" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

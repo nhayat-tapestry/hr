@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" 
+xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmTimeoutControl.msgnode="ComIbmTimeoutControl.msgnode" xmlns:ComIbmTimeoutNotification.msgnode="ComIbmTimeoutNotification.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:CALL_DP_EXP.subflow="CALL_DP_EXP.subflow" xmlns:Smart_EXP_RETRY_Algorithm.subflow="Smart_EXP_RETRY_Algorithm.subflow" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" 
+xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="Zipcode_SearchCall_EXPONENTIAL_RETRY.msgflow" 
+nsPrefix="Zipcode_SearchCall_EXPONENTIAL_RETRY.msgflow">
+<eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+<eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EnableQueue" name="EnableQueue" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE_SEARCH_REQ">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.TimerQueue" name="TimerQueue" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE.DP.RETRYTIMER">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RequestQueueToDP" name="RequestQueueToDP"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE_DPREQ">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ResponseQueueFromDP" name="ResponseQueueFromDP" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE_DPRESP">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RetryQueue" name="RetryQueue" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE.DP.RETRY">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.SuccessQueue" name="SuccessQueue"  defaultValueLiteral="QL.OUT.ESB.TWILIO.ZIPCODE_SEARCH_RESP">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ErrorQueue" name="ErrorQueue"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE.AR_ERROR_EXP">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.EnableQueue1" name="EnableQueue1" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE_SEARCH_REQ">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ResetCacheQueueNameAutoRmd" name="ResetCacheQueueNameAutoRmd" lowerBound="1"  defaultValueLiteral="QL.ESB.TWILIO.ZIPCODE.AR.RESET_CACHE">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RETRY_THRESHOLD_IN_SECONDS" name="RETRY_THRESHOLD_IN_SECONDS" lowerBound="1"  defaultValueLiteral="128">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RetryFactor" name="RetryFactor" lowerBound="1"  defaultValueLiteral="2">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ESBConfigDSN" name="ESBConfigDSN"  defaultValueLiteral="MSGBUS">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.InterfaceName" name="InterfaceName" lowerBound="1"  defaultValueLiteral="HRIS">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<translation xmi:type="utility:TranslatableString" key="Zipcode_SearchCall_EXPONENTIAL_RETRY" bundleName="Zipcode_SearchCall_EXPONENTIAL_RETRY" pluginId="flowAPIgenerated"/>
+<colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj16/Zipcode_SearchCall_EXPONENTIAL_RETRY.gif"/>
+<colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj30/Zipcode_SearchCall_EXPONENTIAL_RETRY.gif"/>
+<composition>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="426,22" computeExpression="esql://routine/#Exp_Retry_CreateQUnInhibitMsg.Main">
+<translation xmi:type="utility:ConstantString" string="CreateQUnInhibitMsg"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="550,23" queueName="SYSTEM.ADMIN.COMMAND.QUEUE">
+<translation xmi:type="utility:ConstantString" string="ToMQCommandProcessor"/>
+</nodes>
+<nodes xmi:type="ComIbmTimeoutControl.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="275,244" uniqueIdentifier="ZIPCODE_CALL" requestLocation="InputRoot.XMLNSC.Envelope.Header.TimeoutRequest">
+<translation xmi:type="utility:ConstantString" string="Timeout Control"/>
+</nodes>
+<nodes xmi:type="ComIbmTimeoutNotification.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="90,103" uniqueIdentifier="ZIPCODE_CALL" operationMode="controlled">
+<translation xmi:type="utility:ConstantString" string="Timeout Notification"/>
+</nodes>
+<nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="96,244" messageDomainProperty="XMLNSC">
+<translation xmi:type="utility:ConstantString" string="GetTimerConfigMsg"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_27" location="324,18" queueName="QL.OUT.DCR_ECV.MATLIABILITY.ERROR">
+<translation xmi:type="utility:ConstantString" string="ToErrorQOnTimer"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="441,176" queueName="QL.OUT.DCR_ECV.MATLIABILITY.ERROR">
+<translation xmi:type="utility:ConstantString" string="ToErrorQBeforeTimer"/>
+</nodes>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="332,175" computeExpression="esql://routine/#Exp_Retry_Log_Exception.Main" computeMode="all">
+<translation xmi:type="utility:ConstantString" string="Log_Exception"/>
+</nodes>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="207,17" computeExpression="esql://routine/#Exp_Retry_Log_ExceptionMsg.Main">
+<translation xmi:type="utility:ConstantString" string="Log_ExceptionMsg"/>
+</nodes>
+<nodes xmi:type="CALL_DP_EXP.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="235,103">
+<translation xmi:type="utility:ConstantString" string="ContactTWILIO"/>
+</nodes>
+<nodes xmi:type="Smart_EXP_RETRY_Algorithm.subflow:FCMComposite_1" xmi:id="FCMComposite_1_12" location="375,103">
+<translation xmi:type="utility:ConstantString" string="PrepareForRemediationOnTechnicalIssues"/>
+</nodes>
+<nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="26,331" queueName="QL.IN.SHOPCTRL_ESB.PU.AR.RESET_CACHE">
+<translation xmi:type="utility:ConstantString" string="QL.ESB.TWILIO.ZIPCODE.AR.RESET_CACHE"/>
+</nodes>
+<nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="323,331" statement="esql://routine/#Exp_Retry_ResetCache.Main">
+<translation xmi:type="utility:ConstantString" string="ResetCache"/>
+</nodes>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="200,244" computeExpression="esql://routine/#TimeFormat.Main">
+<translation xmi:type="utility:ConstantString" string="TimeFormat"/>
+</nodes>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_27" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_27" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+</composition>
+<propertyOrganizer>
+<propertyDescriptor groupName="Group.Queue_Configurations" configurable="true" userDefined="true" describedAttribute="Property.EnableQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.EnableQueue" bundleName="Zipcode_SearchCall_EXPONENTIAL_RETRY" pluginId="flowAPIgenerated"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.TimerQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.TimerQueue" bundleName="ESB_ShopCtrl_PU_EXPONENTIAL_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.RequestQueueToDP">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RequestQueueToDP" bundleName="CALL_DP_EXP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ResponseQueueFromDP">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ResponseQueueFromDP" bundleName="CALL_DP_EXP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.RetryQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RetryQueue" bundleName="CALL_DP_EXP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.SuccessQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.SuccessQueue" bundleName="CALL_DP_EXP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ErrorQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ErrorQueue" bundleName="ESB_ShopCtrl_PU_EXPONENTIAL_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" configurable="true" userDefined="true" describedAttribute="Property.EnableQueue1">
+<propertyName xmi:type="utility:TranslatableString" key="Property.EnableQueue1" bundleName="ESB_ShopCtrl_PU_EXPONENTIAL_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ResetCacheQueueNameAutoRmd">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ResetCacheQueueNameAutoRmd" bundleName="ESB_ShopCtrl_PU_EXPONENTIAL_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Timer_Configurations" configurable="true" userDefined="true" describedAttribute="Property.RETRY_THRESHOLD_IN_SECONDS">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RETRY_THRESHOLD_IN_SECONDS" bundleName="Smart_EXP_RETRY_Algorithm" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Timer_Configurations" configurable="true" userDefined="true" describedAttribute="Property.RetryFactor">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RetryFactor" bundleName="Smart_EXP_RETRY_Algorithm" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.DB_Configurations" configurable="true" describedAttribute="Property.ESBConfigDSN">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ESBConfigDSN" bundleName="Smart_EXP_RETRY_Algorithm" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.General_Configurations" configurable="true" userDefined="true" describedAttribute="Property.InterfaceName">
+<propertyName xmi:type="utility:TranslatableString" key="Property.InterfaceName" bundleName="Smart_EXP_RETRY_Algorithm" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyOrganizer>
+<attributeLinks promotedAttribute="Property.TimerQueue" overriddenNodes="FCMComposite_1_16">
+<overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RequestQueueToDP" overriddenNodes="FCMComposite_1_5">
+<overriddenAttribute href="CALL_DP_EXP.subflow#Property.RequestQueueToDP"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ResponseQueueFromDP" overriddenNodes="FCMComposite_1_5">
+<overriddenAttribute href="CALL_DP_EXP.subflow#Property.ResponseQueueFromDP"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RetryQueue" overriddenNodes="FCMComposite_1_5">
+<overriddenAttribute href="CALL_DP_EXP.subflow#Property.RetryQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.SuccessQueue" overriddenNodes="FCMComposite_1_5">
+<overriddenAttribute href="CALL_DP_EXP.subflow#Property.SuccessQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ErrorQueue" overriddenNodes="FCMComposite_1_27 FCMComposite_1_2">
+<overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.EnableQueue1" overriddenNodes="FCMComposite_1_5">
+<overriddenAttribute href="CALL_DP_EXP.subflow#Property.EnableQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ResetCacheQueueNameAutoRmd" overriddenNodes="FCMComposite_1_3">
+<overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RETRY_THRESHOLD_IN_SECONDS" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.RETRY_THRESHOLD_IN_SECONDS"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RetryFactor" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.RetryFactor"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ESBConfigDSN" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.ESBConfigDSN"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.InterfaceName" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.InterfaceName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.TimerQueue" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.TimerQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RetryQueue" overriddenNodes="FCMComposite_1_12">
+<overriddenAttribute href="Smart_EXP_RETRY_Algorithm.subflow#Property.RetryQueue"/>
+</attributeLinks>
+<stickyBoard/>
+</eClassifiers>
+</ecore:EPackage>

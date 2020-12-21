@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" 
+xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ErrorHandler_PurchaseResp.subflow="ErrorHandler_PurchaseResp.subflow" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" 
+xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="TWILIO_ESB_PURCHASE_RESP_FLOW.msgflow" 
+nsPrefix="TWILIO_ESB_PURCHASE_RESP_FLOW.msgflow">
+<eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+<eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+<translation xmi:type="utility:TranslatableString" key="TWILIO_ESB_PURCHASE_RESP_FLOW" bundleName="TWILIO_ESB_PURCHASE_RESP_FLOW" pluginId="flowAPIgenerated"/>
+<colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj16/TWILIO_ESB_PURCHASE_RESP_FLOW.gif"/>
+<colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj30/TWILIO_ESB_PURCHASE_RESP_FLOW.gif"/>
+<composition>
+<nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="25,145" queueName="QL.IN.TWILIO.ESB.PURCHASE" messageDomainProperty="XMLNSC">
+<translation xmi:type="utility:ConstantString" string="QL.IN.TWILIO.ESB.PURCHASE"/>
+</nodes>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="291,146" dataSource="HRIS" computeExpression="esql://routine/#TWILIO_ESB_PURCHASE_RESP_FLOW_Purchase_Resp.Main">
+<translation xmi:type="utility:ConstantString" string="Purchase_Resp"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="584,48" queueName="QL.IN.ESB.IDM">
+<translation xmi:type="utility:ConstantString" string="QL.IN.ESB.IDM"/>
+</nodes>
+<nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="15,239" queueName="QL.OUT.ESB.TWILIO_PURCHASE_SIMULATION">
+<translation xmi:type="utility:ConstantString" string="QL.OUT.ESB.TWILIO_PURCHASE_SIMULATION"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="540,368" queueName="QL.IN.TWILIO.PURCHASE.RETRY">
+<translation xmi:type="utility:ConstantString" string="QL.IN.TWILIO.PURCHASE.RETRY"/>
+</nodes>
+<nodes xmi:type="ErrorHandler_PurchaseResp.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="160,20">
+<translation xmi:type="utility:ConstantString" string="ErrorHandler_PurchaseResp"/>
+</nodes>
+<nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="200,146" dataSource="MSGBUS" computeExpression="esql://routine/#TWILIO_ESB_PURCHASE_RESP_FLOW_Rem.Main">
+<translation xmi:type="utility:ConstantString" string="REM"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="534,241" queueName="QL.IN.ESB.TWILIO.ZIPCODE_SEARCH">
+<translation xmi:type="utility:ConstantString" string="QL.IN.ESB.TWILIO.ZIPCODE_SEARCH"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="542,306" queueName="QL.IN.ESB.TWILIO.STATE_SEARCH">
+<translation xmi:type="utility:ConstantString" string="QL.IN.ESB.TWILIO.STATE_SEARCH"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="542,111" queueName="QL.OUT.ESB.TWILIO.PURCHASE">
+<translation xmi:type="utility:ConstantString" string="QL.OUT.ESB.TWILIO.PURCHASE"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="460,177" labelName="SMSURL">
+<translation xmi:type="utility:ConstantString" string="SMSURL"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="442,242" labelName="ZIPCODESEARCH">
+<translation xmi:type="utility:ConstantString" string="ZIPCODESEARCH"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="455,112" labelName="PURCHASE">
+<translation xmi:type="utility:ConstantString" string="PURCHASE"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_15" location="459,48" labelName="TOIDM">
+<translation xmi:type="utility:ConstantString" string="TOIDM"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="460,367" labelName="RETRY">
+<translation xmi:type="utility:ConstantString" string="RETRY"/>
+</nodes>
+<nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_17" location="446,307" labelName="STATESEARCH">
+<translation xmi:type="utility:ConstantString" string="STATESEARCH"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_19" location="536,177" queueName="QL.OUT.ESB.TWILIO.SMSURL.UPDATE">
+<translation xmi:type="utility:ConstantString" string="QL.OUT.ESB.TWILIO.SMSURL.UPDATE"/>
+</nodes>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_15" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_17" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_19" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+</composition>
+<propertyOrganizer>
+</propertyOrganizer>
+<stickyBoard/>
+</eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,97 @@
+
+
+CREATE COMPUTE MODULE ErrorHandler_Twilio_Request
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text 		CHAR '';
+		DECLARE InsertText	CHAR '';
+		DECLARE cErrorText 	CHARACTER '';
+		DECLARE Listhandle 	REFERENCE TO InputExceptionList.*[1];
+		
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio Delete Request' || ' For User : '||InputRoot.XMLNSC.HRISData.PERSON_ID_EXTERNAL;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE ErrorHandler_Twilio_Response
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+				
+		DECLARE Text 		CHAR '';
+		DECLARE InsertText	CHAR '';
+		DECLARE cErrorText	CHARACTER '';					
+		DECLARE Listhandle 	REFERENCE TO InputExceptionList.*[1];
+		
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 			= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To				= PULLDATA_HRISCache.TO_EMAIL;	
+		IF InputRoot.MQRFH2.usr.NoDeletion <> '' THEN
+			SET OutputRoot.EmailOutputHeader.Subject	= InputRoot.MQRFH2.usr.NoDeletion;
+		ELSE
+			SET OutputRoot.EmailOutputHeader.Subject 	= 'Exception-Twilio Delete Request' || ' For User : '||InputRoot.MQRFH2.usr.user_id;
+		END IF;
+		SET cErrorText 									= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 						= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;				
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

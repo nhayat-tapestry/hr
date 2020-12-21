@@ -1,0 +1,542 @@
+DECLARE PULLDATA_HRISCache SHARED ROW;
+DECLARE isPULLDATA_HRISCacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE ESB_TWILIO_AREACODE_SEARCH_FLOW_SetSearchFields
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		DECLARE STORE_PHONE Character;
+		DECLARE STORE_PHONE_COUNT INTEGER;
+		DECLARE STORE_PHONE_TRIM_1 Character;
+		DECLARE STORE_PHONE_TRIM_2 Character;
+		DECLARE STORE_PHONE_TRIM_3 Character;
+		DECLARE STORE_PHONE_TRIM_4 Character;
+				
+		-- Set Country code
+		IF InputRoot.XMLNSC.HRISData.JOB_COUNTRY_OF_COMPANY = 'USA' THEN
+			SET Environment.Variables.CountryURI = 'US';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_COUNTRY_OF_COMPANY = 'CAN' THEN
+			SET Environment.Variables.CountryURI = 'CA';
+		END IF;
+		
+		-- Set Areacode
+		SET STORE_PHONE=InputRoot.XMLNSC.HRISData.STORE_PHONE;
+		SET STORE_PHONE_TRIM_1 =REPLACE( STORE_PHONE ,'(','') ;
+		SET STORE_PHONE_TRIM_2 =REPLACE( STORE_PHONE_TRIM_1 ,')','') ;
+		SET STORE_PHONE_TRIM_3 =REPLACE( STORE_PHONE_TRIM_2 ,'-','') ;
+		SET STORE_PHONE_TRIM_4 =REPLACE( STORE_PHONE_TRIM_3 ,'+','') ;
+		SET Environment.Variables.STORE_PHONE_TRIM =REPLACE( STORE_PHONE_TRIM_4 ,' ','') ;				
+		SET STORE_PHONE_COUNT = LENGTH( Environment.Variables.STORE_PHONE_TRIM );
+		IF STORE_PHONE_COUNT = 11 THEN
+			SET Environment.Variables.STORE_PHONE_Areacode = SUBSTRING ( Environment.Variables.STORE_PHONE_TRIM FROM 2 FOR 3);
+		ELSEIF STORE_PHONE_COUNT = 10 THEN
+			SET Environment.Variables.STORE_PHONE_Areacode = SUBSTRING ( Environment.Variables.STORE_PHONE_TRIM FROM 1 FOR 3);
+		END IF;
+			
+		--Set MQRFH2.usr
+		SET OutputRoot.MQRFH2.usr.MethodType 	= 'GET';
+		SET OutputRoot.MQRFH2.usr.Authorization = PULLDATA_HRISCache.TWILIO_AUTH;
+		SET OutputRoot.MQRFH2.usr.ApiUri 		= PULLDATA_HRISCache.TWILIO_URI || Environment.Variables.CountryURI || PULLDATA_HRISCache.TWILIO_URI_AREACODE_SEARCH ||Environment.Variables.STORE_PHONE_Areacode;
+		SET OutputRoot.MQRFH2.usr.user_id 		= InputRoot.XMLNSC.HRISData.PERSON_ID_EXTERNAL;
+		SET OutputRoot.MQRFH2.usr.Operation		= 'TwilioSMS/';
+		SET OutputRoot.MQRFH2.usr.ContentType	= 'application/json';
+		SET OutputRoot.MQRFH2.usr.Areacode		= Environment.Variables.STORE_PHONE_Areacode;
+		--For ZIPCODE search
+		SET OutputRoot.MQRFH2.usr.CountryURI 	= Environment.Variables.CountryURI;
+		SET OutputRoot.MQRFH2.usr.STORE_ZIPCODE = InputRoot.XMLNSC.HRISData.ZIPCODE;
+		--For STATE Search
+		SET OutputRoot.MQRFH2.usr.State 		= InputRoot.XMLNSC.HRISData.STATE;
+		---For REM
+		SET OutputRoot.MQRFH2.usr.BusinessID 	= InputRoot.XMLNSC.HRISData.PERSON_ID_EXTERNAL;
+		SET OutputRoot.MQRFH2.usr.ID 			= CURRENT_TIMESTAMP;
+
+		RETURN TRUE;
+	END;
+	
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE ESB_TWILIO_ZIPCODE_SEARCH_FLOW_Zipcode_Search
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		
+		DECLARE STORE_ZIPCODE_COUNT INTEGER;
+		SET Environment.Variables.STORE_ZIPCODE	= TRIM(InputRoot.MQRFH2.usr.STORE_ZIPCODE);
+		SET Environment.Variables.CountryURI 	= InputRoot.MQRFH2.usr.CountryURI;
+		SET OutputRoot.MQRFH2.usr.ApiUri 		= PULLDATA_HRISCache.TWILIO_URI || Environment.Variables.CountryURI || PULLDATA_HRISCache.TWILIO_URI_ZIPCODE_SEARCH ||Environment.Variables.STORE_ZIPCODE;
+		SET OutputRoot.MQRFH2.usr.MethodType 	= 'GET';
+		SET OutputRoot.MQRFH2.usr.Authorization = PULLDATA_HRISCache.TWILIO_AUTH;	
+		SET OutputRoot.MQRFH2.usr.user_id 		= InputRoot.MQRFH2.usr.user_id;
+		SET OutputRoot.MQRFH2.usr.STORE_ZIPCODE	= InputRoot.MQRFH2.usr.STORE_ZIPCODE;
+		SET OutputRoot.MQRFH2.usr.Operation 	= 'TwilioZipcodeSearch/';		
+		---REM
+		SET OutputRoot.MQRFH2.usr.BusinessID 	= InputRoot.MQRFH2.usr.BusinessID;
+		SET OutputRoot.MQRFH2.usr.ID 			= CURRENT_TIMESTAMP;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+END MODULE;
+
+
+CREATE COMPUTE MODULE TWILIO_ESB_PURCHASE_RESP_FLOW_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;	
+
+CREATE COMPUTE MODULE TWILIO_ESB_PURCHASE_RESP_FLOW_Purchase_Resp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+				
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		DECLARE ResponseMsg CHARACTER COALESCE(InputRoot.XMLNSC.*:TwilioResponse.*:RestException.*:Message, 'NoMessage');
+				
+		IF InputRoot.MQRFH2.usr.ResponseCode = '201 CREATED' THEN -- If Purchase is success		
+			CALL UpdateSMSURL();						
+			CALL Update_STG_HRIS_PERSON();													
+		ELSE													  -- If Purchase is not success
+			IF CONTAINS(ResponseMsg, 'is not a valid number' ) = 'TRUE' OR CONTAINS(ResponseMsg, 'is not available' ) = 'TRUE' THEN
+				IF CONTAINS(InputRoot.MQRFH2.usr.SearchStatus,'PHONE_NUMBER_AVAILABLE_FOR_AREACODE') OR
+					CONTAINS(InputRoot.MQRFH2.usr.SearchStatus,'PHONE_NUMBER_AVAILABLE_FOR_ZIPCODE') OR
+					CONTAINS(InputRoot.MQRFH2.usr.SearchStatus,'PHONE_NUMBER_AVAILABLE_FOR_STATE')THEN					
+						CALL PurchasePhonenumber();
+				END IF;																							
+			ELSE				
+				--PROPAGATE TO TERMINAL 'out1';  -- Retry Mechanism
+				PROPAGATE TO LABEL 'RETRY';		
+			END IF;			
+		END IF;
+		RETURN FALSE;
+	END;
+	
+	
+-- Update STG_HRIS_PERSON DB after successfull purchase
+	CREATE PROCEDURE Update_STG_HRIS_PERSON() BEGIN
+			DECLARE PHONENUMBER_UPD CHARACTER;
+			DECLARE PHONENUMBER_SID CHARACTER;
+			DECLARE TMP_SUM_NUM 	CHARACTER;
+			DECLARE SEMICOLON 		CHARACTER ';';
+			
+			--SET PHONENUMBER_UPD = REPLACE(InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.PhoneNumber,'+1','');
+			SET PHONENUMBER_UPD	= InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.PhoneNumber;
+			SET PHONENUMBER_SID = InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.Sid;
+			SET TMP_SUM_NUM 	= PHONENUMBER_UPD || SEMICOLON ||PHONENUMBER_SID ;
+			
+			Update Database.OUTBOUND_HRIS_USER.STG_HRIS_PERSON AS A SET TMP_SMS_NUM = TMP_SUM_NUM where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+			COMMIT;
+			
+			SET Environment.Variable.SelectQueryOutput.vw_person_esb[] = select * from Database.vw_person_esb AS A where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+
+			DECLARE noOfRecordsCount INTEGER CARDINALITY(Environment.Variable.SelectQueryOutput.vw_person_esb[]);
+			DECLARE noOfRecordsLoop INTEGER 0;
+			WHILE noOfRecordsLoop < noOfRecordsCount DO
+				SET noOfRecordsLoop 				= noOfRecordsLoop + 1;
+				SET OutputRoot.Properties			= InputRoot.Properties;
+				SET OutputRoot.XMLNSC.HRISData[1] 	= Environment.Variable.SelectQueryOutput.vw_person_esb[noOfRecordsLoop];
+				SET Environment.XMLNSC.HRISData 	= OutputRoot.XMLNSC.HRISData[1];
+			END WHILE;
+			SET OutputRoot.MQRFH2.usr.SearchStatus 	= '';
+			--PROPAGATE TO TERMINAL 'out';
+			PROPAGATE TO LABEL 'TOIDM';		
+	END;
+	
+	
+--Purchase Phone number logic	
+	CREATE PROCEDURE PurchasePhonenumber() BEGIN
+					DECLARE PH_NUM_Ctr1 INTEGER;
+					DECLARE PH_NUM_Ctr2 INTEGER;
+					
+					SET Environment.Variables.PhoneNumberList[] = InputRoot.MQRFH2.usr.PhoneNumberList[];								
+					SET PH_NUM_Ctr2 							= InputRoot.MQRFH2.usr.PH_NUM_Ctr2;												
+					SET PH_NUM_Ctr1 							= CARDINALITY(Environment.Variables.PhoneNumberList.*[]);			
+					IF PH_NUM_Ctr1 >= PH_NUM_Ctr2  THEN				
+						SET OutputRoot.MQRFH2.usr.PhoneNumber	= Environment.Variables.PhoneNumberList.*[PH_NUM_Ctr2];
+						SET OutputRoot.MQRFH2.usr.PH_NUM_Ctr2 	= PH_NUM_Ctr2 + 1; -- DP need to send  PH_NUM_Ctr2 in the response
+						SET OutputRoot.MQRFH2.usr.user_id		= InputRoot.MQRFH2.usr.user_id;	
+						SET OutputRoot.MQRFH2.usr.ContentType	= 'application/x-www-form-urlencoded';
+						--PROPAGATE TO TERMINAL 'out4'; 			-- Go For Purchase
+						PROPAGATE TO LABEL 'PURCHASE';		
+					ELSE
+						IF	InputRoot.MQRFH2.usr.SearchStatus			='PHONE_NUMBER_AVAILABLE_FOR_AREACODE' THEN
+							SET OutputRoot.MQRFH2.usr.SearchStatus		='AREACODE_COMPLETED';							
+							SET OutputRoot.MQRFH2.usr.PH_NUM_Ctr2		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber_SID	= '';
+							DELETE FIELD OutputRoot.MQRFH2.usr.PhoneNumberList;
+							--PROPAGATE TO TERMINAL 'out2';		-- Proceed to Zipcode Search
+							PROPAGATE TO LABEL 'ZIPCODESEARCH';				
+						ELSEIF InputRoot.MQRFH2.usr.SearchStatus		='PHONE_NUMBER_AVAILABLE_FOR_ZIPCODE' THEN
+							SET OutputRoot.MQRFH2.usr.SearchStatus		='ZIPCODE_COMPLETED';							
+							SET OutputRoot.MQRFH2.usr.PH_NUM_Ctr2		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber_SID	= '';
+							DELETE FIELD OutputRoot.MQRFH2.usr.PhoneNumberList;
+							--PROPAGATE TO TERMINAL 'out3';		-- Proceed to State Search
+							PROPAGATE TO LABEL 'STATESEARCH';		
+						ELSEIF InputRoot.MQRFH2.usr.SearchStatus		='PHONE_NUMBER_AVAILABLE_FOR_STATE' THEN
+							SET OutputRoot.MQRFH2.usr.SearchStatus		='STATE_COMPLETED';							
+							SET OutputRoot.MQRFH2.usr.PH_NUM_Ctr2		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber		= '';
+							SET OutputRoot.MQRFH2.usr.PhoneNumber_SID	= '';
+							DELETE FIELD OutputRoot.MQRFH2.usr.PhoneNumberList;
+							--PROPAGATE TO TERMINAL 'out1';		-- Proceed to Retry 
+							PROPAGATE TO LABEL 'RETRY';		
+						END IF;						
+					END IF;
+	END;
+	
+--SMSURL Update request sent to Twilio	
+	CREATE PROCEDURE UpdateSMSURL() BEGIN
+				 
+			IF EXISTS(InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.SmsUrl[]) = TRUE AND
+				 (InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.SmsUrl <> '' )THEN 
+				-- Nothing TO DO
+			ELSE		
+				SET OutputRoot.MQRFH2.usr.MethodType 		= 'POST';
+				SET OutputRoot.MQRFH2.usr.Operation 		= 'TwilioSMSUrlUpdate/';
+				SET OutputRoot.MQRFH2.usr.ContentType		= 'application/x-www-form-urlencoded';
+				SET OutputRoot.MQRFH2.usr.ApiUri 			= PULLDATA_HRISCache.TWILIO_ENABLE_SMS_APIURI||InputRoot.XMLNSC.TwilioResponse.IncomingPhoneNumber.Sid;
+				SET OutputRoot.MQRFH2.usr.SmsUrl 			= PULLDATA_HRISCache.TWILIO_ENABLE_SMSURL;
+				PROPAGATE TO LABEL 'SMSURL' DELETE NONE;				
+			END IF;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE TWILIO_ESB_PURCHASENUMBER_FLOW_Purchase
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+					
+		IF PULLDATA_HRISCache.TWILIO_SMS_SIMULATION_FLAG = FALSE THEN	-- For QA Simulation.Remove while moving it to PROD		
+			SET OutputRoot.MQRFH2.usr.PhoneNumber='555-555-6666';
+			PROPAGATE to TERMINAL 'out2';
+			RETURN FALSE;												-- For QA Simulation.Remove while moving it to PROD
+		ELSE			
+			DECLARE AvailablePhoneNumber 		CHARACTER;
+			DECLARE AvailablePhoneNumber_UNTRIM CHARACTER;
+			DECLARE PurchaseNumber 				CHARACTER;
+			DECLARE Pfx_Plus					CHARACTER '2B';
+			DECLARE Pfx_Per 					CHARACTER '%';
+			DECLARE Avl_Ph_List_Count 			INTEGER;
+			DECLARE Ph_Num_Counter 				INTEGER 1;
+			DECLARE Purchase_Counter 			INTEGER 1;			
+			DECLARE Counter 					INTEGER 1;
+			
+			SET Avl_Ph_List_Count = CARDINALITY(InputRoot.XMLNSC.TwilioResponse.AvailablePhoneNumbers.AvailablePhoneNumber[]);
+						
+			While Ph_Num_Counter <= Avl_Ph_List_Count DO
+				SET AvailablePhoneNumber_UNTRIM 								= InputRoot.XMLNSC.TwilioResponse.AvailablePhoneNumbers.AvailablePhoneNumber[Ph_Num_Counter].PhoneNumber;
+				SET AvailablePhoneNumber 										= REPLACE( AvailablePhoneNumber_UNTRIM,'+','');
+				SET PurchaseNumber 												= Pfx_Per || Pfx_Plus || AvailablePhoneNumber;  
+				SET Environment.Variables.PhoneNumberlist.PhoneNumber[Counter]	= PurchaseNumber;
+				SET Counter														= Counter+1;
+				SET Ph_Num_Counter 												= Ph_Num_Counter+1;
+			END WHILE;
+			
+			SET OutputRoot.MQRFH2.usr.PhoneNumber 		= Environment.Variables.PhoneNumberlist.PhoneNumber[Purchase_Counter]; --Purchasing phone number will be sent to twilio from DP
+			SET OutputRoot.MQRFH2.usr.PhoneNumberList[] = Environment.Variables.PhoneNumberlist[];	-- DP need to send in response as well
+			SET OutputRoot.MQRFH2.usr.PH_NUM_Ctr2 		= Purchase_Counter+1; 						-- DP need to send in response as well			
+			SET OutputRoot.MQRFH2.usr.MethodType 		= 'POST';
+			SET OutputRoot.MQRFH2.usr.Authorization 	= PULLDATA_HRISCache.TWILIO_AUTH;
+			SET OutputRoot.MQRFH2.usr.ApiUri 			= PULLDATA_HRISCache.TWILIO_PURCHASE_URI;
+			SET OutputRoot.MQRFH2.usr.user_id 			= InputRoot.MQRFH2.usr.user_id;
+			SET OutputRoot.MQRFH2.usr.Operation 		= 'TwilioPurchase/';
+			SET OutputRoot.MQRFH2.usr.ContentType		= 'application/x-www-form-urlencoded';			 
+			RETURN TRUE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE TWILIO_ESB_AREACODE_RESP_ROUTING_Routing
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		CALL CopyEntireMessage();
+
+		IF InputRoot.XMLNSC.TwilioResponse.AvailablePhoneNumbers.AvailablePhoneNumber.PhoneNumber > ' ' THEN
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_AVAILABLE_FOR_AREACODE';
+			PROPAGATE TO TERMINAL 'out1';
+		ELSE
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_NOT_RETRIEVED_FOR_AREACODE';
+			PROPAGATE TO TERMINAL 'out';
+		END IF;
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE TWILIO_ESB_ZIPCODE_RESP_ROUTING_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+
+		IF InputRoot.XMLNSC.TwilioResponse.AvailablePhoneNumbers.AvailablePhoneNumber.PhoneNumber > ' ' THEN
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_AVAILABLE_FOR_ZIPCODE';
+			PROPAGATE TO TERMINAL 'out';
+		ELSE
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_NOT_RETRIEVED_FOR_ZIPCODE';
+			PROPAGATE TO TERMINAL 'out1';
+		END IF;
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE TWILIO_ESB_PURCHASE_RESP_FLOW_Retry_request
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		--INSERT INTO Database.dbo.TWILIO_RETRY(PERSON_ID_EXTERNAL,RETRY_DATE,RETRY_COUNT) VALUES(InputRoot.MQRFH2.usr.user_id,CURRENT_DATE,'1');
+		INSERT INTO Database.TWILIO_RETRY(PERSON_ID_EXTERNAL,RETRY_DATE,RETRY_COUNT) VALUES(InputRoot.MQRFH2.usr.user_id,CURRENT_DATE,'1');
+		COMMIT;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE TWILIO_PURCHASE_RETRY_Request_Construction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN		
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD 		= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 		= InputRoot.MQRFH2;
+				
+		SET Environment.Variable.SelectQueryOutput.vw_person_esb[] 	= select * from Database.vw_person_esb AS A where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;		
+		SET OutputRoot.XMLNSC.HRISData[] 							= Environment.Variable.SelectQueryOutput.vw_person_esb[];
+		--SET OutputRoot.BLOB.BLOB 									= CAST( Environment.Variable.SelectQueryOutput.vw_person_esb[] AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE TWILIO_PURCHASE_RETRY_MSGBUS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		SET OutputRoot.Properties	= InputRoot.Properties;
+		SET OutputRoot.MQMD			= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2		= InputRoot.MQRFH2;
+		
+		--SET Environment.Variables.DBOutput[]=SELECT * FROM Database.dbo.TWILIO_RETRY AS A where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+		SET Environment.Variables.DBOutput[]=SELECT * FROM Database.TWILIO_RETRY AS A where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+		
+		IF Environment.Variables.DBOutput.RETRY_COUNT > 0 THEN
+			IF Environment.Variables.DBOutput.RETRY_COUNT < PULLDATA_HRISCache.Retry_Limit THEN
+				SET Environment.Variables.DBOutput.RETRY_COUNT = Environment.Variables.DBOutput.RETRY_COUNT + 1;
+				--Update Database.dbo.TWILIO_RETRY AS A SET RETRY_COUNT = Environment.Variables.DBOutput.RETRY_COUNT,RETRY_DATE=CURRENT_DATE where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+				Update Database.TWILIO_RETRY AS A SET RETRY_COUNT = Environment.Variables.DBOutput.RETRY_COUNT,RETRY_DATE=CURRENT_DATE where A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+				COMMIT;
+				RETURN TRUE;
+			ELSE			
+				SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+				SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;
+				SET OutputRoot.EmailOutputHeader.Subject	= PULLDATA_HRISCache.TWILIO_EXCEPTION_SUBJECT;				
+				SET OutputRoot.XMLNSC.HRIS.ErrorMessage 	= PULLDATA_HRISCache.ErrorMessage1 || InputRoot.MQRFH2.usr.Areacode || ' AND ' || PULLDATA_HRISCache.ErrorMessage2 || InputRoot.MQRFH2.usr.STORE_ZIPCODE || ' AND '|| PULLDATA_HRISCache.ErrorMessage3 || InputRoot.MQRFH2.usr.State  ||'. For PERSON_ID_EXTERNAL=' ||InputRoot.MQRFH2.usr.user_id ;
+				PROPAGATE TO TERMINAL 'out1';
+				--DELETE FROM Database.dbo.TWILIO_RETRY AS A WHERE A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+				DELETE FROM Database.TWILIO_RETRY AS A WHERE A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+				COMMIT;
+				RETURN FALSE;
+			END IF;			
+		ELSE
+			-- delete and then insert
+			--DELETE FROM Database.dbo.TWILIO_RETRY AS A WHERE A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+			DELETE FROM Database.TWILIO_RETRY AS A WHERE A.PERSON_ID_EXTERNAL = InputRoot.MQRFH2.usr.user_id;
+			--INSERT INTO Database.dbo.TWILIO_RETRY(PERSON_ID_EXTERNAL,RETRY_DATE,RETRY_COUNT) VALUES(InputRoot.MQRFH2.usr.user_id,CURRENT_DATE,'1');
+			INSERT INTO Database.TWILIO_RETRY(PERSON_ID_EXTERNAL,RETRY_DATE,RETRY_COUNT) VALUES(InputRoot.MQRFH2.usr.user_id,CURRENT_DATE,'1');
+			COMMIT;
+			RETURN TRUE;
+		END IF;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+END MODULE;
+
+CREATE COMPUTE MODULE TWILIO_ESB_STATE_RESP_ROUTING_State_Search_Resp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+
+		IF InputRoot.XMLNSC.TwilioResponse.AvailablePhoneNumbers.AvailablePhoneNumber.PhoneNumber > ' ' THEN
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_AVAILABLE_FOR_STATE';
+			PROPAGATE TO TERMINAL 'out';
+		ELSE
+			SET OutputRoot.MQRFH2.usr.SearchStatus = 'PHONE_NUMBER_NOT_RETRIEVED_FOR_STATE';
+			PROPAGATE TO TERMINAL 'out1';
+		END IF;
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE ESB_TWILIO_STATE_SEARCH_FLOW_StateSearch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- Load cache from DB
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		--Copy Headers
+		SET OutputRoot.Properties				= InputRoot.Properties;
+		SET OutputRoot.MQMD						= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2					= InputRoot.MQRFH2;
+
+		SET Environment.Variables.State 		= TRIM(InputRoot.MQRFH2.usr.State);
+		SET Environment.Variables.CountryURI	= InputRoot.MQRFH2.usr.CountryURI;					
+		SET OutputRoot.MQRFH2.usr.ApiUri 		= PULLDATA_HRISCache.TWILIO_URI || Environment.Variables.CountryURI || PULLDATA_HRISCache.TWILIO_URI_STATE_SEARCH ||Environment.Variables.State;			
+		SET OutputRoot.MQRFH2.usr.MethodType 	= 'GET';
+		SET OutputRoot.MQRFH2.usr.Authorization = PULLDATA_HRISCache.TWILIO_AUTH;				
+		SET OutputRoot.MQRFH2.usr.user_id 		= InputRoot.MQRFH2.usr.user_id;
+		SET OutputRoot.MQRFH2.usr.Operation 	= 'TwilioStateSearch/';
+		---REM
+		SET OutputRoot.MQRFH2.usr.BusinessID 	= InputRoot.MQRFH2.usr.BusinessID;
+		SET OutputRoot.MQRFH2.usr.ID 			= CURRENT_TIMESTAMP;
+		RETURN TRUE;
+	END;
+
+END MODULE;

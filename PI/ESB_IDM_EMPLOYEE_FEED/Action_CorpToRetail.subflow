@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmSOAPRequest.msgnode="ComIbmSOAPRequest.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="Action_CorpToRetail.subflow" nsPrefix="Action_CorpToRetail.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="Action_CorpToRetail" bundleName="Action_CorpToRetail" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj16/Action_CorpToRetail.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj30/Action_CorpToRetail.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="43,79">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="Action_CorpToRetail" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="248,80" wsdlFileName="ESB_IDMInboundWebService_MS/tews6/wsdl/secure.wsdl" selectedPortType="Tews6PortType" selectedBinding="Tews6SoapBinding" selectedOperation="ConvertCorptoRetail" selectedPort="Tews6Port" targetNamespace="http://tews6/wsdl" useHTTPTransport="true" webServiceURL="https://idm.coach.com/iam/im/TEWS6/secure?wsdl" sslProtocol="TLSv1.2" parserXmlnscBuildTreeUsingXMLSchema="false">
+        <translation xmi:type="utility:ConstantString" string="SOAP Request"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="117,79" computeExpression="esql://routine/#CorpToRetailRequest.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="CorpToRetailRequest"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="379,29" statement="esql://routine/#SetCorpToRetailError.Main">
+        <translation xmi:type="utility:ConstantString" string="CorpToRetailError"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="566,45" statement="esql://routine/#SetCorpToRetailFail.Main">
+        <translation xmi:type="utility:ConstantString" string="CorpToRetailFail"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="377,80" statement="esql://routine/#WSSuccessResponse_CorpToRetail.Main">
+        <translation xmi:type="utility:ConstantString" string="SuccessCorpToRetail"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="159,194" computeExpression="esql://routine/#Action_CorpToRetail_removeMQRFH2_CorptoRetail.Main">
+        <translation xmi:type="utility:ConstantString" string="removeMQRFH2_CorptoRetail"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="548,-18" queueName="QL.IDM.RETRY_USER_CORPRETAIL.OUT">
+        <translation xmi:type="utility:ConstantString" string="QL.IDM.RETRY_USER_CORPRETAIL.OUT"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="328,-19" computeExpression="esql://routine/#Action_CorpToRetail_Retry_CorpRetail.Main">
+        <translation xmi:type="utility:ConstantString" string="Retry_CorpRetail"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_2" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.fault" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in">
+        <bendPoints>250,133,336,34</bendPoints>
+        <bendPoints>254,208,340,109</bendPoints>
+        <bendPoints>188,210,274,111</bendPoints>
+        <bendPoints>40,213,126,114</bendPoints>
+        <bendPoints>-71,210,15,111</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

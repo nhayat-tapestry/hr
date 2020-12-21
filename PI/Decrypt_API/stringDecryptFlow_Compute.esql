@@ -1,0 +1,405 @@
+ 
+
+
+
+
+
+
+
+ 
+
+
+DECLARE IDM_UpdateEmployee_Cache SHARED ROW;
+DECLARE isIDM_UpdateEmployee_CacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE IDM_RSA_MF_setConfigurableValues
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envRef REFERENCE TO Environment;
+		CALL setConfigurableProperties(envRef);
+		SET OutputRoot.Properties = InputRoot.Properties;
+
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+
+		DECLARE MilSeconds CHAR CURRENT_TIMESTAMP;
+
+		SET OutputRoot.MQRFH2.usr.BusinessID = CAST('IDM_RSA_' AS CHAR) || SUBSTRING(MilSeconds FROM 12 FOR 19);
+		SET OutputRoot.MQRFH2.usr.ID = CAST('IDM_RSA_' AS CHAR) || SUBSTRING(MilSeconds FROM 12 FOR 19);
+		SET OutputRoot.MQRFH2.usr.HTTP_URL = SUBSTRING (InputRoot.HTTPInputHeader."X-Original-HTTP-Command" from 6 for 100);
+		SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.Encoding;
+		SET Environment.Variables.MQRFH2 = OutputRoot.MQRFH2.usr;
+		SET Environment.Variables.MQRFH2.CCSID = InputRoot.Properties.CodedCharSetId;
+		SET Environment.Variables.MQRFH2.Encoding = InputRoot.Properties.Encoding;
+
+
+
+		SET Environment.Variables.EncryptedMessage= COALESCE ( InputRoot.XMLNSC.Envelope.Body.request.EncryptedString, ' ');
+		--creating Log report -------------
+		DECLARE NEWLINE BLOB CAST(X'0A'AS BLOB);
+		DECLARE LogPointBlob BLOB CAST('LP10| ' ||Environment.Variables.EncryptedMessage || '| RequestReceived |' || MilSeconds AS BLOB CCSID OutputRoot.MQRFH2.usr.PROP_CCSID ENCODING OutputRoot.MQRFH2.usr.PROP_ENCOD);
+		SET OutputRoot.BLOB.BLOB = LogPointBlob || NEWLINE;
+		DECLARE FILENAME CHARACTER MessageFlowLabel || '.txt';
+		SET OutputLocalEnvironment.Destination.File.Directory =IDM_UpdateEmployee_Cache.destinations.REPORT_URL;
+		SET OutputLocalEnvironment.Destination.File.Name = FILENAME;
+
+		PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+		DELETE FIELD OutputRoot.BLOB.BLOB;
+		SET OutputRoot.HTTPInputHeader = InputRoot.HTTPInputHeader;
+		SET OutputRoot.XMLNSC = InputRoot.XMLNSC;
+		PROPAGATE TO TERMINAL 'out';
+
+		RETURN FALSE;
+
+	END;
+
+	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+	BEGIN
+		IF isIDM_UpdateEmployee_CacheExist THEN
+
+		ELSE
+			--SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+			
+			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+			END IF;
+
+			DECLARE i INTEGER 1;
+
+			WHILE i <= noOfRecords DO
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.fromaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='USERNAME' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.username =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PASSWORD' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.password =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PRIVKEYPATH' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.privateKeyPath = Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='REPORT_URL' THEN
+					SET IDM_UpdateEmployee_Cache.destinations.REPORT_URL = Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				SET i = i + 1;
+			END WHILE;
+
+			SET isIDM_UpdateEmployee_CacheExist = TRUE;
+		END IF;
+	END;
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE stringDecryptFlow_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		CALL CopyMessageHeaders();
+
+		DECLARE PrivateKeyPath CHAR;
+		DECLARE Transformation CHAR;
+		DECLARE Encoding CHAR;
+		DECLARE EncryptedMessage CHAR;
+		DECLARE DecryptedMessage CHARACTER '';
+		DECLARE mandatoryArguments INTEGER 0;
+		DECLARE employeeNumber CHARACTER '';
+		DECLARE password CHARACTER '';
+		DECLARE Code INTEGER;
+		-- Assigning necessary parameters for RSA decryption function call
+
+		SET PrivateKeyPath = IDM_UpdateEmployee_Cache.destinations.privateKeyPath;
+		SET Transformation = 'RSA/ECB/PKCS1Padding';
+		SET Encoding = 'UTF-8';
+		DECLARE DecrytedString CHARACTER;
+		SET Environment.Variables.Authentication = CAST(BASE64DECODE(SUBSTRING(InputRoot.HTTPInputHeader.Authorization FROM 7))AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE COLONPosition INTEGER POSITION(':' IN Environment.Variables.Authentication);
+		SET Environment.Variables.Username = SUBSTRING(Environment.Variables.Authentication FROM 1 FOR COLONPosition-1);
+		SET Environment.Variables.Password = SUBSTRING(Environment.Variables.Authentication FROM COLONPosition+1);
+
+
+
+
+		IF (Environment.Variables.Username = IDM_UpdateEmployee_Cache.destinations.username) AND (Environment.Variables.Password = IDM_UpdateEmployee_Cache.destinations.password) THEN
+
+			SET EncryptedMessage = CAST(InputRoot.XMLNSC.Envelope.Body.request.EncryptedString AS CHAR CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+			SET Environment.RSA.EncryptedMessage = EncryptedMessage;
+
+			IF EncryptedMessage IS NULL OR EncryptedMessage = '' THEN
+				-- SET OutputRoot.JSON.Data.Status = 'Failed';
+				-- SET OutputRoot.JSON.Data.Description = 'Empty encrypted Message has been provided for decryption';
+
+				SET OutputRoot.XMLNSC.rsaDecryption.status = 'Failed';
+				SET OutputRoot.XMLNSC.rsaDecryption.message = 'Decryption failed due to Null or empty encrypted message provided.';
+				SET Environment.Variables.Logpoints= 'LP100';
+				SET Environment.Variables.status= OutputRoot.XMLNSC.rsaDecryption.status;
+				SET Environment.Variables.description=OutputRoot.XMLNSC.rsaDecryption.message;
+				-- SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+
+				PROPAGATE TO TERMINAL 'out';
+
+				RETURN FALSE;
+
+			ELSE
+
+				CALL decrypt(EncryptedMessage,PrivateKeyPath,Transformation,Encoding) INTO DecryptedMessage;
+
+			END IF;
+
+			IF DecryptedMessage IS NULL OR DecryptedMessage = '' THEN
+				-- SET OutputRoot.JSON.Data.Status = 'Failed';
+				-- SET OutputRoot.JSON.Data.Description = 'Decryption failed due to an incorrect encrypted message provided';
+				-- SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = '400';
+				--
+				-- PROPAGATE TO TERMINAL 'out';
+				--
+				-- DELETE FIELD OutputRoot.JSON;
+
+				SET OutputRoot.Properties = InputRoot.Properties;
+
+				SET OutputRoot.XMLNSC.rsaDecryption.status = 'Failed';
+				SET OutputRoot.XMLNSC.rsaDecryption.message = 'Decryption failed due to an incorrect encrypted message provided.';
+				SET OutputRoot.XMLNSC.rsaDecryption.timeOfFailure = CURRENT_TIMESTAMP;
+				SET OutputRoot.XMLNSC.rsaDecryption.encryptedMessage = Environment.RSA.EncryptedMessage;
+				--SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = '400';
+				SET Environment.Variables.Logpoints= 'LP100';
+				SET Environment.Variables.status= OutputRoot.XMLNSC.rsaDecryption.status;
+				SET Environment.Variables.description=OutputRoot.XMLNSC.rsaDecryption.message;
+
+				PROPAGATE TO TERMINAL 'out';
+
+				RETURN FALSE;
+
+			ELSE
+
+				SET OutputRoot.HTTPRequestHeader."Content-Type" = 'application/xml';
+				SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:soap" = 'http://schemas.xmlsoap.org/soap/envelope/';
+				SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:xsi" = 'http://www.w3.org/2001/XMLSchema-instance';
+				SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:xsd" = 'http://www.w3.org/2001/XMLSchema';
+				SET OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Authentication.status='Success';
+				SET OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Decryption.Value=DecryptedMessage;
+				SET Environment.Variables.Logpoints= 'LP100';
+				SET Environment.Variables.status = OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Authentication.status;
+				SET Environment.Variables.description= OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Decryption.Value;
+				PROPAGATE TO TERMINAL 'out';
+				RETURN FALSE;
+			END IF;
+		ELSE
+			-- SET OutputRoot.XMLNSC.Data.Status='Failure';
+			-- SET OutputRoot.XMLNSC.Data.Description='Authentication Failed';
+			SET OutputRoot.HTTPRequestHeader."Content-Type" = 'application/xml';
+			SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:soap" = 'http://schemas.xmlsoap.org/soap/envelope/';
+			SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:xsi" = 'http://www.w3.org/2001/XMLSchema-instance';
+			SET OutputRoot.XMLNSC."soap:Envelope".(XMLNSC.Attribute)"xmlns:xsd" = 'http://www.w3.org/2001/XMLSchema';
+			SET OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Authentication.status='Failure';
+			SET OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Decryption.Value='Authentication Failed';
+			-- SET OutputRoot.XMLNSC.Envelope.Body.Authentication.status='Failed';
+			-- SET OutputRoot.XMLNSC.Envelope.Body.Authentication.Description='Authentication Failed';
+			SET Environment.Variables.Logpoints= 'LP100';
+			SET Environment.Variables.status = OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Authentication.status;
+			SET Environment.Variables.description= OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Decryption.Value;
+
+		END IF;
+		RETURN TRUE;
+	END;
+
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE FUNCTION decrypt(IN P1 CHARACTER,IN P2 CHARACTER,IN P3 CHARACTER,IN P4 CHARACTER)
+	RETURNS CHARACTER
+	LANGUAGE JAVA
+	EXTERNAL NAME "com.RSA.Decryption.RSACipherDecryption.decrypt";
+
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+---------------------------------------------------------------
+CREATE COMPUTE MODULE IDM_ESB_RSA_MF_removeMQRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE NEWLINE BLOB CAST(X'0A'AS BLOB);
+		DECLARE LogPointBlob BLOB CAST(Environment.Variables.Logpoints|| '|' ||Environment.Variables.EncryptedMessage || '|' || Environment.Variables.status || '|' || Environment.Variables.description AS BLOB CCSID Environment.Variables.MQRFH2.CCSID ENCODING Environment.Variables.MQRFH2.Encoding);
+		SET OutputRoot.BLOB.BLOB = LogPointBlob || NEWLINE;
+		DECLARE FILENAME CHARACTER MessageFlowLabel || '.txt';
+		SET OutputLocalEnvironment.Destination.File.Directory =IDM_UpdateEmployee_Cache.destinations.REPORT_URL;
+		SET OutputLocalEnvironment.Destination.File.Name = FILENAME;
+		PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+		IF (Environment.Variables.status = 'Failed' OR Environment.Variables.status = 'Error') THEN
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+		END IF;
+		IF Environment.Variables.status = 'Failure' THEN
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 403;
+		END IF;
+		CALL CopyMessageHeaders();
+		SET OutputRoot.MQMD = Null;
+		SET OutputRoot.MQRFH2 = NULL;
+		DELETE FIELD OutputRoot.BLOB.BLOB;
+		DELETE FIELD OutputRoot.BLOB;
+		DELETE FIELD OutputRoot.BLOB;
+		SET OutputRoot.XMLNSC= InputRoot.XMLNSC;
+		PROPAGATE TO TERMINAL 'out';
+		RETURN FALSE;
+--		IF (InputRoot.XMLNSC.rsaDecryption.status = 'Failed' OR InputRoot.XMLNSC.rsaDecryption.status = 'Error') THEN
+--			CALL CopyMessageHeaders();
+--			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+--			SET OutputRoot.MQMD = Null;
+--			SET OutputRoot.MQRFH2 = NULL;
+--			DELETE FIELD OutputRoot.BLOB.BLOB;
+--			SET OutputRoot.XMLNSC = InputRoot.XMLNSC;
+--
+--			PROPAGATE TO TERMINAL 'out';
+--
+--			RETURN FALSE;
+--
+--		ELSE
+--			CALL CopyMessageHeaders();
+--			SET OutputRoot.MQMD = Null;
+--			SET OutputRoot.MQRFH2 = NULL;
+--			DELETE FIELD OutputRoot.BLOB.BLOB;
+--			SET OutputRoot.XMLNSC= InputRoot.XMLNSC;
+--			IF (OutputRoot.XMLNSC."soap:Envelope"."soap:Body".Authentication.status='Failure') THEN
+--				SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 403;
+--			END IF;
+--			PROPAGATE TO TERMINAL 'out';
+--			RETURN FALSE;
+--		END IF;
+
+		--RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+END MODULE;
+------------------------------------------------------------------
+CREATE COMPUTE MODULE ErrorHandler_StringDecrypt_ErrorHandler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		DECLARE ref REFERENCE TO Environment.Variables.MQRFH2;
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+		IF LASTMOVE(ref) = TRUE THEN
+			SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+		ELSE
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+			SET OutputRoot.MQRFH2.usr.BusinessID = 'Decrypt'||CAST(CURRENT_TIMESTAMP AS CHARACTER);
+			SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.Encoding;
+			SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.CodedCharSetId;
+		END IF;
+
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		DECLARE desc CHARACTER;
+		--SET desc = Listhandle.Insert[1].Text;
+
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+		----------------------Error Responses------------------------
+		-- SET OutputRoot.Properties = InputRoot.Properties;
+		-- SET Environment.Variables.Status = '1';
+		-- SET Environment.Variables.StatusDescription = 'FAILURE';
+		-- --SET Environment.Variables.ErrorProcessingTransaction.ErrorDetails = Text;
+		-- PROPAGATE TO TERMINAL 'out1';
+		----------------------Error Responses------------------------
+
+		SET OutputRoot.EmailOutputHeader.Subject = 'Password Decryption Failure';
+		SET OutputRoot.EmailOutputHeader.From = IDM_UpdateEmployee_Cache.destinations.fromaddress;
+		SET OutputRoot.EmailOutputHeader.To = IDM_UpdateEmployee_Cache.destinations.toaddress;
+		SET cErrorText = ' Error Description : ' || Text;
+		SET OutputRoot.BLOB.BLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+
+		PROPAGATE TO TERMINAL 'out' DELETE NONE;
+
+		DELETE FIELD OutputRoot.EmailOutputHeader;
+		SET OutputRoot.BLOB.BLOB = NULL;
+		SET OutputRoot.XMLNSC.rsaDecryption.status = 'Error';
+		SET OutputRoot.XMLNSC.rsaDecryption.message = 'Exception occured. Please refer mail for more information';
+		SET Environment.Variables.Logpoints= 'LP15';
+		SET Environment.Variables.status= 'Error';
+		SET Environment.Variables.description= 'Exception occured. Please refer mail for more information';
+		-- DECLARE NEWLINE BLOB CAST(X'0A'AS BLOB);
+		-- DECLARE LogPointBlob BLOB CAST('LP15| ' ||Environment.Variables.EncryptedMessage ||'Invalid Username or Password ' AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		-- SET OutputRoot.BLOB.BLOB = LogPointBlob || NEWLINE;
+		-- DECLARE FILENAME CHARACTER MessageFlowLabel || '.txt';
+		-- SET OutputLocalEnvironment.Destination.File.Directory =IDM_UpdateEmployee_Cache.destinations.REPORT_URL;
+		-- SET OutputLocalEnvironment.Destination.File.Name = FILENAME;
+		PROPAGATE TO TERMINAL 'out1';
+		RETURN FALSE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

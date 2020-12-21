@@ -1,0 +1,416 @@
+
+
+-- Add whatever External Variables required in this ESQL and use then to send context information to next path
+DECLARE FileName EXTERNAL CHARACTER 'FileName';
+
+
+CREATE DATABASE MODULE SetSearchFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'SEARCH-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetSearchError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'SEARCH-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetCorpToRetailFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CORPTORETAIL-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetCorpToRetailError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CORPTORETAIL-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetRetailToCorpFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'RETAILTOCORP-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetRetailToCorpError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'RETAILTOCORP-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetModifyFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'MODIFY-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetModifyError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'MODIFY-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetTerminateFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TERMINATE-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetTerminateError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TERMINATE-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetTempToPermFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TEMPTOPERM-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetTempToPermError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TEMPTOPERM-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE DATABASE MODULE SetCreateFail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CREATE-FAIL';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+
+
+CREATE DATABASE MODULE SetCreateError
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CREATE-ERROR';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE AlertSender_SetFileName
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		CALL CopyMessageHeaders();
+		DELETE FIELD OutputRoot.HTTPResponseHeader;
+		SET OutputRoot.MQMD = Environment.variable.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.variable.MQRFH2;
+
+		SET OutputRoot = InputRoot;
+
+		SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory;
+		SET OutputLocalEnvironment.Destination.File.Name =IDMCache.destinations.terminateFile;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+
+END MODULE;
+------------------------------------------------------------------------------------
+CREATE COMPUTE MODULE AlertSender_SetAlert
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE tmpBLOB BLOB;
+		DECLARE tmpCHAR CHARACTER;
+
+		CALL CopyMessageHeaders();
+		DECLARE cErrorText CHARACTER '';
+		DECLARE cErrorTextBLOB BLOB;
+
+		SET OutputRoot.EmailOutputHeader.Subject = Environment.Variables.Alerts.Subject;
+
+		SET OutputRoot.EmailOutputHeader.From =COALESCE(IDMQueryCache.destinations.emailaddress,IDMCache.destinations.emailaddress);
+		SET OutputRoot.EmailOutputHeader.To =(COALESCE(IDMQueryCache.destinations.toaddress,IDMCache.destinations.toaddress)||','||COALESCE(IDMQueryCache.destinations.toaddress1,IDMCache.destinations.toaddress1));
+		SET cErrorText ='EMP ID-' || Environment.employeeNumber ||' for the extract run on ' ||CAST(CURRENT_TIMESTAMP AS CHARACTER) ||
+		' - EmpIDDoNotExist in IDM' ;
+
+		SET cErrorTextBLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		SET OutputRoot.BLOB.BLOB = cErrorTextBLOB;
+
+		PROPAGATE TO TERMINAL 'out';
+		
+		------commented code for sending entire payload through mail starts-----
+		-- SET OutputRoot.EmailOutputHeader.Subject = Environment.Variables.Alerts.Subject;
+		--
+		-- SET OutputRoot.EmailOutputHeader.From =COALESCE(IDMQueryCache.destinations.emailaddress,IDMCache.destinations.emailaddress);
+		--
+		-- SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput ;
+		--
+		-- PROPAGATE TO TERMINAL 'out';
+		------commented code for sending entire payload through mail starts-----
+		RETURN FALSE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+END MODULE;
+
+
+
+CREATE DATABASE MODULE RouteAlert
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+		DECLARE cErrorTextBLOB BLOB;
+		IF CONTAINS(Environment.Variables.Alert.Type,'-FAIL') THEN
+			-- PASS ALL context information here to the next generic alert system
+			---ExceptionTree Construction-----
+			DECLARE Listhandle REFERENCE TO ExceptionList.*[1];
+			WHILE Listhandle.Text IS NOT NULL DO
+				SET Text = Text || ' ' || Listhandle.Text || ' ';
+				DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+				IF insertCount > 0 THEN
+					SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+				END IF;
+				MOVE Listhandle LASTCHILD;
+			END WHILE;
+			---ExceptionTree Construction-----
+			IF Environment.Variables.Alert.Type='SEARCH-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Search WebService After five retry and dropped the Input message into QL.RETRY_USERSEARCH.OUT';
+			ELSEIF Environment.Variables.Alert.Type='CORPTORETAIL-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Corp To Retail WebService After five retry and dropped the Input message into QL.IDM.RETRY_USER_CORPRETAIL.OUT';
+			ELSEIF Environment.Variables.Alert.Type='RETAILTOCORP-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Retail To Corp WebService After five retry and dropped the Input message into QL.IDM.RETRY_USER_RETAILCORP.OUT';
+			ELSEIF Environment.Variables.Alert.Type='MODIFY-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Modify WebService After five retry and dropped the Input message into QL.IDM.RETRY_USERMODIFY.OUT';
+			ELSEIF Environment.Variables.Alert.Type='TERMINATE-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Terminate WebService After five retry and dropped the Input message into QL.IDM.RETRY_USER_TERMINAL.OUT';
+			ELSEIF Environment.Variables.Alert.Type='TEMPTOPERM-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Temp To Perm WebService After five retry and dropped the Input message into QL.IDM.RETRY_USER_TEMPPERM.OUT';
+			ELSEIF Environment.Variables.Alert.Type='CREATE-FAIL' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Failure for Create WebService After five retry and dropped the Input message into QL.IDM.RETRY_USERCREATE.OUT';
+			END IF;
+
+			SET Environment.Variables.Alerts.FromEmail=IDMCache.destinations.emailaddress;
+			SET Environment.Variables.Alerts.ToEmail=IDMCache.destinations.toaddress;
+			SET Environment.Variables.Alerts.ToEmail1=IDMCache.destinations.toaddress1;
+			SET cErrorText = Environment.employeeNumber || '-' || CAST(CURRENT_TIMESTAMP AS CHARACTER) ||
+			' - Error Description : ' || Text;
+
+			SET cErrorTextBLOB = CAST( cErrorText AS BLOB CCSID Root.Properties.CodedCharSetId ENCODING Root.Properties.Encoding);
+			SET Environment.Variables.Alerts.Content=cErrorTextBLOB;
+
+			PROPAGATE TO LABEL 'ALERT-FAIL';
+			-- PASS ALL context information here to the next generic alert system
+		ELSEIF CONTAINS(Environment.Variables.Alert.Type,'-ERROR') THEN
+			IF Environment.Variables.Alert.Type='SEARCH-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Search WebService';
+			ELSEIF Environment.Variables.Alert.Type='CORPTORETAIL-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Corp To Retail WebService';
+			ELSEIF Environment.Variables.Alert.Type='RETAILTOCORP-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Retail To Corp WebService';
+			ELSEIF Environment.Variables.Alert.Type='MODIFY-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Modify WebService';
+			ELSEIF Environment.Variables.Alert.Type='TERMINATE-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Terminate WebService';
+			ELSEIF Environment.Variables.Alert.Type='TEMPTOPERM-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Temp To Perm WebService';
+			ELSEIF Environment.Variables.Alert.Type='CREATE-ERROR' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Fault for Create WebService';
+			END IF;
+
+			SET Environment.Variables.Alerts.FromEmail=IDMCache.destinations.emailaddress;
+			SET Environment.Variables.Alerts.ToEmail=IDMCache.destinations.toaddress;
+			SET Environment.Variables.Alerts.ToEmail1=IDMCache.destinations.toaddress1;
+
+			PROPAGATE TO LABEL 'ALERT-ERROR-SUCCESS';
+			--Keep Adding all other alerts here and pass all required context here
+		ELSEIF CONTAINS(Environment.Variables.Alert.Type,'-SUCCESS') THEN
+			IF Environment.Variables.Alert.Type='SEARCH-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Search WebService';
+			ELSEIF Environment.Variables.Alert.Type='CORPTORETAIL-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Corp To Retail WebService';
+			ELSEIF Environment.Variables.Alert.Type='RETAILTOCORP-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Retail To Corp WebService';
+			ELSEIF Environment.Variables.Alert.Type='MODIFY-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Modify WebService';
+			ELSEIF Environment.Variables.Alert.Type='TERMINATE-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Terminate WebService';
+			ELSEIF Environment.Variables.Alert.Type='TEMPTOPERM-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Temp To Perm WebService';
+			ELSEIF Environment.Variables.Alert.Type='CREATE-SUCCESS' THEN
+				SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'Success for Create WebService';
+			END IF;
+			SET Environment.Variables.Alerts.FromEmail=IDMCache.destinations.emailaddress;
+			SET Environment.Variables.Alerts.ToEmail=IDMCache.destinations.toaddress;
+			SET Environment.Variables.Alerts.ToEmail1=IDMCache.destinations.toaddress1;
+			PROPAGATE TO LABEL 'ALERT-ERROR-SUCCESS';
+
+		ELSEIF CONTAINS(Environment.Variables.Alert.Type,'EmpIDDoNotExist') THEN
+			SET Environment.Variables.Alerts.Subject=Environment.employeeNumber|| '_' || 'EmpIDDoNotExist';
+			--SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory;
+			--SET OutputLocalEnvironment.Destination.File.FileName = IDMCache.destinations.terminateFile;
+
+			SET Environment.Variables.Alerts.FromEmail=IDMCache.destinations.emailaddress;
+			SET Environment.Variables.Alerts.ToEmail=IDMCache.destinations.toaddress;
+			SET Environment.Variables.Alerts.ToEmail1=IDMCache.destinations.toaddress1;
+
+			PROPAGATE TO LABEL 'EmpIDDoNotExist';
+
+		END IF;
+		RETURN FALSE;
+	END;
+END MODULE;
+---------------------------------------------------------------------
+CREATE COMPUTE MODULE Alerts_SetMQRFH2_RouteALert
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DELETE FIELD OutputRoot.HTTPResponseHeader;
+		SET OutputRoot.MQMD=Environment.variable.MQMD;
+		SET OutputRoot.MQRFH2 = Environment.variable.MQRFH2;
+		--CALL CopyEntireMessage();
+		SET OutputRoot.SOAP=InputRoot.SOAP;
+		--SET OutputRoot.MQMD = Environment.variable.MQMD;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+---------------------------------------------------------------------------------
+
+
+
+
+CREATE COMPUTE MODULE Alerts_TerminateUser_Content
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE CRSTR BLOB CAST(x'0D' AS BLOB CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE LFSTR BLOB CAST(x'0A' AS BLOB CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE CRLF BLOB CRSTR||LFSTR;
+		SET CRLF = CAST(X'0A' AS BLOB);
+		DELETE FIELD OutputRoot.MQMD;
+		DELETE FIELD OutputRoot.MQRFH2;
+		--SET OutputRoot.XMLNSC.Status='Success';
+		--CALL CopyEntireMessage();
+
+		SET OutputRoot.BLOB.BLOB = CAST(Environment.employeeNumber AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding) || CAST(' Inactive User - Failure-Terminate User' AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding) || CRLF;
+
+		SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory;
+		SET OutputLocalEnvironment.Destination.File.Name = IDMCache.destinations.terminateFile;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

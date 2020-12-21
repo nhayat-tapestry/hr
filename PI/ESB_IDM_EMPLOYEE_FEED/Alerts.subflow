@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ComIbmFileOutput.msgnode="ComIbmFileOutput.msgnode" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:FailureAlertsMechanism.subflow="FailureAlertsMechanism.subflow" xmlns:FaultSuccessAlertMechanism.subflow="FaultSuccessAlertMechanism.subflow" xmlns:IDMAlertSender.subflow="IDMAlertSender.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="Alerts.subflow" nsPrefix="Alerts.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="Alerts" bundleName="Alerts" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj16/Alerts.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj30/Alerts.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="48,19" labelName="ALERTS">
+        <translation xmi:type="utility:ConstantString" string="ALERTS"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="299,20" dataSource="MSGBUS" statement="esql://routine/#RouteAlert.Main">
+        <translation xmi:type="utility:ConstantString" string="RouteAlert"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="45,89" labelName="ALERT-FAIL">
+        <translation xmi:type="utility:ConstantString" string="ALERT-FAIL"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="19,168" labelName="ALERT-ERROR-SUCCESS">
+        <translation xmi:type="utility:ConstantString" string="ALERT-ERROR-SUCCESS"/>
+      </nodes>
+      <nodes xmi:type="FailureAlertsMechanism.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="155,89">
+        <translation xmi:type="utility:ConstantString" string="FailureAlertsMechanism"/>
+      </nodes>
+      <nodes xmi:type="FaultSuccessAlertMechanism.subflow:FCMComposite_1" xmi:id="FCMComposite_1_5" location="190,168">
+        <translation xmi:type="utility:ConstantString" string="FaultSuccessAlertMechanism"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="101,19" computeExpression="esql://routine/#Alerts_SetMQRFH2_RouteALert.Main">
+        <translation xmi:type="utility:ConstantString" string="SetMQRFH2_RouteALert"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="66,259" labelName="EmpIDDoNotExist">
+        <translation xmi:type="utility:ConstantString" string="Label"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="206,259" computeExpression="esql://routine/#Alerts_TerminateUser_Content.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="TerminateUser_Content"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFileOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_14" location="445,264" outputDirectory="/tmp" outputMode="append">
+        <translation xmi:type="utility:ConstantString" string="File Output"/>
+      </nodes>
+      <nodes xmi:type="IDMAlertSender.subflow:FCMComposite_1" xmi:id="FCMComposite_1_15" location="601,264">
+        <translation xmi:type="utility:ConstantString" string="IDMAlertSender"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_14" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_15" sourceNode="FCMComposite_1_14" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

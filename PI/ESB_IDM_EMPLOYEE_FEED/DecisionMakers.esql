@@ -1,0 +1,144 @@
+
+----------------------------------------------------
+CREATE DATABASE MODULE SetIsUserExists
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		IF Environment.Destination.RouterList.DestinationData.labelName='ACTIVE-NEW' THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName=Environment.Destination.RouterList.DestinationData.labelName;
+		END IF;
+		SET Environment.Variables.CheckCardinality = CARDINALITY(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem[]);
+		IF Environment.Variables.CheckCardinality > 0 THEN
+			SET Environment.Variables.IsUserExists = TRUE;
+		ELSE
+			SET Environment.Variables.IsUserExists = FALSE;
+		END IF;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+CREATE FILTER MODULE IsInActiveUserExists
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF Environment.Variables.IsUserExists THEN
+			RETURN TRUE;
+		ELSE
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'EmpIDDoNotExist';
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsActiveNewUserExists
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF Environment.Variables.IsUserExists THEN
+			RETURN TRUE;
+		ELSE
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'CREATE-USER';
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsActiveOldUserExists
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF CARDINALITY(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem[]) > 0 THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'TEMP-TO-PERM';
+			SET Environment.Variables.TempToPerm.MapType = 2;
+			RETURN TRUE;
+		ELSE
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ACTIVE-NEW';
+			SET Environment.Destination.RouterList.DestinationData.labelName = LocalEnvironment.Destination.RouterList.DestinationData.labelName;
+			SET Environment.Search.EmployeeNumber = Environment.employeeNumber;
+			SET LocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMCache.destinations.url;
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsUserTemp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF UPPER(Environment.temptopermindicator) = 'Y' AND (
+			CONTAINS(UPPER(Environment.userType), UPPER('TEMP')) OR
+			CONTAINS(UPPER(Environment.userType), UPPER('Contractor')) OR
+			CONTAINS(UPPER(Environment.userType), UPPER('Vendor')) OR
+			CONTAINS(UPPER(Environment.userType), UPPER('Intern')) OR
+			CONTAINS(UPPER(Environment.userType), UPPER('Outsourcing Partner'))
+			) THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'TEMP-TO-PERM';
+			SET Environment.Variables.TempToPerm.MapType = 1;
+			RETURN TRUE;
+		ELSE
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'TERMINATE-USER';
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsOldEmpIDExists
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF LENGTH(Environment.oldemployeenumber) > 0 THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ACTIVE-OLD';
+			RETURN TRUE;
+		ELSE
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ACTIVE-NEW';
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsEmployeeTypeMatches
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF UPPER(Environment.employeeType) = UPPER(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem.*:employeeType.*:ATTR_VALUE) THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'MODIFY-USER';
+			RETURN TRUE;
+		ELSE
+			RETURN FALSE;
+		END IF;
+	END;
+
+END MODULE;
+
+
+
+CREATE FILTER MODULE IsCorpToRetail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF (
+			UPPER(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem.*:employeeType.*:ATTR_VALUE) = UPPER('Corporate') OR
+			UPPER(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem.*:employeeType.*:ATTR_VALUE) = UPPER('corp') ) AND
+			UPPER(Environment.employeeType)=UPPER('Retail')
+			THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'CORP-TO-RETAIL';
+			RETURN TRUE;
+		ELSEIF
+			UPPER(Root.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem.*:employeeType.*:ATTR_VALUE) = UPPER('Retail') AND (
+			UPPER(Environment.employeeType)=UPPER('Corp') OR
+			UPPER(Environment.employeeType)=UPPER('Corporate')
+			) THEN
+			SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'RETAIL-TO-CORP';
+			RETURN FALSE;
+		END IF;
+	END;
+END MODULE;

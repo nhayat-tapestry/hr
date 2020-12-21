@@ -1,0 +1,346 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DECLARE IDM_HRIS_GetEmployeeId_Cache SHARED ROW;
+DECLARE isIDM_HRIS_GetEmployeeId_CacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE IDMGetEmployeeId_RemLogging
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE envRef REFERENCE TO Environment;
+		CALL setConfigurableProperties(envRef);		
+
+
+		DECLARE cTmp CHARACTER CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'HHmmss-ddMMyyyy');
+		DECLARE RootElement CHARACTER FIELDNAME(InputRoot.XMLNSC.*[<]);
+		DECLARE FirstName CHARACTER InputRoot.XMLNSC.{RootElement}.FirstName;
+		DECLARE LastName CHARACTER InputRoot.XMLNSC.{RootElement}.LastName;
+		DECLARE EmployeeID CHARACTER InputRoot.XMLNSC.{RootElement}.EmployeeID;
+		DECLARE emailId CHARACTER InputRoot.XMLNSC.{RootElement}.Email;
+		DECLARE businessId CHARACTER;
+		--SET businessId = InputRoot.XMLNSC.{RootElement}.Email;
+		SET businessId = SUBSTRING((FirstName||'_'||LastName||'_'||'_'|| EmployeeID || cTmp)FROM 1 FOR 20);
+			SET Environment.Variable.FirstName = FirstName;
+			SET Environment.Variable.LastName = LastName;
+			SET Environment.Variable.EmployeeID = EmployeeID;
+			SET Environment.Variable.emailId = emailId;
+			SET Environment.Variable.RootElement = RootElement;
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+			SET OutputRoot.MQRFH2.usr.BusinessID = businessId;
+			SET OutputRoot.MQRFH2.usr.ID = businessId;
+			SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.CodedCharSetId;
+			SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.Encoding;
+			SET Environment.Variables.MQRFH2 = OutputRoot.MQRFH2;
+			SET OutputRoot.XMLNSC = InputRoot.XMLNSC;
+			SET Environment.Variables.OriginalInput = InputRoot.XMLNSC;
+			DECLARE complexEventTemp REFERENCE TO InputRoot.XMLNSC;
+			DECLARE msgbitstream BLOB ASBITSTREAM (complexEventTemp);
+			DECLARE charmsg CHARACTER CAST (msgbitstream AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+			SET Environment.Variables.msgchar =charmsg;
+		END;
+
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER;
+			SET J = CARDINALITY(InputRoot.*[]);
+			WHILE I < J DO
+				SET OutputRoot.*[I] = InputRoot.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END;
+
+		CREATE PROCEDURE CopyEntireMessage() BEGIN
+			SET OutputRoot = InputRoot;
+		END;
+		CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+		BEGIN
+			IF isIDM_HRIS_GetEmployeeId_CacheExist THEN
+
+			ELSE
+				--SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+				SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+				--SET Environment.Variables.Destination[]= SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+				SET Environment.Variables.Destination[]= SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+				DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+				DECLARE numOfRecords INTEGER CARDINALITY (Environment.Variables.Destination[]);
+				IF numOfRecords ='0' THEN
+					THROW USER EXCEPTION MESSAGE 1000 VALUES
+					('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+				ELSE
+
+					DECLARE i INTEGER 1;
+
+					WHILE i <= numOfRecords DO
+
+						IF Environment.Variables.Destination[i].IDENTIFIER ='SCHEMA' THEN
+							SET IDM_HRIS_GetEmployeeId_Cache.destinations.SCHEMA =Environment.Variables.Destination[i].ATTRIBUTES;
+						END IF;
+
+
+						SET i = i + 1;
+					END WHILE;
+				END IF;
+				IF noOfRecords ='0' THEN
+					THROW USER EXCEPTION MESSAGE 1000 VALUES
+					('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+				ELSE
+					DECLARE i INTEGER 1;
+
+					WHILE i <= noOfRecords DO
+
+						IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+							SET IDM_HRIS_GetEmployeeId_Cache.destinations.fromaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+						END IF;
+
+						IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+							SET IDM_HRIS_GetEmployeeId_Cache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+						END IF;
+
+						IF Environment.Variable.Destination[i].IDENTIFIER ='USERNAME' THEN
+							SET IDM_HRIS_GetEmployeeId_Cache.destinations.username =Environment.Variable.Destination[i].ATTRIBUTES;
+						END IF;
+
+						IF Environment.Variable.Destination[i].IDENTIFIER ='PASSWORD' THEN
+							SET IDM_HRIS_GetEmployeeId_Cache.destinations.password =Environment.Variable.Destination[i].ATTRIBUTES;
+						END IF;
+						SET i = i + 1;
+					END WHILE;
+				END IF;
+
+				SET isIDM_HRIS_GetEmployeeId_CacheExist = TRUE;
+			END IF;
+		END;
+	END MODULE;
+	--------------------------------------------------------------
+	CREATE COMPUTE MODULE IDMGetEmployeeId_BasAuth
+		CREATE FUNCTION Main() RETURNS BOOLEAN
+		BEGIN
+			CALL CopyMessageHeaders();
+			-- CALL CopyEntireMessage();
+			DECLARE RootElement CHARACTER FIELDNAME(InputRoot.XMLNSC.*[<]);
+			SET Environment.Variables.AuthorizationHeader = InputRoot.HTTPInputHeader.Authorization;
+			SET Environment.Variables.Authentication = CAST(BASE64DECODE(SUBSTRING(InputRoot.HTTPInputHeader.Authorization FROM 7))AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+			DECLARE COLONPosition INTEGER POSITION(':' IN Environment.Variables.Authentication);
+			SET Environment.Variables.Username = SUBSTRING(Environment.Variables.Authentication FROM 1 FOR COLONPosition-1);
+			SET Environment.Variables.Password = SUBSTRING(Environment.Variables.Authentication FROM COLONPosition+1);
+			IF (Environment.Variables.Username = IDM_HRIS_GetEmployeeId_Cache.destinations.username) AND (Environment.Variables.Password = IDM_HRIS_GetEmployeeId_Cache.destinations.password)
+				THEN
+				DECLARE SCHEMA_NAME CHARACTER IDM_HRIS_GetEmployeeId_Cache.destinations.SCHEMA;
+				DECLARE FirstName CHARACTER Environment.Variable.FirstName;
+				DECLARE LastName CHARACTER Environment.Variable.LastName;
+				DECLARE EmployeeID CHARACTER Environment.Variable.EmployeeID;
+				DECLARE emailId CHARACTER Environment.Variable.emailId;
+
+				DECLARE query CHARACTER ' SELECT PERSONAL_LAST_NAME, PERSONAL_FIRST_NAME, EMAIL_ADDRESS, JOB_TITLE, PERSONAL_EMAIL , JOB_EMPLSTATUS, EMPLOYEE_STATUS,
+				JOB_LOCATION, JOB_DIVISION_FUNCAREA, JOB_DEPARTMENT_SUBFUNC, JOB_COMPANY_NAME, JOB_BUSINESS_UNIT_BUSAREA,
+				STATE, ADDRESS_CITY, ADDRESS_COUNTRY, MGR_FIRST_NAME, MGR_LAST_NAME, JOB_COUNTRY_OF_COMPANY, JOB_EMPLOYEE_CLASS,
+				JOB_CUSTOM_STRING2_FUNCTYPE, EMPLOYMENT_END_DATE_SEPARATION , EMPLOYMENT_START_DATE_HIRE, RECORD_LAST_MODIFIED_ON,
+				EMPLOYMENT_LAST_MODIFIED_ON, JOB_LAST_MODIFIED_ON , PERSONAL_LAST_MODIFIED_ON , PHONE_PERS_LAST_MODIFIED_ON, EMAIL_LAST_MODIFIED_ON,
+				ADDRESS_LAST_MODIFIED_ON, EMERGCONTACT_LAST_MODIFIED_ON, NATID_LAST_MODIFIED_ON, JOBREL_LAST_MODIFIED_ON, PAYNON_LAST_MODIFIED_ON ,
+				PAYREC_LAST_MODIFIED_ON, COMPINFO_LAST_MODIFIED_ON
+				FROM vw_person_esb where (UPPER(PERSONAL_FIRST_NAME) = UPPER( '''||FirstName||''') and UPPER(PERSONAL_LAST_NAME) = UPPER( '''||LastName|| ''') ) OR EMPLOYEE_ID = '''||EmployeeID || ''';
+				';				
+				
+				
+				--DECLARE query CHARACTER ' SELECT EMPLOYEE_ID, PERSONAL_LAST_NAME, PERSONAL_FIRST_NAME, EMAIL_ADDRESS, JOB_TITLE, PERSONAL_EMAIL , JOB_EMPLSTATUS FROM vw_person where UPPER(PERSONAL_FIRST_NAME) = UPPER( '''||FirstName||''') and UPPER(PERSONAL_LAST_NAME) = UPPER( '''||LastName|| ''');';
+				SET Environment.RS=PASSTHRU(query);
+				DECLARE noOfRecords INTEGER CARDINALITY (Environment.RS[]);
+				IF noOfRecords > 0 THEN
+					DECLARE i INTEGER 1;
+					WHILE i <= noOfRecords DO
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].FirstName = COALESCE(Environment.RS[i].PERSONAL_FIRST_NAME,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].LastName = COALESCE(Environment.RS[i].PERSONAL_LAST_NAME,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmailAddress=COALESCE(Environment.RS[i].EMAIL_ADDRESS,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].PersonalEmail=COALESCE(Environment.RS[i].PERSONAL_EMAIL,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobTitle=COALESCE(Environment.RS[i].JOB_TITLE,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobEmployeeStatus=COALESCE(Environment.RS[i].JOB_EMPLSTATUS,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmplStatus=COALESCE(Environment.RS[i].EMPLOYEE_STATUS,'');
+
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobLocation=COALESCE(Environment.RS[i].JOB_LOCATION,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobDivFuncArea=COALESCE(Environment.RS[i].JOB_DIVISION_FUNCAREA,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobDeptSubFunc=COALESCE(Environment.RS[i].JOB_DEPARTMENT_SUBFUNC,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobCompName=COALESCE(Environment.RS[i].JOB_COMPANY_NAME,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobBusinessArea=COALESCE(Environment.RS[i].JOB_BUSINESS_UNIT_BUSAREA,'');
+
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].State=COALESCE(Environment.RS[i].STATE,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].AddressCity=COALESCE(Environment.RS[i].ADDRESS_CITY,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].AddressCountry=COALESCE(Environment.RS[i].ADDRESS_COUNTRY,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].MGRFirstName=COALESCE(Environment.RS[i].MGR_FIRST_NAME,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].MGRLastName=COALESCE(Environment.RS[i].MGR_LAST_NAME,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobCountryComp=COALESCE(Environment.RS[i].JOB_COUNTRY_OF_COMPANY,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobEmpClass=COALESCE(Environment.RS[i].JOB_EMPLOYEE_CLASS,'');
+
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobCustFuncType=COALESCE(Environment.RS[i].JOB_CUSTOM_STRING2_FUNCTYPE,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmpEndDateSeparation=COALESCE(Environment.RS[i].EMPLOYMENT_END_DATE_SEPARATION,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmpStartDateHire=COALESCE(Environment.RS[i].EMPLOYMENT_START_DATE_HIRE,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].RecLastModified=COALESCE(Environment.RS[i].RECORD_LAST_MODIFIED_ON,'');
+
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmploymentLastModified=COALESCE(Environment.RS[i].EMPLOYMENT_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JobLastModified=COALESCE(Environment.RS[i].JOB_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].PersonalLastModified=COALESCE(Environment.RS[i].PERSONAL_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].PersPhoneLastModified=COALESCE(Environment.RS[i].PHONE_PERS_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmailLastModified=COALESCE(Environment.RS[i].EMAIL_LAST_MODIFIED_ON,'');
+
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].AddressLastModified=COALESCE(Environment.RS[i].ADDRESS_LAST_MODIFIED_ON ,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].EmergContactLastModified=COALESCE(Environment.RS[i].EMERGCONTACT_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].NATIDLastModified=COALESCE(Environment.RS[i].NATID_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].JOBRELLastModified=COALESCE(Environment.RS[i].JOBREL_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].PayNonLastModified=COALESCE(Environment.RS[i].PAYNON_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].PayRecLastModified=COALESCE(Environment.RS[i].PAYREC_LAST_MODIFIED_ON,'');
+						SET OutputRoot.XMLNSC.Details.{RootElement}[i].CompInfoLastModified=COALESCE(Environment.RS[i].COMPINFO_LAST_MODIFIED_ON,'');
+						SET i = i + 1;
+					END WHILE;
+				ELSE
+					CREATE FIELD OutputRoot.XMLNSC.Details.{RootElement}.status TYPE NameValue VALUE 'No rows to fetch from HRIS';
+				END IF;
+				PROPAGATE TO TERMINAL 'out';
+			ELSE
+				CREATE FIELD OutputRoot.XMLNSC.Details.{RootElement}.status TYPE NameValue VALUE 'Authentication Failed';
+				PROPAGATE TO TERMINAL 'out';
+			END IF;
+			RETURN FALSE;
+		END;
+
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER;
+			SET J = CARDINALITY(InputRoot.*[]);
+			WHILE I < J DO
+				SET OutputRoot.*[I] = InputRoot.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END;
+
+		CREATE PROCEDURE CopyEntireMessage() BEGIN
+			SET OutputRoot = InputRoot;
+		END;
+	END MODULE;
+	-----------------------------------------------------------
+	CREATE COMPUTE MODULE IDMGetEmployeeId_RemoveMQRFH2
+		CREATE FUNCTION Main() RETURNS BOOLEAN
+		BEGIN
+			CALL CopyMessageHeaders();
+			DECLARE RootElement CHARACTER FIELDNAME(InputRoot.XMLNSC.*[<]);
+			IF InputRoot.XMLNSC.{RootElement}.status = 'Authentication Failed' THEN
+				SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 401;
+			END IF;
+			IF InputRoot.XMLNSC.{RootElement}.status = 'FAILURE' THEN
+				SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+			END IF;
+			SET OutputRoot.MQMD = NULL;
+			SET OutputRoot.MQRFH2 = NULL;
+			SET OutputRoot.XMLNSC=InputRoot.XMLNSC;
+			RETURN TRUE;
+		END;
+
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER;
+			SET J = CARDINALITY(InputRoot.*[]);
+			WHILE I < J DO
+				SET OutputRoot.*[I] = InputRoot.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END;
+
+		CREATE PROCEDURE CopyEntireMessage() BEGIN
+			SET OutputRoot = InputRoot;
+		END;
+	END MODULE;
+	---------------------------------------------------------------------
+	CREATE COMPUTE MODULE ErrorHandler_GetEmployeeId
+		CREATE FUNCTION Main() RETURNS BOOLEAN
+		BEGIN
+			-- CALL CopyMessageHeaders();
+			CALL CopyMessageHeaders();
+			-- CALL CopyEntireMessage();
+
+			DECLARE ref REFERENCE TO Environment.Variables.MQRFH2;
+			DECLARE Text CHAR '';
+			DECLARE InsertText CHAR '';
+			DECLARE cErrorText CHARACTER '';
+			DECLARE RootElement CHARACTER '';
+			SET RootElement = Environment.Variable.RootElement;
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+			IF LASTMOVE(ref) = TRUE THEN
+				SET OutputRoot.MQRFH2 = Environment.Variables.MQRFH2;
+			ELSE
+				SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+				SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+				SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+				SET OutputRoot.MQRFH2.usr.BusinessID = Environment.Variable.EmployeeID;
+				SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.Encoding;
+				SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.CodedCharSetId;
+			END IF;
+
+			DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+			WHILE Listhandle.Text IS NOT NULL DO
+				SET Text = Text || ' ' || Listhandle.Text || ' ';
+				DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+				IF insertCount > 0 THEN
+					SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+				END IF;
+				MOVE Listhandle LASTCHILD;
+			END WHILE;
+			----------------------Error Responses------------------------
+			-- SET OutputRoot.Properties = InputRoot.Properties;
+			-- SET Environment.Variables.Status = '1';
+			-- SET Environment.Variables.StatusDescription = 'FAILURE';
+			CREATE FIELD OutputRoot.XMLNSC.Details.{RootElement}.status TYPE NameValue VALUE 'FAILURE';
+			PROPAGATE TO TERMINAL 'out1' DELETE NONE;
+			----------------------Error Responses------------------------
+
+			SET OutputRoot.EmailOutputHeader.Subject = 'IDM Get Employee ID Failure';
+			SET OutputRoot.EmailOutputHeader.From = IDM_HRIS_GetEmployeeId_Cache.destinations.fromaddress;
+			SET OutputRoot.EmailOutputHeader.To = IDM_HRIS_GetEmployeeId_Cache.destinations.toaddress;
+			SET cErrorText = ' Error Description : ' || Text;
+			SET OutputRoot.BLOB.BLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+			SET OutputRoot.XMLNSC =NULL;
+			PROPAGATE TO TERMINAL 'out';
+
+			RETURN FALSE;
+
+
+		END;
+
+		CREATE PROCEDURE CopyMessageHeaders() BEGIN
+			DECLARE I INTEGER 1;
+			DECLARE J INTEGER;
+			SET J = CARDINALITY(InputRoot.*[]);
+			WHILE I < J DO
+				SET OutputRoot.*[I] = InputRoot.*[I];
+				SET I = I + 1;
+			END WHILE;
+		END;
+
+		CREATE PROCEDURE CopyEntireMessage() BEGIN
+			SET OutputRoot = InputRoot;
+		END;
+	END MODULE;
+	------------------------------------------------------------------------------------------------------------------

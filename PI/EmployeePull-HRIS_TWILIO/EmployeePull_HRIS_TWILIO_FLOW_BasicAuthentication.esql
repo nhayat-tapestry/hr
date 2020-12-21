@@ -1,0 +1,416 @@
+
+--------------------------------------------------------------------------
+/************************************************************************
+Name : EmployeePull-HRIS
+Author : Suraj Sugunan
+Description : Employee Specific Pull from HRIS
+Version Author Date Change Description WorkItem
+0.1 Suraj 19/01/2018 Initial
+*************************************************************************/
+
+DECLARE IDM_EmpPull_Cache SHARED ROW;
+DECLARE isIDM_EmpPull_CacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE BasicAuthentication
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE envRef REFERENCE TO Environment;
+		CALL setConfigurableProperties(envRef);
+		SET Environment.Variables.Authentication = CAST(BASE64DECODE(SUBSTRING(InputRoot.HTTPInputHeader.Authorization FROM 7))AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE COLONPosition INTEGER POSITION(':' IN Environment.Variables.Authentication);
+		SET Environment.Variables.Username = SUBSTRING(Environment.Variables.Authentication FROM 1 FOR COLONPosition-1);
+		SET Environment.Variables.Password = SUBSTRING(Environment.Variables.Authentication FROM COLONPosition+1);
+		DECLARE RootElement CHARACTER FIELDNAME(InputRoot.XMLNSC.*[<]);
+		DECLARE EmployeeID CHARACTER InputRoot.XMLNSC.{RootElement}.EmployeeID;
+		SET Environment.Variables.EmployeeID = EmployeeID;
+
+		SET Environment.Variable.EmployeeID = EmployeeID;
+
+		IF (Environment.Variables.Username = IDM_EmpPull_Cache.destinations.username) AND (Environment.Variables.Password = IDM_EmpPull_Cache.destinations.password)
+			THEN
+			CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+			SET OutputRoot.MQRFH2.usr.BusinessID = Environment.Variable.EmployeeID;
+			SET OutputRoot.MQRFH2.usr.ID = Environment.Variable.ID;
+			SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.Encoding;
+			SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.CodedCharSetId;
+
+			RETURN TRUE;
+
+
+		ELSE
+
+			CREATE FIELD OutputRoot.XMLNSC.{RootElement}.status TYPE NameValue VALUE 'Authentication Failed';
+			PROPAGATE TO TERMINAL 'out1';
+
+		END IF;
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+	BEGIN
+		IF isIDM_EmpPull_CacheExist THEN
+
+		ELSE
+			--SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+			END IF;
+
+			DECLARE i INTEGER 1;
+
+			WHILE i <= noOfRecords DO
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+					SET IDM_EmpPull_Cache.destinations.fromaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+					SET IDM_EmpPull_Cache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='USERNAME' THEN
+					SET IDM_EmpPull_Cache.destinations.username =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PASSWORD' THEN
+					SET IDM_EmpPull_Cache.destinations.password =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+				SET i = i + 1;
+			END WHILE;
+
+			SET isIDM_EmpPull_CacheExist = TRUE;
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE ErrorEmailAlert
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+		DECLARE ref REFERENCE TO Environment.Variables.MQRFH2;
+		DECLARE Text CHAR '';
+		CREATE NEXTSIBLING OF OutputRoot.MQMD DOMAIN 'MQRFH2';
+
+
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version = 2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format = 'MQHRF2';
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID = 1208;
+		SET OutputRoot.MQRFH2.usr.BusinessID = Environment.Variable.EmployeeID;
+		SET OutputRoot.MQRFH2.usr.ID = Environment.Variable.ID;
+		SET OutputRoot.MQRFH2.usr.PROP_CCSID = InputRoot.Properties.Encoding;
+		SET OutputRoot.MQRFH2.usr.PROP_ENCOD = InputRoot.Properties.CodedCharSetId;
+
+
+		DECLARE cErrorText CHARACTER '';
+
+		SET OutputRoot.EmailOutputHeader.Subject = 'IDM Employee_Pull Failure';
+		SET OutputRoot.EmailOutputHeader.From = IDM_EmpPull_Cache.destinations.fromaddress;
+		SET OutputRoot.EmailOutputHeader.To = IDM_EmpPull_Cache.destinations.toaddress;
+		SET cErrorText = Environment.Variable.cErrorText;
+		SET OutputRoot.BLOB.BLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+
+
+
+		RETURN TRUE;
+
+
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+---------------------------------------------------------------------------------------
+DECLARE PULLDATA_HRISCache SHARED ROW;
+DECLARE isPULLDATA_HRISCacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE MSGBUS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+		CALL setConfigurableProperties();
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.MQMD.CodedCharSetId;
+		SET OutputRoot.Properties.Encoding = InputRoot.MQMD.Encoding;
+
+
+
+		SET Environment.Prpoerties = InputRoot.Properties;
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE setConfigurableProperties() BEGIN
+
+
+
+		IF isPULLDATA_HRISCacheExist THEN
+
+		ELSE
+			--SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+			SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variables.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-HRIS to fetch');
+			END IF;
+
+			DECLARE Y INTEGER 1;
+
+			WHILE Y <= noOfRecords DO
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='FROM_EMAIL' THEN
+					SET PULLDATA_HRISCache.FROM_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TO_EMAIL' THEN
+					SET PULLDATA_HRISCache.TO_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SUBJECT' THEN
+					SET PULLDATA_HRISCache.SUBJECT = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SCHEMA' THEN
+					SET PULLDATA_HRISCache.SCHEMA = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				SET Y = Y + 1;
+
+			END WHILE;
+
+			SET isPULLDATA_HRISCacheExist = TRUE;
+
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+------------------------------------------------------------------------------------------------------------------
+
+
+
+
+CREATE COMPUTE MODULE Error
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+
+
+
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+
+		SET OutputRoot.MQMD = NULL;
+		SET OutputRoot.MQRFH2 = NULL;
+		SET cErrorText = Text;
+		CREATE FIELD OutputRoot.XMLNSC.EmployeePull.status TYPE NameValue VALUE 'Technical Failure';
+		CREATE FIELD OutputRoot.XMLNSC.EmployeePull.reason TYPE NameValue VALUE 'An error occurred, try again and reach out to ESBSupport if the error occurs again';
+
+		SET Environment.Variable.cErrorText = cErrorText;
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+------------------------------------------------------------------------------------------------------------------
+CREATE COMPUTE MODULE Success
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		IF Environment.Variables.EmpFlag THEN
+			CREATE FIELD OutputRoot.XMLNSC.EmployeePull.status TYPE NameValue VALUE 'Success';
+		ELSE
+			CREATE FIELD OutputRoot.XMLNSC.EmployeePull.status TYPE NameValue VALUE 'Business Failure';
+			CREATE FIELD OutputRoot.XMLNSC.EmployeePull.reason TYPE NameValue VALUE 'No record available with that employee number';
+
+		END IF;
+
+		SET OutputRoot.MQMD = NULL;
+		SET OutputRoot.MQRFH2 = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-------------------------------------------------------------------------------------------------------------------
+CREATE COMPUTE MODULE PULLDATA_HRIS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		/**************************************************************************************************************************
+		1. SELECT Query to retrive all the data from the "vw_employee_for_IDM" table
+		**************************************************************************************************************************/
+		DECLARE SCHEMA_NAME CHARACTER PULLDATA_HRISCache.SCHEMA;
+		DECLARE EmpId CHARACTER Environment.Variables.EmployeeID;
+		IF LENGTH(SCHEMA_NAME) = 0 OR upper(SCHEMA_NAME) = 'NONE' OR upper(SCHEMA_NAME) = 'NOSCHEMA' THEN
+			SET Environment.Variable.EmpDetails[] = select * from Database.vw_person_esb AS A where A.XPK_PERSON = EmpId;
+			IF Environment.Variable.EmpDetails.TMP_SMS_NUM = 'Pending' and Environment.Variable.EmpDetails.SMS_FLAG = 'Y' THEN
+				PASSTHRU('Update STG_HRIS_PERSON SET TMP_SMS_NUM = ? where XPK_PERSON = ?','NULL',EmpId);
+				SET Environment.Variable.SelectQueryOutput.vw_employee_for_IDM[] =
+				select * from Database.vw_person_esb AS HRIS where HRIS.EMPLOYEE_ID = EmpId;
+			END IF;
+
+
+		ELSE
+			SET Environment.Variable.EmpDetails[] = select * from Database.vw_person_esb AS A where A.XPK_PERSON = EmpId;
+			IF Environment.Variable.EmpDetails.TMP_SMS_NUM = 'Pending' and Environment.Variable.EmpDetails.SMS_FLAG = 'Y' THEN
+				PASSTHRU('Update STG_HRIS_PERSON SET TMP_SMS_NUM = ? where XPK_PERSON = ?','NULL',EmpId);
+				SET Environment.Variable.SelectQueryOutput.vw_employee_for_IDM[] =
+				select * from Database.{SCHEMA_NAME}.vw_person_esb AS HRIS where HRIS.EMPLOYEE_ID = EmpId;
+			END IF;
+
+		END IF;
+
+		DECLARE noOfRecordsCount INTEGER CARDINALITY(Environment.Variable.SelectQueryOutput.vw_employee_for_IDM[]);
+
+		IF noOfRecordsCount ='0' THEN
+
+			SET Environment.Variables.EmpFlag = FALSE;
+
+			DECLARE cr CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE tab CHAR CAST(CAST(X'09' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE newline CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+
+
+			SET OutputRoot.Properties = InputRoot.Properties;
+
+			SET OutputRoot.MQMD = InputRoot.MQMD;
+			SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+			SET OutputRoot.MQRFH2.usr.BusinessID=Environment.Variables.EmployeeID;
+			SET OutputRoot.MQRFH2.usr.ID=Environment.Variables.EmployeeID;
+			SET OutputRoot.EmailOutputHeader.Subject = 'HRIS - IDM,No Rows To Fetch from HRIS Database';
+			SET OutputRoot.EmailOutputHeader.From = PULLDATA_HRISCache.FROM_EMAIL;
+			SET OutputRoot.EmailOutputHeader.To = PULLDATA_HRISCache.TO_EMAIL;
+
+
+			DECLARE ErrorMsg CHARACTER 'Integration: HRIS IDM PULL DATA'
+			||newline
+			||newline
+			||'No rows to fetch from HRIS DB for the extract ran on'
+			||SUBSTRING(CAST(CURRENT_TIMESTAMP AS CHARACTER) AFTER 'TIMESTAMP');
+			SET OutputRoot.BLOB.BLOB = CAST(ErrorMsg AS BLOB CCSID 1208 ENCODING 576);
+
+			PROPAGATE TO TERMINAL 'out2';
+
+		ELSE
+			SET Environment.Variables.EmpFlag = TRUE;
+
+			SET OutputRoot.Properties = InputRoot.Properties;
+			SET OutputRoot.MQMD = InputRoot.MQMD;
+			SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+			SET OutputRoot.MQRFH2.usr.BusinessID=Environment.Variable.SelectQueryOutput.vw_employee_for_IDM.EMPLOYEE_ID;
+			SET OutputRoot.MQRFH2.usr.ID=Environment.Variable.SelectQueryOutput.vw_employee_for_IDM.EMPLOYEE_ID;
+			SET OutputRoot.XMLNSC.HRISData = Environment.Variable.SelectQueryOutput.vw_employee_for_IDM;
+
+			SET Environment.XMLNSC.HRISData = OutputRoot.XMLNSC.HRISData;
+
+
+			RETURN TRUE;
+		END IF;
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

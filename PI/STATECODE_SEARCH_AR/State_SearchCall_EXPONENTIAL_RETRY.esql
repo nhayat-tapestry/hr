@@ -1,0 +1,537 @@
+
+----- Updated all the subject line with InputRoot.MQMD.ReplyToQMgr done by dhinesh on 03072017
+/***************************************/
+
+DECLARE EnableQueue EXTERNAL CHARACTER 'Q_To_Enable';
+DECLARE RetryFactor EXTERNAL INTEGER 2;
+DECLARE RETRY_THRESHOLD_IN_SECONDS EXTERNAL INTEGER 128;
+DECLARE RetryCount SHARED INTEGER 1;
+DECLARE RetryInterval SHARED INTEGER 2;
+DECLARE TimeExpired SHARED INTEGER 0;
+DECLARE isRetryCacheExist SHARED BOOLEAN FALSE;
+DECLARE RetryCache SHARED ROW;
+DECLARE timediff SHARED CHARACTER '';
+DECLARE InterfaceName EXTERNAL CHARACTER 'HRIS';
+
+
+CREATE COMPUTE MODULE Exp_Retry_CreateMsgForDP
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		SET OutputRoot = InputRoot;
+		SET OutputRoot.MQMD.CorrelId = InputRoot.MQMD.MsgId;
+		SET Environment.Variables.OriginalRFH2 = InputRoot.MQRFH2;
+		SET Environment.Variables.OriginalInput = InputRoot.BLOB.BLOB;
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE Exp_Retry_NoMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		SET OutputRoot.Properties.CodedCharSetId = 1208;
+		SET OutputRoot.Properties.Encoding = 473;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;
+		SET OutputRoot.MQMD.Encoding = 473;
+		SET OutputRoot.MQRFH2 = Environment.Variables.OriginalRFH2;
+		CREATE NEXTSIBLING OF OutputRoot.MQRFH2 DOMAIN 'XMLNSC';
+		SET Environment.Variables.RetryType = 'NoMessage';
+		PROPAGATE TO TERMINAL 'out' DELETE NONE; -- To Retry
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Exp_Retry_ProcessResponse
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyEntireMessage();
+		--Check whether the response has a SOAP FAULT
+		IF (EXISTS(InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault[])) THEN
+			-- Commented the set URL Line since it is application dependant --
+			--SET Environment.Variables.Fault.ShopCtrlUrl = InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:faultDetails.*:message.*:ShopCtrlUrl;
+			--Check whehther the faultType is Technical, If so it has to be retried and route to terminla out2
+			IF (InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:faultType='Technical') THEN
+				IF(InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:faultDetails.*:message.*:formattederrorText <> NULL
+				AND InputRoot.XMLNSC.*:Envelope.*:Body.*:Fault.*:detail.*:faultDetails.*:message.*:formattederrorText='Malformed content') THEN
+				--PROPAGATE TO TERMINAL 'out1'; --business fault
+				PROPAGATE TO TERMINAL 'out'; --business fault
+				RETURN FALSE;
+				-- If faultType is not Technical, then it is a business fault and don't retry
+			ELSE
+				PROPAGATE TO TERMINAL 'out2'; --technical fault
+				RETURN FALSE;
+			END IF;
+		ELSE
+			-- PROPAGATE TO TERMINAL 'out1';
+			PROPAGATE TO TERMINAL 'out'; --business fault
+		END IF;
+		--If SOAP Fault does not exists then consider as a success
+	ELSE
+		SET Environment.Variables.ShopCtrl.message[] = SELECT T FROM InputRoot.XMLNSC.*:ResponseMessage.*:object.*:string[] as T WHERE T.name = 'Message';
+		IF ( POSITION('deadlocked' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('deadlock victim' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('Rerun the transaction' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('Unable to cast object of type' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('System.Threading.Tasks.Task`1[System.Object]' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0
+			OR POSITION('ShopCtrl.API.Models.Order' IN CAST(Environment.Variables.ShopCtrl.message AS CHARACTER)) > 0 ) then
+
+			PROPAGATE TO TERMINAL 'out2';
+			RETURN FALSE;
+
+		ELSE
+			PROPAGATE TO TERMINAL 'out'; --Success
+			RETURN FALSE;
+		END IF;
+	END IF;
+END;
+
+CREATE PROCEDURE CopyMessageHeaders() BEGIN
+	DECLARE I INTEGER 1;
+	DECLARE J INTEGER;
+	SET J = CARDINALITY(InputRoot.*[]);
+	WHILE I < J DO
+		SET OutputRoot.*[I] = InputRoot.*[I];
+		SET I = I + 1;
+	END WHILE;
+END;
+
+CREATE PROCEDURE CopyEntireMessage() BEGIN
+	SET OutputRoot = InputRoot;
+END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE Exp_Retry_CreateQUnInhibitMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+		SET RetryCount = 0;
+		SET RetryInterval = 1;
+		SET TimeExpired = RETRY_THRESHOLD_IN_SECONDS;
+		/* PCF header is following the MQMD header. */
+
+		SET OutputRoot.Properties.Encoding = 546;
+		SET OutputRoot.MQMD.MsgType = MQMT_REQUEST;
+		SET OutputRoot.MQMD.Format = MQFMT_ADMIN;
+		SET OutputRoot.MQMD.ReplyToQ = 'QL.REPLY.MQPCF.PURGE';
+		SET OutputRoot.MQMD.MsgSeqNumber = 1;
+		/* Command is 'Change Queue: Inhibit GET from queue'. */
+		CREATE FIELD OutputRoot.MQPCF;
+		DECLARE refRequest REFERENCE TO OutputRoot.MQPCF;
+		SET refRequest.Type = MQCFT_COMMAND;
+		SET refRequest.StrucLength = MQCFH_STRUC_LENGTH;
+		SET refRequest.Version = MQCFH_CURRENT_VERSION;
+		SET refRequest.Command = MQCMD_CHANGE_Q;
+		SET refRequest.MsgSeqNumber = 1;
+		SET refRequest.Control = MQCFC_LAST;
+		/* First parameter: Queue Name. */
+		SET refRequest.Parameter[1] = MQCA_Q_NAME;
+		SET refRequest.Parameter[1].* =EnableQueue;
+		/* Second parameter: Queue Type. */
+		SET refRequest.Parameter[2] = MQIA_Q_TYPE;
+		SET refRequest.Parameter[2].* = MQQT_LOCAL;
+		/* Third parameter: Allow/Inhibit GET.*/
+		SET refRequest.Parameter[3] = MQIA_INHIBIT_GET;
+		SET refRequest.Parameter[3].* = MQQA_GET_ALLOWED;
+
+		set OutputRoot.BLOB.BLOB = asbitstream(OutputRoot.MQPCF);
+		set OutputRoot.MQPCF = null;
+		set OutputRoot.MQRFH2 = null;
+		SET OutputRoot.MQMD.Format = MQFMT_ADMIN;
+
+		PROPAGATE TO TERMINAL 'out';
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE Exp_Retry_CreateMsgForRetry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+
+		CREATE NEXTSIBLING OF OutputRoot.Properties DOMAIN 'MQMD';
+		SET OutputRoot.Properties.CodedCharSetId = 1208;
+		SET OutputRoot.Properties.Encoding = 473;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;
+		SET OutputRoot.MQMD.Encoding = 473;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+		SET OutputRoot.BLOB.BLOB = Environment.Variables.OriginalInput;
+		RETURN TRUE;
+
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE Exp_Retry_CreateTimerControlMsg
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		CALL CopyMessageHeaders();
+
+		DECLARE envRef REFERENCE TO Environment;
+		-- Call procedure setConfigurableProperties to set From and To Email address
+		CALL setConfigurableProperties(envRef);
+		--Increment RetryCount by 1
+		-- SET RetryCount = RetryCount+1;
+		-- If RetryInterval is less than 2048 seconds, Multiply RetryInterval with the given RetryFactor
+		IF (RetryInterval < RETRY_THRESHOLD_IN_SECONDS) THEN
+
+			SET RetryInterval = RetryInterval * RetryFactor;
+		ELSE
+			-- Prepare message to be emailed
+			DECLARE cr CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE tab CHAR CAST(CAST(X'09' AS BLOB) AS CHAR CCSID 1208);
+			DECLARE newline CHAR CAST(CAST(X'0A' AS BLOB) AS CHAR CCSID 1208);
+
+			SET OutputRoot.Properties = InputRoot.Properties;
+			SET OutputRoot.EmailOutputHeader.Subject = 'ESB Auto Remediation Notification :HRIS TO TWILIO State Search Call Integration';
+			SET OutputRoot.EmailOutputHeader.From = RetryCache.Email.FROM_EMAIL;
+			SET OutputRoot.EmailOutputHeader.To = RetryCache.Email.TO_EMAIL;
+
+			SET Environment.Variables.Gap = timediff;
+
+			DECLARE SecondsInHumanReadableFormat CHARACTER;
+			CALL convertSecondsToHumanReadableText(TimeExpired, SecondsInHumanReadableFormat);
+
+			DECLARE ErrorMsg CHARACTER 'Integration:HRIS To TWILIO'
+			|| newline
+			|| newline
+			|| 'TWILIO EndPoint with URL '
+			|| COALESCE(Environment.Variables.Fault.ShopCtrlUrl, 'ERROR-URL')
+			|| ' has not responded for about '
+			--|| CAST(TimeExpired AS CHAR)
+			|| SecondsInHumanReadableFormat
+			|| '.'
+			|| newline
+			|| newline
+			|| 'ESB will continue to retry every ' || Environment.Variables.Gap || ' (or '|| CAST (RETRY_THRESHOLD_IN_SECONDS AS CHAR) || ' seconds) until a successful connection is made.'
+			|| newline
+			|| newline
+			|| 'Please reach out to support personnel for the end point if this is NOT due to a planned maintenance.';
+			-- SET TimeExpired = TimeExpired *2;
+
+			SET TimeExpired = TimeExpired + RETRY_THRESHOLD_IN_SECONDS;
+
+			SET OutputRoot.BLOB.BLOB = CAST(ErrorMsg AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+			SET OutputLocalEnvironment.Destination.Email.Attachment.ContentType = 'text/plain';
+			SET OutputLocalEnvironment.Destination.Email.Attachment.ContentName = 'UPDATE_URL_Ack.txt';
+			-- SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+
+			DECLARE propRef REFERENCE TO InputRoot.Properties;
+			DECLARE inCCSID INT propRef.CodedCharSetId;
+			DECLARE inEncoding INT propRef.Encoding;
+			DECLARE msgBitStream BLOB Environment.Variables.OriginalInput;
+			DECLARE msgChar CHAR CAST(msgBitStream AS CHAR CCSID inCCSID);
+			SET OutputLocalEnvironment.Destination.Email.Attachment.Content = msgChar;
+			SET OutputRoot.XMLNSC = NULL;
+			PROPAGATE TO TERMINAL 'out1'; -- To Email
+
+		END IF;
+
+		CALL CopyMessageHeaders();
+		SET Environment.Variables.RetryInterval = RetryInterval;
+		-- Form Timer Message
+		Declare RetryIntervalchar CHAR CAST (RetryInterval as CHAR);
+		SET OutputRoot.Properties = InputRoot.Properties;
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+
+		CREATE FIELD OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest;
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Action ='SET';
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Identifier ='STATE_CALL';
+
+		DECLARE timervalue TIMESTAMP;
+
+		SET timervalue = CURRENT_TIMESTAMP + CAST (RetryIntervalchar as INTERVAL SECOND);
+		SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartDate = SUBSTRING(CAST(timervalue AS CHAR)FROM 12 FOR 10);
+			SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime = SUBSTRING (CAST(timervalue AS CHAR)FROM 23 FOR 15);
+
+				SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Count ='1';
+				SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:Interval ='60';
+				PROPAGATE TO TERMINAL 'out'; -- To Timer Queue
+				RETURN FALSE;
+
+			END;
+			--Procedure to fetch Email address from ESB_CONFIG DB
+			CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+			BEGIN
+				IF isRetryCacheExist THEN
+
+				ELSE
+					--SET Environment.Config.Attributes[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE UPPER(T.INTERFACE) = UPPER(InterfaceName);
+					SET Environment.Config.Attributes[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE UPPER(T.INTERFACE) = UPPER(InterfaceName);
+
+					SET RetryCache.Email.TO_EMAIL = THE (SELECT ITEM T.ATTRIBUTES FROM Environment.Config.Attributes[] as T WHERE UPPER(T.IDENTIFIER) = 'TO_EMAIL');
+					SET RetryCache.Email.FROM_EMAIL = THE(SELECT ITEM T.ATTRIBUTES FROM Environment.Config.Attributes[] as T WHERE UPPER(T.IDENTIFIER) = 'FROM_EMAIL');
+					SET RetryCache.Email.REPORT_EMAIL = THE(SELECT ITEM T.ATTRIBUTES FROM Environment.Config.Attributes[] as T WHERE UPPER(T.IDENTIFIER) = 'REPORT_EMAIL');
+
+
+					DECLARE hours INTEGER 0;
+					DECLARE minutes INTEGER 0;
+					DECLARE minutes1 INTEGER 0;
+					DECLARE seconds INTEGER 0;
+
+					DECLARE ch CHARACTER '';
+					CALL convertSecondsToHumanReadableText(RETRY_THRESHOLD_IN_SECONDS, ch);
+					SET timediff = ch;
+					SET TimeExpired = RETRY_THRESHOLD_IN_SECONDS * 2;
+					SET isRetryCacheExist = TRUE;
+				END IF;
+			END;
+
+
+			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER;
+				SET J = CARDINALITY(InputRoot.*[]);
+				WHILE I < J DO
+					SET OutputRoot.*[I] = InputRoot.*[I];
+					SET I = I + 1;
+				END WHILE;
+			END;
+
+			CREATE PROCEDURE CopyEntireMessage() BEGIN
+				SET OutputRoot = InputRoot;
+			END;
+
+			CREATE PROCEDURE convertSecondsToHumanReadableText(IN TotalSeconds INTEGER, INOUT SecondsInHumanReadableFormat CHARACTER) BEGIN
+
+				DECLARE SecondsLeft,days,hours,minutes INTEGER 0;
+				DECLARE timeGap CHARACTER '';
+
+				SET days = TotalSeconds/86400;
+				IF days > 0 THEN
+					IF days = 1 THEN
+						SET timeGap = timeGap || CAST(days AS CHARACTER) || ' day ';
+					ELSE
+						SET timeGap = timeGap || CAST(days AS CHARACTER) || ' days ';
+					END IF;
+				END IF;
+
+				SET SecondsLeft = MOD(TotalSeconds, 86400);
+				SET hours = SecondsLeft/3600;
+				IF hours > 0 THEN
+					IF hours = 1 THEN
+						SET timeGap = timeGap || CAST(hours AS CHARACTER) || ' hour ';
+					ELSE
+						SET timeGap = timeGap || CAST(hours AS CHARACTER) || ' hours ';
+					END IF;
+					SET timeGap = CAST(hours AS CHARACTER) || ' hours ';
+				END IF;
+
+				SET SecondsLeft = MOD(TotalSeconds, 3600);
+				SET minutes = SecondsLeft/60;
+				IF minutes > 0 THEN
+					IF minutes = 1 THEN
+						SET timeGap = timeGap || CAST(minutes AS CHARACTER) || ' minute ';
+					ELSE
+						SET timeGap = timeGap || CAST(minutes AS CHARACTER) || ' minutes ';
+					END IF;
+				END IF;
+
+				SET SecondsLeft = MOD(TotalSeconds, 60);
+				IF SecondsLeft > 0 THEN
+					IF minutes > 0 THEN
+						SET timeGap = timeGap || 'and ';
+					END IF;
+					IF SecondsLeft = 1 THEN
+						SET timeGap = timeGap || CAST(SecondsLeft AS CHARACTER) || ' second';
+					ELSE
+						SET timeGap = timeGap || CAST(SecondsLeft AS CHARACTER) || ' seconds';
+					END IF;
+				END IF;
+
+				SET SecondsInHumanReadableFormat = timeGap;
+
+			END;
+
+		END MODULE;
+
+
+
+		CREATE COMPUTE MODULE Exp_Retry_Log_Exception
+			CREATE FUNCTION Main() RETURNS BOOLEAN
+			BEGIN
+				CALL CopyMessageHeaders();
+				CREATE FIELD OutputRoot.XMLNSC.Exception;
+
+				SET OutputRoot.XMLNSC.Exception.List = InputExceptionList;
+				--Send to Queue
+				PROPAGATE TO TERMINAL 'out' DELETE NONE;
+
+				RETURN FALSE;
+
+			END;
+
+			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER;
+				SET J = CARDINALITY(InputRoot.*[]);
+				WHILE I < J DO
+					SET OutputRoot.*[I] = InputRoot.*[I];
+					SET I = I + 1;
+				END WHILE;
+			END;
+
+			CREATE PROCEDURE CopyEntireMessage() BEGIN
+				SET OutputRoot = InputRoot;
+			END;
+		END MODULE;
+
+
+
+		CREATE COMPUTE MODULE Exp_Retry_Log_ExceptionMsg
+			CREATE FUNCTION Main() RETURNS BOOLEAN
+			BEGIN
+				CALL CopyMessageHeaders();
+				CREATE FIELD OutputRoot.XMLNSC.Message;
+				SET OutputRoot.XMLNSC.Message.ExceptionList = InputExceptionList;
+				SET OutputRoot.XMLNSC.Message.Input = Environment.Variables.OriginalInput;
+				RETURN TRUE;
+
+			END;
+
+			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER;
+				SET J = CARDINALITY(InputRoot.*[]);
+				WHILE I < J DO
+					SET OutputRoot.*[I] = InputRoot.*[I];
+					SET I = I + 1;
+				END WHILE;
+			END;
+
+			CREATE PROCEDURE CopyEntireMessage() BEGIN
+				SET OutputRoot = InputRoot;
+			END;
+		END MODULE;
+
+
+
+		CREATE DATABASE MODULE Exp_Retry_ResetCache
+			CREATE FUNCTION Main() RETURNS BOOLEAN
+			BEGIN
+				SET isRetryCacheExist = FALSE;
+				RETURN FALSE;
+			END;
+
+		END MODULE;
+
+
+		CREATE COMPUTE MODULE CALL_DP_EXP_SetMQRFH2
+			CREATE FUNCTION Main() RETURNS BOOLEAN
+			BEGIN
+
+				CALL CopyEntireMessage();
+
+
+				SET RetryCount = RetryCount+1;
+				SET Environment.Variables.RetryCount = RetryCount;
+				DECLARE BusinessID CHAR;
+				SET BusinessID = InputRoot.MQRFH2.usr.BusinessID;
+				SET OutputRoot.MQRFH2.usr.RETRY_BusinessID = 'RETRY'||'_'||CAST(BusinessID AS CHAR)||'_'||CAST(RetryCount AS CHAR);
+				SET OutputRoot.MQRFH2.usr.RETRY_ID = 'RETRY'||CAST(BusinessID AS CHAR)||CAST(RetryCount AS CHAR);
+
+
+				RETURN TRUE;
+			END;
+
+			CREATE PROCEDURE CopyEntireMessage() BEGIN
+				SET OutputRoot = InputRoot;
+			END;
+		END MODULE;
+		CREATE COMPUTE MODULE TimeFormat
+			CREATE FUNCTION Main() RETURNS BOOLEAN
+			BEGIN
+				CALL CopyMessageHeaders();
+				CALL CopyEntireMessage();
+				IF CONTAINS (InputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime, '-') THEN
+					SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime =SUBSTRING(InputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime BEFORE '-');
+				ELSE
+					SET OutputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime = InputRoot.XMLNSC.*:Envelope.*:Header.*:TimeoutRequest.*:StartTime ;
+				END IF;
+				RETURN TRUE;
+			END;
+
+			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+				DECLARE I INTEGER 1;
+				DECLARE J INTEGER;
+				SET J = CARDINALITY(InputRoot.*[]);
+				WHILE I < J DO
+					SET OutputRoot.*[I] = InputRoot.*[I];
+					SET I = I + 1;
+				END WHILE;
+			END;
+
+			CREATE PROCEDURE CopyEntireMessage() BEGIN
+				SET OutputRoot = InputRoot;
+			END;
+		END MODULE;

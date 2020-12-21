@@ -1,0 +1,502 @@
+
+--
+DECLARE ns0 NAMESPACE 'http://tews6/wsdl';
+DECLARE IDMCache SHARED ROW;
+DECLARE isIDMCacheExist SHARED BOOLEAN FALSE;
+--
+CREATE DATABASE MODULE GetConfig
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envRef REFERENCE TO Environment;
+		CALL setConfigurableProperties(envRef);
+		--PROPAGATE TO LABEL 'SEARCH-USER';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE setConfigurableProperties(INOUT Environment REFERENCE)
+
+	BEGIN
+		IF isIDMCacheExist THEN
+
+		ELSE
+			--SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+			
+			SET Environment.Variable.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'IDM';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variable.Destination[]);
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-IDM to fetch');
+			END IF;
+
+			DECLARE i INTEGER 1;
+
+			WHILE i <= noOfRecords DO
+
+				IF Environment.Variable.Destination[i].IDENTIFIER = 'WS_URL' THEN
+					SET IDMCache.destinations.url =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST' THEN
+					SET IDMCache.destinations.directory =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TERTFILE' THEN
+					SET IDMCache.destinations.terminateFile =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='FROM_EMAIL' THEN
+					SET IDMCache.destinations.emailaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL' THEN
+					SET IDMCache.destinations.toaddress =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TO_EMAIL1' THEN
+					SET IDMCache.destinations.toaddress1 =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='USR' THEN
+					SET IDMCache.username =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD' THEN
+					SET IDMCache.password =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='PWD_EN' THEN
+					SET IDMCache.encodedpassword =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='DEST_WSREQUEST' THEN
+					SET IDMCache.DEST_WSREQUEST =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variable.Destination[i].IDENTIFIER ='TOTALCOUNT' THEN
+					SET IDMCache.TOTALCOUNT =Environment.Variable.Destination[i].ATTRIBUTES;
+				END IF;
+
+				IF UPPER(Environment.Variable.Destination[i].IDENTIFIER) ='STORE_ASSOCIATE_SPL_PWD' THEN
+					SET IDMCache.STORE_ASSOCIATE_SPL_PWD = Environment.Variable.Destination[i].ATTRIBUTES;
+					SET IDMCache.isStoreAssociateSplPwd = FALSE;
+					IF UPPER(IDMCache.STORE_ASSOCIATE_SPL_PWD) IN ('T', 'TRUE', 'Y', 'YES', '1') THEN
+						SET IDMCache.isStoreAssociateSplPwd = TRUE;
+					END IF;
+				END IF;
+
+				SET i = i + 1;
+			END WHILE;
+
+			SET isIDMCacheExist = TRUE;
+		END IF;
+	END;
+END MODULE;
+-------------------------------------------------------------
+
+CREATE COMPUTE MODULE Route
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		IF UPPER(Environment.empStatus)='INACTIVE' THEN
+			IF Environment.Variables.IsUserExists THEN
+				PROPAGATE TO LABEL 'INACTIVE';
+				RETURN FALSE;
+			ELSE
+				---skip record as it is already deleted from IDM---and log it in a file----
+				SET Environment.Variables.Alert.Type = 'EmpIDDoNotExist';
+				PROPAGATE TO LABEL 'ALERTS';
+				DETACH OutputRoot.XMLNSC;
+				DETACH OutputRoot.HTTPResponseHeader;
+				RETURN FALSE;
+				-- SET OutputRoot.BLOB.BLOB = Environment.BLOB ||
+				-- CAST(' : ' AS BLOB CCSID 1208) ||
+				-- CAST('SKIP NOTICE - User does not exist in IDM (already terminated user)' AS BLOB CCSID 1208);
+				-- SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory;
+				-- SET OutputLocalEnvironment.Destination.File.FileName = IDMCache.destinations.terminateFile;
+				--
+				-- DETACH OutputRoot.XMLNSC;
+				-- DETACH OutputRoot.HTTPResponseHeader;
+				--
+				-- PROPAGATE TO LABEL 'EmpIDDoNotExist';
+				-- RETURN FALSE;
+			END IF;
+			--terminate user--ends----
+			--ELSEIF CARDINALITY(InputRoot.XMLNSC.*:CoachViewUserSearchResult.*:ResultItem[]) > 0 THEN
+		ELSEIF UPPER(Environment.empStatus)='ACTIVE' THEN
+			----convert temp to perm-->oldemployeenumber exists-->empstatus=active-----
+			PROPAGATE TO LABEL 'ACTIVE';
+			RETURN FALSE;
+
+		END IF;
+		------MT changes for Employee Status Check i.e terminate or not-------------------
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE SetEnv
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError);
+		SET Environment.Variables.OriginalInput=InputRoot.XMLNSC;
+
+		SET OutputRoot.Properties = InputRoot.Properties;
+		CALL CopyMessageHeaders();
+		DECLARE envRef REFERENCE TO Environment;
+		SET Environment.employeeNumber = InputRoot.XMLNSC.HRISData.EMPLOYEE_ID ;
+		-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		IF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COH' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COB' THEN
+			SET Environment.brand = 'Coach';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'TPR' THEN
+			SET Environment.brand = 'Tapestry';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' THEN
+			SET Environment.brand = 'Kate';
+		ELSE
+			SET Environment.brand = InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA;
+		END IF;
+
+		SET Environment._PCT_FIRST_NAME_PCT_ = InputRoot.XMLNSC.HRISData.PERSONAL_PREFERRED_NAME;
+		IF LENGTH(InputRoot.XMLNSC.HRISData.PERSONAL_PREFERRED_NAME) = 0 OR (InputRoot.XMLNSC.HRISData.PERSONAL_PREFERRED_NAME) IS NULL THEN
+			--IF LENGTH(TRIM(Environment._PCT_FIRST_NAME_PCT_)) = 0 THEN
+			SET Environment._PCT_FIRST_NAME_PCT_ = InputRoot.XMLNSC.HRISData.PERSONAL_FIRST_NAME;
+		END IF;
+		SET Environment._PCT_FIRST_NAME_PCT_1 = InputRoot.XMLNSC.HRISData.PERSONAL_FIRST_NAME;
+		-- ELSE
+		-- SET Environment._PCT_FIRST_NAME_PCT_ = Environment.PERSONAL_PREFERRED_NAME;
+		-- END IF;
+		--
+		IF LENGTH(InputRoot.XMLNSC.HRISData.MIDDLE_INITIAL) = 0 OR (InputRoot.XMLNSC.HRIS.MIDDLE_INITIAL) IS NULL THEN
+			SET Environment.initials = '';
+		ELSE
+			SET Environment.initials = InputRoot.XMLNSC.HRISData.MIDDLE_INITIAL ;
+		END IF;
+
+		SET Environment.JOB_EMPLOYMENT_TYPE = InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE;
+		------ changes for TULIP related fields starts here -------
+		SET Environment.tulipemaileligibility = InputRoot.XMLNSC.HRISData.EMAIL_FLAG;
+		------ changes for TULIP related fields ends here -------
+		------ changes for TWILIO related fields starts here -------
+		SET Environment.telephoneNumber = InputRoot.XMLNSC.HRISData.TMP_SMS_NUM;
+		------ changes for TWILIO related fields ends here -------
+		---changes for KS RETAIL related fields starts here-----
+		SET Environment.JOB_PAY_GRADE_JOBAND = InputRoot.XMLNSC.HRISData.JOB_PAY_GRADE_JOBAND;
+		IF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' THEN
+			SET Environment.STORENUMBER = SUBSTRING(InputRoot.XMLNSC.HRISData.CUSTOMSTRING3_REGIONLOCATION FROM 4 FOR 4);
+		END IF;
+		---changes for KS RETAIL related fields ends here-----
+
+		IF (InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COB' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COH' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'TPR') AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYEE_CLASS = 'E' THEN
+			SET Environment.userType = 'User';
+
+		ELSEIF (InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COB' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COH' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'TPR') AND (InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'AG' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'TF' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'ST' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'LA' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IC' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'CN') THEN
+			SET Environment.userType = 'Contractor';
+
+		ELSEIF (InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COB' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COH' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'TPR') AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IT' THEN
+			SET Environment.userType = 'Intern';
+
+		ELSEIF (InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COB' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'COH' OR InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'TPR') AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'MS' THEN
+			SET Environment.userType = 'Outsourcing Partner';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND (InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'AG' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'TF' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'ST' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'LA' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IC' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'CN') THEN
+			SET Environment.userType = 'SW-Contractor';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IT' THEN
+			SET Environment.userType = 'SW-Intern';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'MS' THEN
+			SET Environment.userType = 'SW-Outsourcing Partner';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'FM' AND InputRoot.XMLNSC.HRISData.JOB_COUNTRY_OF_COMPANY = 'USA' THEN
+			SET Environment.userType = 'SW-User';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'FS' AND InputRoot.XMLNSC.HRISData.JOB_COUNTRY_OF_COMPANY = 'USA' THEN
+			SET Environment.userType = 'SW-User';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'FM' THEN
+			SET Environment.userType = 'SW-International Retail Manager ';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'FS' THEN
+			SET Environment.userType = 'SW-International Retail Associate ';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'SW' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYEE_CLASS = 'E' THEN
+			SET Environment.userType = 'SW-User';
+			----Katspade User Type Changes made on 21SEP2018-----starts here-----
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYEE_CLASS = 'E' THEN
+			SET Environment.userType = 'Kate-User';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' AND (InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'AG' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'TF' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'ST' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'LA' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IC' OR InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'CN') THEN
+			SET Environment.userType = 'Kate-Contractor';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'IT' THEN
+			SET Environment.userType = 'Kate-Intern';
+
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA = 'KS' AND InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'MS' THEN
+			SET Environment.userType = 'Kate-Outsourcing Partner';
+			----Katspade User Type Changes made on 21SEP2018-----ends here-----
+
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.JOB_EMPLOYMENT_TYPE = 'DC' THEN
+			SET Environment.employeeType = 'warehouse'; --commented on 12MAR2018 for WareHouse Employees---(JOB_LOCATION ='0002' or '0024') and JOB_DEPARTMENT_SUBFUNC = 'NONE' and JOB_EMPLOYMENT_TYPE) = 'DC'--
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_CUSTOM_STRING2_FUNCTYPE = '01' THEN
+			SET Environment.employeeType = 'retail';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_CUSTOM_STRING2_FUNCTYPE = '02' THEN
+			SET Environment.employeeType = 'corporate';
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.JOB_EMPLSTATUS = 'A' OR InputRoot.XMLNSC.HRISData.JOB_EMPLSTATUS = 'P' OR InputRoot.XMLNSC.HRISData.JOB_EMPLSTATUS = 'U' THEN
+			SET Environment.empStatus = 'Active';
+		ELSE
+			SET Environment.empStatus = 'Inactive';
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.JOB_PAY_GRADE_JOBAND >= 50 THEN
+			SET Environment.LeadershipFlag = 'Y';
+		ELSE
+			SET Environment.LeadershipFlag = InputRoot.XMLNSC.HRISData.LEADERSHIP_FLAG;
+		END IF;
+
+		SET Environment.DepartmentCode = RIGHT(InputRoot.XMLNSC.HRISData.JOB_COST_CENTER,4);
+
+		SET Environment.hireDate = CAST(InputRoot.XMLNSC.HRISData.HIRE_DATE_MDY AS CHARACTER FORMAT 'MM/DD/YYYY');
+		-----missing fields manipulation------
+		IF LENGTH(InputRoot.XMLNSC.HRISData.TERMINATE_DATE_MDY) = 0 OR (InputRoot.XMLNSC.HRISData.TERMINATE_DATE_MDY) IS NULL THEN
+			SET Environment.terminateDate = '';
+		ELSE
+			SET Environment.terminateDate = InputRoot.XMLNSC.HRISData.TERMINATE_DATE_MDY ;
+		END IF;
+		--
+		-- --SET Environment.terminateDate = CAST(COALESCE(NULLIF(InputRoot.XMLNSC.HRIS.terminateDate,'')) AS CHARACTER FORMAT 'MM/DD/YYYY');
+		-- IF LENGTH(InputRoot.XMLNSC.HRISData.JOB_FLSA_STATUS_USA) = 0 OR (InputRoot.XMLNSC.HRISData.JOB_FLSA_STATUS_USA) IS NULL THEN
+		-- SET Environment.JOB_FLSA_STATUS_USA = '';
+		-- ELSE
+		-- SET Environment.JOB_FLSA_STATUS_USA = InputRoot.XMLNSC.HRISData.JOB_FLSA_STATUS_USA ;
+		-- END IF;
+
+
+		IF (InputRoot.XMLNSC.HRISData.ADDRESS_COUNTRY = 'USA' OR InputRoot.XMLNSC.HRISData.ADDRESS_COUNTRY = 'PRI') AND InputRoot.XMLNSC.HRISData.JOB_FLSA_STATUS_USA = 'E' THEN
+			SET Environment.mobileIron = 'Exempt';
+		ELSEIF (InputRoot.XMLNSC.HRISData.ADDRESS_COUNTRY = 'USA' OR InputRoot.XMLNSC.HRISData.ADDRESS_COUNTRY = 'PRI') AND InputRoot.XMLNSC.HRISData.JOB_FLSA_STATUS_USA = 'N' THEN
+			SET Environment.mobileIron = 'Non-exempt';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_EMPLOYEE_TYPE = 'H' THEN
+			SET Environment.mobileIron = 'Non-exempt';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_EMPLOYEE_TYPE = 'S' THEN
+			SET Environment.mobileIron = 'Exempt';
+		END IF;
+
+
+
+		IF InputRoot.XMLNSC.HRISData.JOB_PAY_GRADE_JOBAND = '50' OR InputRoot.XMLNSC.HRISData.JOB_PAY_GRADE_JOBAND = '60' THEN
+			SET Environment.isVP = '1' ;
+		ELSE
+			SET Environment.isVP = '0' ;
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.JOB_PAY_GRADE_JOBAND >= '70' THEN
+			SET Environment.isSVP = '1' ;
+		ELSE
+			SET Environment.isSVP = '0' ;
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.EMPLOYMENT_DIRECT_REPORTS > 0 THEN
+			SET Environment.isMCWCorpPplMgr = '1' ;
+		ELSE
+			SET Environment.isMCWCorpPplMgr = '0' ;
+		END IF;
+
+		IF InputRoot.XMLNSC.HRISData.JOB_CUSTOM_STRING2_FUNCTYPE = '02' AND InputRoot.XMLNSC.HRISData.JOB_DIVISION_FUNCAREA = 'HR' THEN
+			SET Environment.isMCWCorpHR = '1';
+		ELSE
+			SET Environment.isMCWCorpHR = '0' ;
+		END IF;
+		---- Random Generated password is required for the PCT_PASSWORD & BAR_PASSWORD Fields ---- Starts Here
+		SET Environment._PCT_PASSWORD_PCT_ = InputRoot.XMLNSC.HRISData.PCT_PASSWORD;
+		SET Environment._BAR_passwordConfirm_BAR_ = InputRoot.XMLNSC.HRISData.BAR_PASSWORD;
+		---- Random Generated password is required for the PCT_PASSWORD & BAR_PASSWORD Fields ---- Ends Here
+		-- SET Environment.M = InputRoot.XMLNSC.HRIS.EMPLOYEE_STATUS;
+		--Changes by Suraj-----
+
+
+		SET Environment._PCT_LAST_NAME_PCT_ = InputRoot.XMLNSC.HRISData.PERSONAL_LAST_NAME;
+
+		SET Environment._PCT_FULL_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_ || Environment.initials || Environment._PCT_LAST_NAME_PCT;
+
+		SET Environment.c = InputRoot.XMLNSC.HRISData.COUNTRY;
+		----------------changes made for City on 19MAR2018 starts here -------------------------------------------
+		IF InputRoot.XMLNSC.HRISData.JOB_LOCATION = '0003' THEN
+			SET Environment.l = 'Shanghai';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_LOCATION = '0007' THEN
+			SET Environment.l = 'Dongguan';
+		ELSEIF InputRoot.XMLNSC.HRISData.JOB_LOCATION = '0017' THEN
+			SET Environment.l = 'Beijing';
+		ELSE
+			SET Environment.l = InputRoot.XMLNSC.HRISData.CITY;
+		END IF;
+		------------------ changes made for City on 19MAR2018 ends here----------------------------------------------
+
+		SET Environment.personalEMail = InputRoot.XMLNSC.HRISData.EMAIL_PERS_ADDRESS;
+		SET Environment.departmentName = InputRoot.XMLNSC.HRISData.FO_COST_CENTER_NAME;
+		SET Environment.managerEmployeeID = InputRoot.XMLNSC.HRISData.JOB_MANAGER_ID;
+		SET Environment.postalAddress = InputRoot.XMLNSC.HRISData.ADDRESSADDRESS1;
+		SET Environment.postalCode = InputRoot.XMLNSC.HRISData.ZIPCODE;
+		SET Environment.st = InputRoot.XMLNSC.HRISData.STATE;
+		SET Environment.title = InputRoot.XMLNSC.HRISData.JOB_TITLE;
+		SET Environment.jobCode = InputRoot.XMLNSC.HRISData.JOB_CODE;
+		
+		--changes made for fmsstoreid(new field) to send IDM starts here--
+		SET Environment.Variables.fmsstoreid = InputRoot.XMLNSC.HRISData.FMS_SITE_ID;
+		--changes made for fmsstoreid(new field) to send IDM ends here--
+		
+		IF LENGTH(InputRoot.XMLNSC.HRISData.BENEFITENROLLFLAG) = 0 OR (InputRoot.XMLNSC.HRISData.BENEFITENROLLFLAG) IS NULL THEN
+			SET Environment.BenefitEnrollFlag = '';
+		ELSE
+			SET Environment.BenefitEnrollFlag = InputRoot.XMLNSC.HRISData.BENEFITENROLLFLAG ;
+		END IF;
+
+		SET Environment.MajorGroup = InputRoot.XMLNSC.HRISData.JOB_DIVISION_FUNCAREA;
+
+		SET Environment.SubGroup = InputRoot.XMLNSC.HRISData.JOB_DEPARTMENT_SUBFUNC;
+		--SET Environment.mobileIron = InputRoot.XMLNSC.HRISData.MOBILE_IRON;
+		SET Environment.HRCostCenter = InputRoot.XMLNSC.HRISData.JOB_COST_CENTER;
+
+		SET Environment.isDVP = '0';
+
+		IF LENGTH(InputRoot.XMLNSC.HRISData.WO_VENDOR) = 0 OR (InputRoot.XMLNSC.HRISData.WO_VENDOR) IS NULL THEN
+			SET Environment.Company = '';
+		ELSE
+			SET Environment.Company = InputRoot.XMLNSC.HRISData.WO_VENDOR ;
+		END IF;
+		IF LENGTH(InputRoot.XMLNSC.HRISData.PHONE_PERS_PHONE_NUMBER) = 0 OR (InputRoot.XMLNSC.HRISData.PHONE_PERS_PHONE_NUMBER) IS NULL THEN
+			SET Environment.personalText = '';
+		ELSE
+			SET Environment.personalText = '+'||InputRoot.XMLNSC.HRISData.PHONE_PERS_COUNTRY_CODE||'-'||InputRoot.XMLNSC.HRISData.PHONE_PERS_AREA_CODE||'-'||InputRoot.XMLNSC.HRISData.PHONE_PERS_PHONE_NUMBER ;
+		END IF;
+
+
+		SET Environment.temptopermindicator = InputRoot.XMLNSC.HRISData.WO_CONVERT_TO_EMP;
+
+		IF LENGTH(InputRoot.XMLNSC.HRISData.EMPLOYMENT_FORMAL_EMP_ID) = 0 OR (InputRoot.XMLNSC.HRISData.EMPLOYMENT_FORMAL_EMP_ID) IS NULL THEN
+			SET Environment.oldemployeenumber = '';
+		ELSE
+			SET Environment.oldemployeenumber = InputRoot.XMLNSC.HRISData.EMPLOYMENT_FORMAL_EMP_ID ;
+		END IF;
+
+
+		IF UPPER(InputRoot.XMLNSC.HRISData.EMPLOYEE_STATUS) = 'ACTIVE' THEN
+			IF Environment.oldemployeenumber <> '' THEN
+				SET Environment.Search.EmployeeNumber = Environment.oldemployeenumber;
+			ELSE
+				SET Environment.Search.EmployeeNumber = Environment.employeeNumber;
+			END IF;
+		ELSEIF UPPER(InputRoot.XMLNSC.HRISData.EMPLOYEE_STATUS) = 'INACTIVE' THEN
+			SET Environment.Search.EmployeeNumber = Environment.employeeNumber;
+		END IF;
+
+		SET Environment.DOB = CAST(InputRoot.XMLNSC.HRISData.PERSON_DATE_OF_BIRTH AS CHARACTER);
+		SET Environment.RetailStoreAssociate.JOB_CUSTOM_STRING2_FUNCTYPE = InputRoot.XMLNSC.HRISData.JOB_CUSTOM_STRING2_FUNCTYPE;
+		SET Environment.RetailStoreAssociate.JOB_BUSINESS_UNIT_BUSAREA = InputRoot.XMLNSC.HRISData.JOB_BUSINESS_UNIT_BUSAREA;
+		SET Environment.RetailStoreAssociate.JOB_COUNTRY_OF_COMPANY = InputRoot.XMLNSC.HRISData.JOB_COUNTRY_OF_COMPANY;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+END MODULE;
+----------------------------------------------------------------------
+CREATE COMPUTE MODULE IDM_SYNC_REQUEST_LogExceptions
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+		DECLARE CRSTR BLOB CAST(x'0D' AS BLOB CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE LFSTR BLOB CAST(x'0A' AS BLOB CCSID InputRoot.Properties.CodedCharSetId);
+		DECLARE CRLF BLOB CRSTR||LFSTR;
+		SET CRLF = CAST(X'0A' AS BLOB);
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+		DECLARE cErrorTextBLOB BLOB;
+
+
+		DECLARE ref REFERENCE to InputExceptionList;
+		MOVE ref FIRSTCHILD;
+		WHILE LASTMOVE(ref) DO
+			MOVE ref LASTCHILD;
+		END WHILE;
+		MOVE ref PARENT;
+		IF FIELDNAME(ref) = 'Insert' THEN
+			MOVE ref PARENT;
+		END IF;
+
+		WHILE ref.Text IS NOT NULL DO
+			SET Text = Text || ' ' || ref.Text || '';
+			DECLARE refCount INTEGER CARDINALITY(ref.Insert[]);
+			IF refCount > 0 THEN
+				SET Text = Text || ' ' || ref.Insert[refCount].Text || '';
+			END IF;
+			MOVE ref LASTCHILD;
+		END WHILE;
+
+		SET OutputRoot.EmailOutputHeader.Subject = Environment.employeeNumber || '-' || 'Exception at Employee Feed Sync Request';
+		SET OutputRoot.EmailOutputHeader.From =IDMCache.destinations.emailaddress;
+		SET OutputRoot.EmailOutputHeader.To = IDMCache.destinations.toaddress;
+		SET cErrorText =Environment.employeeNumber || '-' || CAST(CURRENT_TIMESTAMP AS CHARACTER) ||
+		' - Error Description : ' || Text ;
+
+		SET cErrorTextBLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		SET OutputRoot.BLOB.BLOB = cErrorTextBLOB;
+
+		PROPAGATE TO TERMINAL 'out' DELETE NONE;
+
+
+		SET OutputRoot.EmailOutputHeader=NULL;
+		SET OutputRoot.BLOB.BLOB = cErrorTextBLOB || CRLF;
+		SET OutputLocalEnvironment.Destination.File.Name = 'IDMException.txt';
+		SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory;
+		-- CALL CopyEntireMessage();
+		PROPAGATE TO TERMINAL 'out1';
+		RETURN FALSE;
+	END;
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+END MODULE;

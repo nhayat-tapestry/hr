@@ -1,0 +1,75 @@
+-----------------------------------------------
+
+
+CREATE DATABASE MODULE WSSuccessResponse_Create
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CREATE-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN FALSE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+
+CREATE DATABASE MODULE WSSuccessResponse_Modify
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'MODIFY-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+
+CREATE DATABASE MODULE WSSuccessResponse_Terminate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TERMINATE-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+
+CREATE DATABASE MODULE WSSuccessResponse_TempToPerm
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'TEMPTOPERM-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+
+CREATE DATABASE MODULE WSSuccessResponse_CorpToRetail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'CORPTORETAIL-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+
+CREATE DATABASE MODULE WSSuccessResponse_RetailToCorp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET Environment.Variables.Alert.Type = 'RETAILTOCORP-SUCCESS';
+		--SET LocalEnvironment.Destination.RouterList.DestinationData.labelName = 'ALERTS';
+		PROPAGATE TO LABEL 'ALERTS';
+		RETURN TRUE;
+	END;
+END MODULE;
+
+----------------------------------------------------
+

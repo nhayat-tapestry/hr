@@ -1,0 +1,242 @@
+--DECLARE SuccessFrom EXTERNAL CHARACTER 'SuccessFrom';
+--DECLARE Caller EXTERNAL CHARACTER 'Functionality';
+DECLARE FaultType EXTERNAL CHARACTER 'FaultType';
+--
+--
+--CREATE COMPUTE MODULE CreateSuccess_CreateSuccessMessage
+--	CREATE FUNCTION Main() RETURNS BOOLEAN
+--	BEGIN
+--		DECLARE tmpBLOB                BLOB;	
+--		DECLARE posTAB1                INTEGER;
+--		DECLARE posTAB2                INTEGER;
+--		DECLARE tmpID                  CHARACTER;
+--		DECLARE tmpCHAR                CHARACTER;	 
+--		 
+--		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError); 
+--		
+--		DECLARE rispostaBitStream BLOB 
+--                CAST(ASBITSTREAM(InputRoot.XMLNSC 
+--                    OPTIONS parseOptions 
+--                    SET InputRoot.Properties.MessageSet 
+--                    TYPE InputRoot.Properties.MessageType 
+--                    FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+--		
+--		CALL CopyMessageHeaders();
+--		CALL CopyEntireMessage();
+--		 
+--		 
+--		SET tmpBLOB = rispostaBitStream;
+--		SET tmpCHAR = CAST(tmpBLOB AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId
+--		                     ENCODING InputRoot.Properties.Encoding);
+--		SET posTAB1 = POSITION('<NS1:transactionId>' IN tmpCHAR);
+--		IF posTAB1 > 0 THEN            /* If transactionId EXIST */
+--		   SET posTAB2 = POSITION('</NS1:transactionId>' IN tmpCHAR);
+--		   SET tmpID = CAST(SUBSTRING(tmpCHAR FROM posTAB1+19 FOR posTAB2-posTAB1-19) AS CHARACTER CCSID 819);
+--		ELSE
+--		   SET tmpID = 'transactionId TAG is NOT EXIST';
+--		END IF;
+--		
+--	    IF (SuccessFrom ='MODIFY1')THEN         
+--		SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+--		                           CAST(' : ' AS BLOB CCSID 1208) ||
+--		                           CAST('MODIFY SUCCESS1 - transactionId in Response' AS BLOB CCSID 1208) ||
+--		                           CAST(' - <NS1:transactionId>' AS BLOB CCSID 1208) || 
+--		                           CAST(tmpID AS BLOB CCSID 1208) ||
+--		                           CAST('</NS1:transactionId>' AS BLOB CCSID 1208); 
+--		                           
+--	    ELSEIF (SuccessFrom ='MODIFY2')THEN 
+--	    SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+--		                           CAST(' : ' AS BLOB CCSID 1208) ||
+--		                           CAST('MODIFY SUCCESS2 - transactionId in Response' AS BLOB CCSID 1208) ||
+--		                           CAST(' - <NS1:transactionId>' AS BLOB CCSID 1208) || 
+--		                           CAST(tmpID AS BLOB CCSID 1208) ||
+--		                           CAST('</NS1:transactionId>' AS BLOB CCSID 1208);		
+--	    	
+--	    	
+--	    ELSEIF (SuccessFrom ='MODIFY3')THEN
+--	    SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+--		                           CAST(' : ' AS BLOB CCSID 1208) ||
+--		                           CAST('MODIFY SUCCESS3 - transactionId in Response' AS BLOB CCSID 1208) ||
+--		                           CAST(' - <NS1:transactionId>' AS BLOB CCSID 1208) || 
+--		                           CAST(tmpID AS BLOB CCSID 1208) ||
+--		                           CAST('</NS1:transactionId>' AS BLOB CCSID 1208);	
+--		                           
+--	    ELSEIF (SuccessFrom ='CREATE')THEN 	
+--	    SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+--		                           CAST(' : ' AS BLOB CCSID 1208) ||
+--		                           CAST('CREATE SUCCESS - transactionId in Response' AS BLOB CCSID 1208) ||
+--		                           CAST(' - <NS1:transactionId>' AS BLOB CCSID 1208) || 
+--		                           CAST(tmpID AS BLOB CCSID 1208) ||
+--		                           CAST('</NS1:transactionId>' AS BLOB CCSID 1208);	
+--	    	
+--	    END IF; 	                          	
+--	 	SET OutputLocalEnvironment.Destination.File.Directory = IDMCache.destinations.directory; 	                        
+--	    PROPAGATE TO TERMINAL 'out';
+--	 
+--		RETURN FALSE;
+--	END;
+--
+--	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--		DECLARE I INTEGER 1;
+--		DECLARE J INTEGER;
+--		SET J = CARDINALITY(InputRoot.*[]);
+--		WHILE I < J DO
+--			SET OutputRoot.*[I] = InputRoot.*[I];
+--			SET I = I + 1;
+--		END WHILE;
+--	END;
+--
+--	CREATE PROCEDURE CopyEntireMessage() BEGIN
+--		SET OutputRoot = InputRoot;
+--	END;
+--END MODULE;
+
+
+
+CREATE COMPUTE MODULE CreateFault_CreateFaultMessage
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE tmpBLOB                BLOB;
+	  
+		DECLARE parseOptions INTEGER BITOR(FolderBitStream, ValidateContent, ValidateValue, ValidateLocalError); 
+		
+		DECLARE rispostaBitStream BLOB 
+                CAST(ASBITSTREAM(InputRoot.XMLNSC 
+                    OPTIONS parseOptions 
+                    SET InputRoot.Properties.MessageSet 
+                    TYPE InputRoot.Properties.MessageType 
+                    FORMAT InputRoot.Properties.MessageFormat) AS BLOB);
+		
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		
+
+		SET tmpBLOB = rispostaBitStream;
+		-- Append Original Fault Message with operation name
+		
+		IF (FaultType ='USER SEARCH FAULT1')THEN
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB ||
+		CAST(' : ' AS BLOB CCSID 1208) ||
+		CAST('USER SEARCH FAULT1 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		CAST(' - ' AS BLOB CCSID 1208) ||
+		tmpBLOB;	
+		
+		ELSEIF (FaultType ='USER SEARCH FAULT2')THEN
+		
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB ||
+		CAST(' : ' AS BLOB CCSID 1208) ||
+		CAST('USER SEARCH FAULT1 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		CAST(' - ' AS BLOB CCSID 1208) ||
+		tmpBLOB;
+		
+		ELSEIF (FaultType ='USER SEARCH FAULT3')THEN
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB ||
+		CAST(' : ' AS BLOB CCSID 1208) ||
+		CAST('USER SEARCH FAULT1 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		CAST(' - ' AS BLOB CCSID 1208) ||
+		tmpBLOB;
+		
+		
+		ELSEIF (FaultType='MODIFY FAULT1') THEN
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY FAULT1 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;
+		                           
+		ELSEIF (FaultType='CREATE FAULT1') THEN
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('CREATE FAULT1 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	 
+		                           
+	   ELSEIF(FaultType='MODIFY FAULT2' )THEN
+	   SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY FAULT2 - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	
+		                             	
+		                           
+		ELSEIF(FaultType='MODIFY FAULT3')THEN
+			  
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY FAULT3 ERROR - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB; 
+		                           
+		                           
+		ELSEIF(FaultType='CREATE TaskStatusQuery FAULT')THEN
+		
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB1 || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('TaskStatusQuery FAULT ERROR - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	                            
+		                           
+		ELSEIF(FaultType='MODIFY1 TaskStatusQuery FAULT') THEN
+		SET OutputRoot.BLOB.BLOB = Environment.BLOB2 || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY1 TaskStatusQuery FAULT ERROR - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	
+		                                                                                                         	
+	    ELSEIF(FaultType='MODIFY2 TaskStatusQuery FAULT') THEN
+	    SET OutputRoot.BLOB.BLOB = Environment.BLOB3 || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY2 TaskStatusQuery FAULT ERROR - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	  
+	    
+	    ELSEIF(FaultType='MODIFY3 TaskStatusQuery FAULT') THEN
+	    SET OutputRoot.BLOB.BLOB = Environment.BLOB3 || 
+		                           CAST(' : ' AS BLOB CCSID 1208) ||
+		                           CAST('MODIFY3 TaskStatusQuery FAULT ERROR - ERROR MESSAGE FOLLOWS' AS BLOB CCSID 1208) ||
+		                           CAST(' - ' AS BLOB CCSID 1208) || 
+		                           tmpBLOB;	
+	    				                           
+		END IF;			
+		
+		SET OutputLocalEnvironment.Destination.File.Directory =COALESCE(IDMCache.destinations.directory,IDMQueryCache.destinations.directory);	 
+		                     
+		RETURN TRUE;
+	END;
+	-- Procedure to copy Message Headers
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+	-- Procedure to copy Entire Message
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+
+
+
+CREATE COMPUTE MODULE IDM_FailureHandler
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		
+
+		RETURN FALSE;
+	END;
+
+END MODULE;
+
+
+
+
+
+

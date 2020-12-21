@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" 
+xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:CALL_DP.subflow="CALL_DP.subflow" xmlns:INHIBIT_QUEUE.subflow="INHIBIT_QUEUE.subflow" xmlns:ComIbmResetContentDescriptor.msgnode="ComIbmResetContentDescriptor.msgnode" xmlns:ErrorHandler.subflow="ErrorHandler.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" 
+xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="PurchaseNo_GetCalll_RETRY.msgflow" 
+nsPrefix="PurchaseNo_GetCalll_RETRY.msgflow">
+<eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+<eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.InputQueue" name="InputQueue" lowerBound="1"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ErrorQueue" name="ErrorQueue"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE.AR_ERROR">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RequestQueueToDP" name="RequestQueueToDP"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE_DPREQ">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.ResponseQueueFromDP" name="ResponseQueueFromDP" lowerBound="1"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE_DPRESP">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.SuccessQueue" name="SuccessQueue"  defaultValueLiteral="QL.IN.TWILIO.ESB.PURCHASE">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RetryQueue" name="RetryQueue"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE.DP.RETRY">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.TimerQueue" name="TimerQueue"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE.DP.RETRYTIMER">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.InhibitQueue" name="InhibitQueue" lowerBound="1"  defaultValueLiteral="QL.OUT.ESB.TWILIO.PURCHASE">
+  <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+</eStructuralFeatures>
+<translation xmi:type="utility:TranslatableString" key="PurchaseNo_GetCalll_RETRY" bundleName="PurchaseNo_GetCalll_RETRY" pluginId="flowAPIgenerated"/>
+<colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj16/PurchaseNo_GetCalll_RETRY.gif"/>
+<colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj30/PurchaseNo_GetCalll_RETRY.gif"/>
+<composition>
+<nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="77,78">
+<translation xmi:type="utility:ConstantString" string="GetRequestToRemediate"/>
+</nodes>
+<nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_20" location="340,15">
+<translation xmi:type="utility:ConstantString" string="ToErrorQ"/>
+</nodes>
+<nodes xmi:type="CALL_DP.subflow:FCMComposite_1" xmi:id="FCMComposite_1_1" location="330,82">
+<translation xmi:type="utility:ConstantString" string="ContactTWILIO"/>
+</nodes>
+<nodes xmi:type="INHIBIT_QUEUE.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="430,82">
+<translation xmi:type="utility:ConstantString" string="PrepareForRemediationOnTechnicalIssues"/>
+</nodes>
+<nodes xmi:type="ComIbmResetContentDescriptor.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="216,78" messageDomain="BLOB" resetMessageDomain="true">
+<translation xmi:type="utility:ConstantString" string="ConvertToBLOB"/>
+</nodes>
+<nodes xmi:type="ErrorHandler.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="225,15">
+<translation xmi:type="utility:ConstantString" string="ErrorHandler"/>
+</nodes>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input"/>
+<connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_20" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+</composition>
+<propertyOrganizer>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.InputQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.InputQueue" bundleName="ESB_ShopCtrl_PU_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ErrorQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ErrorQueue" bundleName="ESB_ShopCtrl_PU_RETRY" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.RequestQueueToDP">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RequestQueueToDP" bundleName="CALL_DP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.ResponseQueueFromDP">
+<propertyName xmi:type="utility:TranslatableString" key="Property.ResponseQueueFromDP" bundleName="CALL_DP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.SuccessQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.SuccessQueue" bundleName="CALL_DP" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.RetryQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.RetryQueue" bundleName="INHIBIT_QUEUE" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.mq.MQQueueNameEditor" configurable="true" describedAttribute="Property.TimerQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.TimerQueue" bundleName="INHIBIT_QUEUE" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+<propertyDescriptor groupName="Group.Queue_Configurations" configurable="true" userDefined="true" describedAttribute="Property.InhibitQueue">
+<propertyName xmi:type="utility:TranslatableString" key="Property.InhibitQueue" bundleName="INHIBIT_QUEUE" pluginId="ESB_ShopCtrl_ProductUploads_AutoRmd"/>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyDescriptor>
+</propertyOrganizer>
+<attributeLinks promotedAttribute="Property.InputQueue" overriddenNodes="FCMComposite_1_16">
+<overriddenAttribute href="ComIbmMQInput.msgnode#Property.queueName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ErrorQueue" overriddenNodes="FCMComposite_1_20">
+<overriddenAttribute href="ComIbmMQOutput.msgnode#Property.queueName"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RequestQueueToDP" overriddenNodes="FCMComposite_1_1">
+<overriddenAttribute href="CALL_DP.subflow#Property.RequestQueueToDP"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.ResponseQueueFromDP" overriddenNodes="FCMComposite_1_1">
+<overriddenAttribute href="CALL_DP.subflow#Property.ResponseQueueFromDP"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.SuccessQueue" overriddenNodes="FCMComposite_1_1">
+<overriddenAttribute href="CALL_DP.subflow#Property.SuccessQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.RetryQueue" overriddenNodes="FCMComposite_1_2">
+<overriddenAttribute href="INHIBIT_QUEUE.subflow#Property.RetryQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.TimerQueue" overriddenNodes="FCMComposite_1_2">
+<overriddenAttribute href="INHIBIT_QUEUE.subflow#Property.TimerQueue"/>
+</attributeLinks>
+<attributeLinks promotedAttribute="Property.InhibitQueue" overriddenNodes="FCMComposite_1_2">
+<overriddenAttribute href="INHIBIT_QUEUE.subflow#Property.InhibitQueue"/>
+</attributeLinks>
+<stickyBoard/>
+</eClassifiers>
+</ecore:EPackage>

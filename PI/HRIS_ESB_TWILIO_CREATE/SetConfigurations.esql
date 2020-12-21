@@ -1,0 +1,96 @@
+--DECLARE PULLDATA_HRISCache SHARED ROW;
+--DECLARE isPULLDATA_HRISCacheExist SHARED BOOLEAN FALSE;
+	CREATE PROCEDURE SetConfigurations(INOUT Environment REFERENCE) 
+	BEGIN
+		IF isPULLDATA_HRISCacheExist THEN
+
+		ELSE
+			--SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+			SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variables.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-HRIS to fetch');
+			END IF;
+
+			DECLARE Y INTEGER 1;
+
+			WHILE Y <= noOfRecords DO
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='FROM_EMAIL' THEN
+					SET PULLDATA_HRISCache.FROM_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TO_EMAIL' THEN
+					SET PULLDATA_HRISCache.TO_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SUBJECT_TWILIO' THEN
+					SET PULLDATA_HRISCache.SUBJECT = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_AUTH' THEN
+					SET PULLDATA_HRISCache.TWILIO_AUTH = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;	
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_URI' THEN
+					SET PULLDATA_HRISCache.TWILIO_URI = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_URI_AREACODE_SEARCH' THEN
+					SET PULLDATA_HRISCache.TWILIO_URI_AREACODE_SEARCH = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_URI_ZIPCODE_SEARCH' THEN
+					SET PULLDATA_HRISCache.TWILIO_URI_ZIPCODE_SEARCH = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_URI_STATE_SEARCH' THEN
+					SET PULLDATA_HRISCache.TWILIO_URI_STATE_SEARCH = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;			
+						
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_SMS_SIMULATION_FLAG' THEN
+					SET PULLDATA_HRISCache.TWILIO_SMS_SIMULATION_FLAG = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_PURCHASE_URI' THEN
+					SET PULLDATA_HRISCache.TWILIO_PURCHASE_URI = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='ErrorMessage1' THEN
+					SET PULLDATA_HRISCache.ErrorMessage1 = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='ErrorMessage2' THEN
+					SET PULLDATA_HRISCache.ErrorMessage2 = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='ErrorMessage3' THEN
+					SET PULLDATA_HRISCache.ErrorMessage3 = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;		
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_EXCEPTION_SUBJECT' THEN
+					SET PULLDATA_HRISCache.TWILIO_EXCEPTION_SUBJECT = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;		
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='Retry_Limit' THEN
+					SET PULLDATA_HRISCache.Retry_Limit = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_ENABLE_SMS_APIURI' THEN
+					SET PULLDATA_HRISCache.TWILIO_ENABLE_SMS_APIURI = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_ENABLE_SMSURL' THEN
+					SET PULLDATA_HRISCache.TWILIO_ENABLE_SMSURL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+							
+				SET Y = Y + 1;
+
+			END WHILE;
+
+			SET isPULLDATA_HRISCacheExist = TRUE;
+
+		END IF;
+	END;

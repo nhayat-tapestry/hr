@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tews6/wsdl">
+  <xsd:include schemaLocation="secure1_ANU_InlineSchema2.mxsd"/>
+</xsd:schema>

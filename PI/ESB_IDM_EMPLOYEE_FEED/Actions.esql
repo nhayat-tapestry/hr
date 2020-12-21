@@ -1,0 +1,1654 @@
+
+-----------------------------------------------------------------------
+CREATE COMPUTE MODULE SetSearchRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+
+
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+		SET OutputRoot.SOAP.Body.ns0:CoachViewUserSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+		SET OutputRoot.SOAP.Body.ns0:CoachViewUserSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+		SET OutputRoot.SOAP.Body.ns0:CoachViewUserSearch.ns0:Filter.ns0:Op = 'EQUALS';
+		SET OutputRoot.SOAP.Body.ns0:CoachViewUserSearch.ns0:Filter.ns0:Value = Environment.Search.EmployeeNumber;
+
+		SET Environment.SearchValueForView = 'employeeNumber';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+CREATE COMPUTE MODULE ModifyUserRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+		DECLARE flag INTEGER;
+		DECLARE fldName CHARACTER;
+		DECLARE tmpENABLE CHARACTER '';
+		DECLARE tmpTYPE CHARACTER '';
+		DECLARE tmpSTRING CHARACTER;
+		DECLARE tmpXML CHARACTER;
+		--CALL CopyEntireMessage();
+		DECLARE OrgRS REFERENCE TO Environment.Variables.OrgResultSet;
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMCache.destinations.url;
+		--DETACH OutputRoot.XMLNSC;
+		--DETACH OutputRoot.HTTPResponseHeader;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		CREATE FIELD OutputRoot.SOAP.Body.ns0:CoachModifyUser;
+		DECLARE outRef REFERENCE TO OutputRoot.SOAP.Body.ns0:CoachModifyUser;
+
+		SET outRef.ns0:CoachModifyUserSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+		SET outRef.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+		SET outRef.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Op = 'EQUALS';
+		SET outRef.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+
+		CREATE FIELD outRef.ns0:CoachModifyUserProfileTab;
+		DECLARE outputRef REFERENCE TO outRef.ns0:CoachModifyUserProfileTab;
+		-- IF Environment._PCT_FIRST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FIRST_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment.initials <> '' THEN
+		-- SET outputRef.ns0:middleName = Environment.initials;
+		-- END IF;
+		-- IF Environment._PCT_LAST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_LAST_NAME_PCT_ = Environment._PCT_LAST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment._PCT_FULL_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FULL_NAME_PCT_ = Environment._PCT_FULL_NAME_PCT_;
+		-- END IF;
+		IF Environment.brand <> '' THEN
+			SET outputRef.ns0:brand = Environment.brand;
+		END IF;
+		IF Environment.userType <> '' THEN
+			SET outputRef.ns0:userType = Environment.userType;
+		END IF;
+		IF Environment.employeeNumber <> '' THEN
+			SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+		END IF;
+		-- IF Environment._PCT_PASSWORD_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_PASSWORD_PCT_ = Environment._PCT_PASSWORD_PCT_;
+		-- END IF;
+		-- IF Environment._BAR_passwordConfirm_BAR_ <> '' THEN
+		-- SET outputRef.ns0:_BAR_passwordConfirm_BAR_ = Environment._BAR_passwordConfirm_BAR_;
+		-- END IF;
+		IF Environment.employeeType <> '' THEN
+			SET outputRef.ns0:employeeType = Environment.employeeType;
+		END IF;
+		IF Environment.c <> '' THEN
+			SET outputRef.ns0:c = Environment.c;
+		END IF;
+		IF Environment.l <> '' THEN
+			SET outputRef.ns0:l = Environment.l;
+		END IF;
+		IF Environment.personalEMail <> '' THEN
+			SET outputRef.ns0:personalEMail = Environment.personalEMail;
+		END IF;
+		IF Environment.departmentName <> '' THEN
+			SET outputRef.ns0:departmentName = Environment.departmentName;
+		END IF;
+		IF Environment.managerEmployeeID <> '' THEN
+			SET outputRef.ns0:managerEmployeeID = Environment.managerEmployeeID;
+		END IF;
+		IF Environment.postalAddress <> '' THEN
+			SET outputRef.ns0:postalAddress = Environment.postalAddress;
+		END IF;
+		IF Environment.postalCode <> '' THEN
+			SET outputRef.ns0:postalCode = Environment.postalCode;
+		END IF;
+		IF Environment.st <> '' THEN
+			SET outputRef.ns0:st = Environment.st;
+		END IF;
+		IF Environment.title <> '' THEN
+			SET outputRef.ns0:title = Environment.title;
+		END IF;
+		IF Environment.jobCode <> '' THEN
+			SET outputRef.ns0:jobCode = Environment.jobCode;
+		END IF;
+		IF Environment.empStatus <> '' THEN
+			SET outputRef.ns0:employeeStatus = Environment.empStatus;
+		END IF;
+		IF Environment.LeadershipFlag <> '' THEN
+			SET outputRef.ns0:leadershipFlag = Environment.LeadershipFlag;
+		END IF;
+		IF Environment.BenefitEnrollFlag <> '' THEN
+			SET outputRef.ns0:benefitEnrollFlag = Environment.BenefitEnrollFlag;
+		END IF;
+
+		IF Environment.MajorGroup <> '' THEN
+			SET outputRef.ns0:MajorGroup = Environment.MajorGroup;
+		END IF;
+		IF Environment.SubGroup <> '' THEN
+			SET outputRef.ns0:SubGroup = Environment.SubGroup;
+		END IF;
+		IF Environment.DepartmentCode <> '' THEN
+			SET outputRef.ns0:DepartmentCode = Environment.DepartmentCode;
+		END IF;
+		IF Environment.hireDate <> '' THEN
+			SET outputRef.ns0:hireDate = Environment.hireDate;
+		END IF;
+		/* commented as NULL on 19Mar2018 for TERMINATEDATE field for Create and Modify */
+		IF Environment.terminateDate <> '' THEN
+			SET outputRef.ns0:terminateDate = '';
+		END IF;
+
+		IF Environment.mobileIron <> '' THEN
+			SET outputRef.ns0:mobileIron = Environment.mobileIron;
+		END IF;
+		IF Environment.HRCostCenter <> '' THEN
+			SET outputRef.ns0:HRCostCenter = Environment.HRCostCenter;
+		END IF;
+		IF Environment.isDVP <> '' THEN
+			SET outputRef.ns0:isDVP = Environment.isDVP;
+		END IF;
+		IF Environment.isVP <> '' THEN
+			SET outputRef.ns0:isVP = Environment.isVP;
+		END IF;
+		IF Environment.isSVP <> '' THEN
+			SET outputRef.ns0:isSVP = Environment.isSVP;
+		END IF;
+		IF Environment.isMCWCorpPplMgr <> '' THEN
+			SET outputRef.ns0:isMCWCorpPplMgr = Environment.isMCWCorpPplMgr;
+		END IF;
+		IF Environment.isMCWCorpHR <> '' THEN
+			SET outputRef.ns0:isMCWCorpHR = Environment.isMCWCorpHR;
+		END IF;
+
+		IF Environment.temptopermindicator <> '' THEN
+			SET outputRef.ns0:temptopermindicator = Environment.temptopermindicator;
+		END IF;
+		IF Environment.oldemployeenumber <> '' THEN
+			SET outputRef.ns0:oldemployeenumber = Environment.oldemployeenumber;
+		END IF;
+		IF Environment.Company <> '' THEN
+			SET outputRef.ns0:Company = Environment.Company;
+		END IF;
+		-- IF LENGTH(OrgRS.PHONE_PERS_PHONE_NUMBER) > 0 THEN
+		-- SET outputRef.ns0:personalText = OrgRS.PHONE_PERS_PHONE_NUMBER;
+		-- END IF;
+		IF Environment.personalText <> '' THEN
+			SET outputRef.ns0:personalText = Environment.personalText;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field starts here-------------------------
+		IF Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID <> '' THEN
+			SET outputRef.ns0:oldkateemployeeid = Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID;
+		END IF;
+		IF Environment.JOB_PAY_GRADE_JOBAND <> '' THEN
+			SET outputRef.ns0:JOB_PAY_GRADE_JOBAND = Environment.JOB_PAY_GRADE_JOBAND;
+		END IF;
+		IF Environment.STORENUMBER <> '' THEN
+			SET outputRef.ns0:storenumber = Environment.STORENUMBER;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field ends here-------------------------
+		SET outputRef.ns0:hrEmploymentType = Environment.JOB_EMPLOYMENT_TYPE;
+		---------------changes made for Tulip related fields--addition of a new field starts here-------------------------
+		IF Environment.tulipemaileligibility <> '' THEN
+			SET outputRef.ns0:tulipemaileligibility = Environment.tulipemaileligibility;
+		END IF;
+		---------------changes made for Tulip related fields--addition of a new field ends here-------------------------
+
+
+
+		IF Environment.telephoneNumber = 'Pending' THEN
+			SET outputRef.ns0:telephoneNumber = '';
+
+		ELSEIF Environment.telephoneNumber <> '' THEN
+			DECLARE PhoneNumber CHARACTER;
+			DECLARE PH_NUM CHARACTER;
+			SET PH_NUM = Environment.telephoneNumber;
+			SET PhoneNumber = SUBSTRING (PH_NUM BEFORE ';');
+
+			SET outputRef.ns0:telephoneNumber = PhoneNumber;
+		END IF;
+		---------------changes made for Twilio related fields--addition of a new field ends here-------------------------
+		
+		--changes made for fmsstoreid(new field) to send IDM starts here--
+		SET outputRef.ns0:fmsstoreid = Environment.Variables.fmsstoreid;
+		--changes made for fmsstoreid(new field) to send IDM ends here--
+
+		SET OutputLocalEnvironment.Destination.File.Directory=IDMCache.DEST_WSREQUEST;
+		SET OutputLocalEnvironment.Destination.File.Name='IDM_CoachModifyUser1'||'_'||Environment.employeeNumber||'_'||CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyyMMddHHmmss')||'.txt';
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE CreateUserRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+		IF CONTAINS(Environment.PCT_PASSWORD1, 'coach') THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS( Environment.PCT_PASSWORD1,'handbag') THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS( Environment.PCT_PASSWORD1,'leather') THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS(Environment.PCT_PASSWORD1,'welcome') THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS(Environment.PCT_PASSWORD1, 'password') THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS(Environment.PCT_PASSWORD1, Environment._PCT_FIRST_NAME_PCT_) THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS(Environment.PCT_PASSWORD1, Environment._PCT_LAST_NAME_PCT_) THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		ELSEIF CONTAINS(Environment.PCT_PASSWORD1, Environment.employeeNumber ) THEN
+			PROPAGATE TO TERMINAL 'Out1';
+			RETURN FALSE;
+		END IF;
+
+		DECLARE flag INTEGER;
+		DECLARE fldName CHARACTER;
+		DECLARE tmpENABLE CHARACTER '';
+		DECLARE tmpTYPE CHARACTER '';
+		DECLARE tmpSTRING CHARACTER;
+		DECLARE tmpXML CHARACTER;
+		DECLARE ns0 NAMESPACE 'http://tews6/wsdl';
+		--CALL CopyEntireMessage();
+
+		DECLARE OrgRS REFERENCE TO Environment.Variables.OrgResultSet;
+
+		SET Environment._PCT_PASSWORD_PCT_ = Environment.PCT_PASSWORD1;
+		SET Environment._BAR_passwordConfirm_BAR_ = Environment.PCT_PASSWORD1;
+
+		DECLARE isStoreAssociate BOOLEAN FALSE;
+
+		IF
+			Environment.RetailStoreAssociate.JOB_CUSTOM_STRING2_FUNCTYPE = '01' AND
+			UPPER(Environment.RetailStoreAssociate.JOB_BUSINESS_UNIT_BUSAREA) = 'COB' AND
+			UPPER(Environment.RetailStoreAssociate.JOB_COUNTRY_OF_COMPANY) IN ('USA', 'CAN', 'PRI') THEN
+			SET isStoreAssociate = TRUE;
+		END IF;
+
+		IF IDMCache.isStoreAssociateSplPwd AND isStoreAssociate THEN
+			SET Environment.Variables.Default_Password = COALESCE(UPPER(SUBSTRING(Environment._PCT_FIRST_NAME_PCT_1 FROM 1 FOR 1)),'C');
+			SET Environment.Variables.Default_Password = Environment.Variables.Default_Password || COALESCE(LOWER(SUBSTRING(Environment._PCT_LAST_NAME_PCT_ FROM 1 FOR 1)),'h');
+			DECLARE DOB_MM CHARACTER COALESCE(SUBSTRING(Environment.DOB FROM 6 FOR 2), '02');
+			DECLARE DOB_DD CHARACTER COALESCE(SUBSTRING(Environment.DOB FROM 9 FOR 2), '31');
+			DECLARE DOB_YY CHARACTER COALESCE(SUBSTRING(Environment.DOB FROM 1 FOR 4), '2199');
+			SET Environment.Variables.DOB = DOB_MM || DOB_DD || DOB_YY;
+			SET Environment.Variables.Default_Password = Environment.Variables.Default_Password || Environment.Variables.DOB;
+			SET Environment._PCT_PASSWORD_PCT_ = Environment.Variables.Default_Password;
+			SET Environment._BAR_passwordConfirm_BAR_ = Environment.Variables.Default_Password;
+		END IF;
+		--SET Environment.BUSINESS_AREA = 'Coach';
+		--SET Environment.EMPLOYEE_TYPE = 'corporate';
+		--SET Environment.USER_TYPE = 'Contractor';
+
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMCache.destinations.url;
+		--DETACH OutputRoot.XMLNSC;
+		--DETACH OutputRoot.HTTPResponseHeader;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+		--SET OutputRoot.SOAP.Header.ns0:CoachCreateUserTaskContext.ns0:admin_id = IDMCache.username;
+		--SET OutputRoot.SOAP.Header.ns0:CoachCreateUserTaskContext.ns0:admin_password = IDMCache.password;
+
+		CREATE FIELD OutputRoot.SOAP.Body.ns0:CoachCreateUser;
+		DECLARE outRef REFERENCE TO OutputRoot.SOAP.Body.ns0:CoachCreateUser;
+
+		CREATE FIELD outRef.ns0:CoachCreateUserProfileTab;
+		DECLARE outputRef REFERENCE TO outRef.ns0:CoachCreateUserProfileTab;
+
+		IF Environment._PCT_FIRST_NAME_PCT_ <> '' THEN
+			SET outputRef.ns0:_PCT_FIRST_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_;
+		END IF;
+		IF Environment.initials <> '' THEN
+			SET outputRef.ns0:middleName = Environment.initials;
+		END IF;
+		IF Environment._PCT_LAST_NAME_PCT_ <> '' THEN
+			SET outputRef.ns0:_PCT_LAST_NAME_PCT_ = Environment._PCT_LAST_NAME_PCT_;
+		END IF;
+		IF Environment._PCT_FULL_NAME_PCT_ <> '' THEN
+			SET outputRef.ns0:_PCT_FULL_NAME_PCT_ = Environment._PCT_FULL_NAME_PCT_;
+		END IF;
+		IF Environment.brand <> '' THEN
+			SET outputRef.ns0:brand = Environment.brand;
+		END IF;
+		IF Environment.userType <> '' THEN
+			SET outputRef.ns0:userType = Environment.userType;
+		END IF;
+		IF Environment.employeeNumber <> '' THEN
+			SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+		END IF;
+		IF Environment._PCT_PASSWORD_PCT_ <> '' THEN
+			SET outputRef.ns0:_PCT_PASSWORD_PCT_ = Environment._PCT_PASSWORD_PCT_;
+		END IF;
+		IF Environment._BAR_passwordConfirm_BAR_ <> '' THEN
+			SET outputRef.ns0:_BAR_passwordConfirm_BAR_ = Environment._BAR_passwordConfirm_BAR_;
+		END IF;
+		IF Environment.employeeType <> '' THEN
+			SET outputRef.ns0:employeeType = Environment.employeeType;
+		END IF;
+		IF Environment.c <> '' THEN
+			SET outputRef.ns0:c = Environment.c;
+		END IF;
+		IF Environment.l <> '' THEN
+			SET outputRef.ns0:l = Environment.l;
+		END IF;
+		IF Environment.personalEMail <> '' THEN
+			SET outputRef.ns0:personalEMail = Environment.personalEMail;
+		END IF;
+		IF Environment.departmentName <> '' THEN
+			SET outputRef.ns0:departmentName = Environment.departmentName;
+		END IF;
+		IF Environment.managerEmployeeID <> '' THEN
+			SET outputRef.ns0:managerEmployeeID = Environment.managerEmployeeID;
+		END IF;
+		IF Environment.postalAddress <> '' THEN
+			SET outputRef.ns0:postalAddress = Environment.postalAddress;
+		END IF;
+		IF Environment.postalCode <> '' THEN
+			SET outputRef.ns0:postalCode = Environment.postalCode;
+		END IF;
+		IF Environment.st <> '' THEN
+			SET outputRef.ns0:st = Environment.st;
+		END IF;
+		IF Environment.title <> '' THEN
+			SET outputRef.ns0:title = Environment.title;
+		END IF;
+		IF Environment.jobCode <> '' THEN
+			SET outputRef.ns0:jobCode = Environment.jobCode;
+		END IF;
+		IF Environment.empStatus <> '' THEN
+			SET outputRef.ns0:employeeStatus = Environment.empStatus;
+		END IF;
+		IF Environment.LeadershipFlag <> '' THEN
+			SET outputRef.ns0:leadershipFlag = Environment.LeadershipFlag;
+		END IF;
+		IF Environment.BenefitEnrollFlag <> '' THEN
+			SET outputRef.ns0:benefitEnrollFlag = Environment.BenefitEnrollFlag;
+		END IF;
+
+		IF Environment.MajorGroup <> '' THEN
+			SET outputRef.ns0:MajorGroup = Environment.MajorGroup;
+		END IF;
+		IF Environment.SubGroup <> '' THEN
+			SET outputRef.ns0:SubGroup = Environment.SubGroup;
+		END IF;
+		IF Environment.DepartmentCode <> '' THEN
+			SET outputRef.ns0:DepartmentCode = Environment.DepartmentCode;
+		END IF;
+		IF Environment.hireDate <> '' THEN
+			SET outputRef.ns0:hireDate = Environment.hireDate;
+		END IF;
+		/*commented as NULL 19Mar2018 for TERMINATEDATE for Create and Modify*/
+		IF Environment.terminateDate <> '' THEN
+			SET outputRef.ns0:terminateDate = '';
+		END IF;
+
+		IF Environment.mobileIron <> '' THEN
+			SET outputRef.ns0:mobileIron = Environment.mobileIron;
+		END IF;
+		IF Environment.HRCostCenter <> '' THEN
+			SET outputRef.ns0:HRCostCenter = Environment.HRCostCenter;
+		END IF;
+		IF Environment.isDVP <> '' THEN
+			SET outputRef.ns0:isDVP = Environment.isDVP;
+		END IF;
+		IF Environment.isVP <> '' THEN
+			SET outputRef.ns0:isVP = Environment.isVP;
+		END IF;
+		IF Environment.isSVP <> '' THEN
+			SET outputRef.ns0:isSVP = Environment.isSVP;
+		END IF;
+		IF Environment.isMCWCorpPplMgr <> '' THEN
+			SET outputRef.ns0:isMCWCorpPplMgr = Environment.isMCWCorpPplMgr;
+		END IF;
+		IF Environment.isMCWCorpHR <> '' THEN
+			SET outputRef.ns0:isMCWCorpHR = Environment.isMCWCorpHR;
+		END IF;
+		-- IF Environment.temptopermindicator <> '' THEN
+		-- SET outputRef.ns0:temptopermindicator = Environment.temptopermindicator;
+		-- END IF;
+		IF Environment.oldemployeenumber <> '' THEN
+			SET outputRef.ns0:oldemployeenumber = Environment.oldemployeenumber;
+		END IF;
+		IF Environment.Company <> '' THEN
+			SET outputRef.ns0:Company = Environment.Company;
+		END IF;
+		-- IF LENGTH(OrgRS.PHONE_PERS_PHONE_NUMBER) > 0 THEN
+		-- SET outputRef.ns0:personalText = OrgRS.PHONE_PERS_PHONE_NUMBER;
+		-- END IF;
+		IF Environment.personalText <> '' THEN
+			SET outputRef.ns0:personalText = Environment.personalText;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field starts here-------------------------
+		IF Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID <> '' THEN
+			SET outputRef.ns0:oldkateemployeeid = Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID;
+		END IF;
+		IF Environment.JOB_PAY_GRADE_JOBAND <> '' THEN
+			SET outputRef.ns0:JOB_PAY_GRADE_JOBAND = Environment.JOB_PAY_GRADE_JOBAND;
+		END IF;
+		IF Environment.STORENUMBER <> '' THEN
+			SET outputRef.ns0:storenumber = Environment.STORENUMBER;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field ends here-------------------------
+		SET outputRef.ns0:hrEmploymentType = Environment.JOB_EMPLOYMENT_TYPE;
+		---------------changes made for TULIP related fields --addition of a new field starts here-------------------------
+		IF Environment.telephoneNumber = 'Pending' THEN
+			SET outputRef.ns0:telephoneNumber = '';
+		ELSEIF Environment.telephoneNumber <> '' THEN
+			DECLARE PhoneNumber CHARACTER;
+			DECLARE PH_NUM CHARACTER;
+			SET PH_NUM = Environment.telephoneNumber;
+			SET PhoneNumber = SUBSTRING (PH_NUM BEFORE ';');
+
+			SET outputRef.ns0:telephoneNumber = PhoneNumber;
+		END IF;
+		---------------changes made for TULIP related fields--addition of a new field ends here-------------------------
+		---------------changes made for Twilio related fields --addition of a new field starts here-------------------------
+		IF Environment.tulipemaileligibility <> '' THEN
+			SET outputRef.ns0:tulipemaileligibility = Environment.tulipemaileligibility;
+		END IF;
+		---------------changes made for Twilio related fields--addition of a new field ends here-------------------------
+		--changes made for fmsstoreid(new field) to send IDM starts here--
+		SET outputRef.ns0:fmsstoreid = Environment.Variables.fmsstoreid;
+		--changes made for fmsstoreid(new field) to send IDM ends here--
+		/**************************************************************************************************************************
+		UPDATE Query to update the "stg_hris_person" table with random password generated
+		**************************************************************************************************************************/
+		--PASSTHRU(UPDATE stg_hris_person SET TMP_CORP_PWD =?,TMP_CORP_PWD_UPD_DATE=SYSDATE where XPK_PERSON =? VALUES('12345','000975940'));
+		PASSTHRU('UPDATE stg_hris_person SET TMP_CORP_PWD =?,TMP_CORP_PWD_UPD_DATE=SYSDATE where XPK_PERSON =?', Environment._PCT_PASSWORD_PCT_,Environment.employeeNumber);
+		COMMIT;
+		/********* -----------------------------------------------------------***/
+		SET OutputLocalEnvironment.Destination.File.Directory=IDMCache.DEST_WSREQUEST;
+		SET OutputLocalEnvironment.Destination.File.Name='IDM_CoachCreateUser'||'_'||Environment.employeeNumber||'_'||CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyyMMddHHmmss')||'.txt';
+
+		RETURN TRUE;
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE CorpToRetailRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+
+		DECLARE OrgRS REFERENCE TO Environment.Variables.OrgResultSet;
+
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL =IDMCache.destinations.url;
+		--DETACH OutputRoot.XMLNSC;
+		--DETACH OutputRoot.HTTPResponseHeader;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		CREATE FIELD OutputRoot.SOAP.Body.ns0:ConvertCorptoRetail;
+		DECLARE outRef REFERENCE TO OutputRoot.SOAP.Body.ns0:ConvertCorptoRetail;
+
+		SET outRef.ns0:ConvertCorptoRetailSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+		SET outRef.ns0:ConvertCorptoRetailSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+		SET outRef.ns0:ConvertCorptoRetailSearch.ns0:Filter.ns0:Op = 'EQUALS';
+		SET outRef.ns0:ConvertCorptoRetailSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+
+		CREATE FIELD outRef.ns0:ConvertCorptoRetailProfileTab;
+		DECLARE outputRef REFERENCE TO outRef.ns0:ConvertCorptoRetailProfileTab;
+		-- IF Environment._PCT_FIRST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FIRST_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment.initials <> '' THEN
+		-- SET outputRef.ns0:middleName = Environment.initials;
+		-- END IF;
+		-- IF Environment._PCT_LAST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_LAST_NAME_PCT_ = Environment._PCT_LAST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment._PCT_FULL_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FULL_NAME_PCT_ = Environment._PCT_FULL_NAME_PCT_;
+		-- END IF;
+		IF Environment.brand <> '' THEN
+			SET outputRef.ns0:brand = Environment.brand;
+		END IF;
+		IF Environment.userType <> '' THEN
+			SET outputRef.ns0:userType = Environment.userType;
+		END IF;
+		IF Environment.employeeNumber <> '' THEN
+			SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+		END IF;
+		-- IF Environment._PCT_PASSWORD_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_PASSWORD_PCT_ = Environment._PCT_PASSWORD_PCT_;
+		-- END IF;
+		-- IF Environment._BAR_passwordConfirm_BAR_ <> '' THEN
+		-- SET outputRef.ns0:_BAR_passwordConfirm_BAR_ = Environment._BAR_passwordConfirm_BAR_;
+		-- END IF;
+		IF Environment.employeeType <> '' THEN
+			SET outputRef.ns0:employeeType = Environment.employeeType;
+		END IF;
+		IF Environment.c <> '' THEN
+			SET outputRef.ns0:c = Environment.c;
+		END IF;
+		IF Environment.l <> '' THEN
+			SET outputRef.ns0:l = Environment.l;
+		END IF;
+		IF Environment.personalEMail <> '' THEN
+			SET outputRef.ns0:personalEMail = Environment.personalEMail;
+		END IF;
+		IF Environment.departmentName <> '' THEN
+			SET outputRef.ns0:departmentName = Environment.departmentName;
+		END IF;
+		IF Environment.managerEmployeeID <> '' THEN
+			SET outputRef.ns0:managerEmployeeID = Environment.managerEmployeeID;
+		END IF;
+		IF Environment.postalAddress <> '' THEN
+			SET outputRef.ns0:postalAddress = Environment.postalAddress;
+		END IF;
+		IF Environment.postalCode <> '' THEN
+			SET outputRef.ns0:postalCode = Environment.postalCode;
+		END IF;
+		IF Environment.st <> '' THEN
+			SET outputRef.ns0:st = Environment.st;
+		END IF;
+		IF Environment.title <> '' THEN
+			SET outputRef.ns0:title = Environment.title;
+		END IF;
+		IF Environment.jobCode <> '' THEN
+			SET outputRef.ns0:jobCode = Environment.jobCode;
+		END IF;
+		IF Environment.empStatus <> '' THEN
+			SET outputRef.ns0:employeeStatus = Environment.empStatus;
+		END IF;
+		IF Environment.LeadershipFlag <> '' THEN
+			SET outputRef.ns0:leadershipFlag = Environment.LeadershipFlag;
+		END IF;
+		IF Environment.BenefitEnrollFlag <> '' THEN
+			SET outputRef.ns0:benefitEnrollFlag = Environment.BenefitEnrollFlag;
+		END IF;
+
+		IF Environment.MajorGroup <> '' THEN
+			SET outputRef.ns0:MajorGroup = Environment.MajorGroup;
+		END IF;
+		IF Environment.SubGroup <> '' THEN
+			SET outputRef.ns0:SubGroup = Environment.SubGroup;
+		END IF;
+		IF Environment.DepartmentCode <> '' THEN
+			SET outputRef.ns0:DepartmentCode = Environment.DepartmentCode;
+		END IF;
+		IF Environment.hireDate <> '' THEN
+			SET outputRef.ns0:hireDate = Environment.hireDate;
+		END IF;
+		IF Environment.terminateDate <> '' THEN
+			SET outputRef.ns0:terminateDate = Environment.terminateDate;
+		END IF;
+		IF Environment.mobileIron <> '' THEN
+			SET outputRef.ns0:mobileIron = Environment.mobileIron;
+		END IF;
+		IF Environment.HRCostCenter <> '' THEN
+			SET outputRef.ns0:HRCostCenter = Environment.HRCostCenter;
+		END IF;
+		IF Environment.isDVP <> '' THEN
+			SET outputRef.ns0:isDVP = Environment.isDVP;
+		END IF;
+		IF Environment.isVP <> '' THEN
+			SET outputRef.ns0:isVP = Environment.isVP;
+		END IF;
+		IF Environment.isSVP <> '' THEN
+			SET outputRef.ns0:isSVP = Environment.isSVP;
+		END IF;
+		IF Environment.isMCWCorpPplMgr <> '' THEN
+			SET outputRef.ns0:isMCWCorpPplMgr = Environment.isMCWCorpPplMgr;
+		END IF;
+		IF Environment.isMCWCorpHR <> '' THEN
+			SET outputRef.ns0:isMCWCorpHR = Environment.isMCWCorpHR;
+		END IF;
+
+		IF Environment.temptopermindicator <> '' THEN
+			SET outputRef.ns0:temptopermindicator = Environment.temptopermindicator;
+		END IF;
+		IF Environment.oldemployeenumber <> '' THEN
+			SET outputRef.ns0:oldemployeenumber = Environment.oldemployeenumber;
+		END IF;
+		IF Environment.Company <> '' THEN
+			SET outputRef.ns0:Company = Environment.Company;
+		END IF;
+		-- IF LENGTH(OrgRS.PHONE_PERS_PHONE_NUMBER) > 0 THEN
+		-- SET outputRef.ns0:personalText = OrgRS.PHONE_PERS_PHONE_NUMBER;
+		-- END IF;
+		IF Environment.personalText <> '' THEN
+			SET outputRef.ns0:personalText = Environment.personalText;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field starts here-------------------------
+		IF Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID <> '' THEN
+			SET outputRef.ns0:oldkateemployeeid = Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID;
+		END IF;
+		IF Environment.JOB_PAY_GRADE_JOBAND <> '' THEN
+			SET outputRef.ns0:JOB_PAY_GRADE_JOBAND = Environment.JOB_PAY_GRADE_JOBAND;
+		END IF;
+		IF Environment.STORENUMBER <> '' THEN
+			SET outputRef.ns0:storenumber = Environment.STORENUMBER;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field ends here-------------------------
+		SET outputRef.ns0:hrEmploymentType = Environment.JOB_EMPLOYMENT_TYPE;
+
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-----------------------------------------------------------------------------------
+CREATE COMPUTE MODULE RetailToCorpRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+		--SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+		--CALL CopyEntireMessage();
+
+		DECLARE OrgRS REFERENCE TO Environment.Variables.OrgResultSet;
+
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL =IDMCache.destinations.url;
+		--DETACH OutputRoot.XMLNSC;
+		--DETACH OutputRoot.HTTPResponseHeader;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		CREATE FIELD OutputRoot.SOAP.Body.ns0:ConvertRetailtoCorp;
+		DECLARE outRef REFERENCE TO OutputRoot.SOAP.Body.ns0:ConvertRetailtoCorp;
+
+		SET outRef.ns0:ConvertRetailtoCorpSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+		SET outRef.ns0:ConvertRetailtoCorpSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+		SET outRef.ns0:ConvertRetailtoCorpSearch.ns0:Filter.ns0:Op = 'EQUALS';
+		SET outRef.ns0:ConvertRetailtoCorpSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+
+		CREATE FIELD outRef.ns0:ConvertRetailtoCorpProfileTab;
+		DECLARE outputRef REFERENCE TO outRef.ns0:ConvertRetailtoCorpProfileTab;
+		-- IF Environment._PCT_FIRST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FIRST_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment.initials <> '' THEN
+		-- SET outputRef.ns0:middleName = Environment.initials;
+		-- END IF;
+		-- IF Environment._PCT_LAST_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_LAST_NAME_PCT_ = Environment._PCT_LAST_NAME_PCT_;
+		-- END IF;
+		-- IF Environment._PCT_FULL_NAME_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_FULL_NAME_PCT_ = Environment._PCT_FULL_NAME_PCT_;
+		-- END IF;
+		IF Environment.brand <> '' THEN
+			SET outputRef.ns0:brand = Environment.brand;
+		END IF;
+		IF Environment.userType <> '' THEN
+			SET outputRef.ns0:userType = Environment.userType;
+		END IF;
+		IF Environment.employeeNumber <> '' THEN
+			SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+		END IF;
+		-- IF Environment._PCT_PASSWORD_PCT_ <> '' THEN
+		-- SET outputRef.ns0:_PCT_PASSWORD_PCT_ = Environment._PCT_PASSWORD_PCT_;
+		-- END IF;
+		-- IF Environment._BAR_passwordConfirm_BAR_ <> '' THEN
+		-- SET outputRef.ns0:_BAR_passwordConfirm_BAR_ = Environment._BAR_passwordConfirm_BAR_;
+		-- END IF;
+		IF Environment.employeeType <> '' THEN
+			SET outputRef.ns0:employeeType = Environment.employeeType;
+		END IF;
+		IF Environment.c <> '' THEN
+			SET outputRef.ns0:c = Environment.c;
+		END IF;
+		IF Environment.l <> '' THEN
+			SET outputRef.ns0:l = Environment.l;
+		END IF;
+		IF Environment.personalEMail <> '' THEN
+			SET outputRef.ns0:personalEMail = Environment.personalEMail;
+		END IF;
+		IF Environment.departmentName <> '' THEN
+			SET outputRef.ns0:departmentName = Environment.departmentName;
+		END IF;
+		IF Environment.managerEmployeeID <> '' THEN
+			SET outputRef.ns0:managerEmployeeID = Environment.managerEmployeeID;
+		END IF;
+		IF Environment.postalAddress <> '' THEN
+			SET outputRef.ns0:postalAddress = Environment.postalAddress;
+		END IF;
+		IF Environment.postalCode <> '' THEN
+			SET outputRef.ns0:postalCode = Environment.postalCode;
+		END IF;
+		IF Environment.st <> '' THEN
+			SET outputRef.ns0:st = Environment.st;
+		END IF;
+		IF Environment.title <> '' THEN
+			SET outputRef.ns0:title = Environment.title;
+		END IF;
+		IF Environment.jobCode <> '' THEN
+			SET outputRef.ns0:jobCode = Environment.jobCode;
+		END IF;
+		IF Environment.empStatus <> '' THEN
+			SET outputRef.ns0:employeeStatus = Environment.empStatus;
+		END IF;
+		IF Environment.LeadershipFlag <> '' THEN
+			SET outputRef.ns0:leadershipFlag = Environment.LeadershipFlag;
+		END IF;
+		IF Environment.BenefitEnrollFlag <> '' THEN
+			SET outputRef.ns0:benefitEnrollFlag = Environment.BenefitEnrollFlag;
+		END IF;
+
+		IF Environment.MajorGroup <> '' THEN
+			SET outputRef.ns0:MajorGroup = Environment.MajorGroup;
+		END IF;
+		IF Environment.SubGroup <> '' THEN
+			SET outputRef.ns0:SubGroup = Environment.SubGroup;
+		END IF;
+		IF Environment.DepartmentCode <> '' THEN
+			SET outputRef.ns0:DepartmentCode = Environment.DepartmentCode;
+		END IF;
+		IF Environment.hireDate <> '' THEN
+			SET outputRef.ns0:hireDate = Environment.hireDate;
+		END IF;
+		IF Environment.terminateDate <> '' THEN
+			SET outputRef.ns0:terminateDate = Environment.terminateDate;
+		END IF;
+		IF Environment.mobileIron <> '' THEN
+			SET outputRef.ns0:mobileIron = Environment.mobileIron;
+		END IF;
+		IF Environment.HRCostCenter <> '' THEN
+			SET outputRef.ns0:HRCostCenter = Environment.HRCostCenter;
+		END IF;
+		IF Environment.isDVP <> '' THEN
+			SET outputRef.ns0:isDVP = Environment.isDVP;
+		END IF;
+		IF Environment.isVP <> '' THEN
+			SET outputRef.ns0:isVP = Environment.isVP;
+		END IF;
+		IF Environment.isSVP <> '' THEN
+			SET outputRef.ns0:isSVP = Environment.isSVP;
+		END IF;
+		IF Environment.isMCWCorpPplMgr <> '' THEN
+			SET outputRef.ns0:isMCWCorpPplMgr = Environment.isMCWCorpPplMgr;
+		END IF;
+		IF Environment.isMCWCorpHR <> '' THEN
+			SET outputRef.ns0:isMCWCorpHR = Environment.isMCWCorpHR;
+		END IF;
+
+		IF Environment.temptopermindicator <> '' THEN
+			SET outputRef.ns0:temptopermindicator = Environment.temptopermindicator;
+		END IF;
+		IF Environment.oldemployeenumber <> '' THEN
+			SET outputRef.ns0:oldemployeenumber = Environment.oldemployeenumber;
+		END IF;
+		IF Environment.Company <> '' THEN
+			SET outputRef.ns0:Company = Environment.Company;
+		END IF;
+		-- IF LENGTH(OrgRS.PHONE_PERS_PHONE_NUMBER) > 0 THEN
+		-- SET outputRef.ns0:personalText = OrgRS.PHONE_PERS_PHONE_NUMBER;
+		-- END IF;
+		IF Environment.personalText <> '' THEN
+			SET outputRef.ns0:personalText = Environment.personalText;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field starts here-------------------------
+		IF Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID <> '' THEN
+			SET outputRef.ns0:oldkateemployeeid = Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID;
+		END IF;
+		IF Environment.JOB_PAY_GRADE_JOBAND <> '' THEN
+			SET outputRef.ns0:JOB_PAY_GRADE_JOBAND = Environment.JOB_PAY_GRADE_JOBAND;
+		END IF;
+		IF Environment.STORENUMBER <> '' THEN
+			SET outputRef.ns0:storenumber = Environment.STORENUMBER;
+		END IF;
+		---------------changes made for KateSpade HRIS Integration--addition of a new field ends here-------------------------
+		SET outputRef.ns0:hrEmploymentType = Environment.JOB_EMPLOYMENT_TYPE;
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE TempToPermRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+		DECLARE OrgRS REFERENCE TO Environment.Variables.OrgResultSet;
+
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL =IDMCache.destinations.url;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		CREATE FIELD OutputRoot.SOAP.Body.ns0:ConvertTempToPerm;
+		DECLARE outRef REFERENCE TO OutputRoot.SOAP.Body.ns0:ConvertTempToPerm;
+		--DETACH OutputRoot.XMLNSC;
+		--DETACH OutputRoot.HTTPResponseHeader;
+
+		IF Environment.Variables.TempToPerm.MapType = 1 THEN
+
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Op = 'EQUALS';
+
+			IF Environment.oldemployeenumber <> '' AND CONTAINS(UPPER(Environment.userType), 'USER') THEN
+				SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Value = Environment.oldemployeenumber;
+			ELSE
+				SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+			END IF;
+
+			CREATE FIELD outRef.ns0:ConvertTempToPermProfileTab;
+			DECLARE outputRef REFERENCE TO outRef.ns0:ConvertTempToPermProfileTab;
+
+			SET outputRef.ns0:temptopermindicator = 'Y';
+			SET outputRef.ns0:empStatus = Environment.empStatus;
+			SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+			SET outputRef.ns0:userType = Environment.userType;
+			SET outputRef.ns0:title = Environment.title;
+
+		ELSEIF Environment.Variables.TempToPerm.MapType = 2 THEN
+
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+			SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Op = 'EQUALS';
+
+			IF Environment.oldemployeenumber <> '' AND CONTAINS(UPPER(Environment.userType), 'USER') THEN
+				SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Value = Environment.oldemployeenumber;
+			ELSE
+				SET outRef.ns0:ConvertTempToPermSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+			END IF;
+
+			CREATE FIELD outRef.ns0:ConvertTempToPermProfileTab;
+			DECLARE outputRef REFERENCE TO outRef.ns0:ConvertTempToPermProfileTab;
+			-- IF Environment._PCT_FIRST_NAME_PCT_ <> '' THEN
+			-- SET outputRef.ns0:_PCT_FIRST_NAME_PCT_ = Environment._PCT_FIRST_NAME_PCT_;
+			-- END IF;
+			-- IF Environment.initials <> '' THEN
+			-- SET outputRef.ns0:middleName = Environment.initials;
+			-- END IF;
+			-- IF Environment._PCT_LAST_NAME_PCT_ <> '' THEN
+			-- SET outputRef.ns0:_PCT_LAST_NAME_PCT_ = Environment._PCT_LAST_NAME_PCT_;
+			-- END IF;
+			-- IF Environment._PCT_FULL_NAME_PCT_ <> '' THEN
+			-- SET outputRef.ns0:_PCT_FULL_NAME_PCT_ = Environment._PCT_FULL_NAME_PCT_;
+			-- END IF;
+			IF Environment.brand <> '' THEN
+				SET outputRef.ns0:brand = Environment.brand;
+			END IF;
+			IF Environment.userType <> '' THEN
+				SET outputRef.ns0:userType = Environment.userType;
+			END IF;
+			IF Environment.employeeNumber <> '' THEN
+				SET outputRef.ns0:employeeNumber = Environment.employeeNumber;
+			END IF;
+			-- IF Environment._PCT_PASSWORD_PCT_ <> '' THEN
+			-- SET outputRef.ns0:_PCT_PASSWORD_PCT_ = Environment._PCT_PASSWORD_PCT_;
+			-- END IF;
+			-- IF Environment._BAR_passwordConfirm_BAR_ <> '' THEN
+			-- SET outputRef.ns0:_BAR_passwordConfirm_BAR_ = Environment._BAR_passwordConfirm_BAR_;
+			-- END IF;
+			IF Environment.employeeType <> '' THEN
+				SET outputRef.ns0:employeeType = Environment.employeeType;
+			END IF;
+			IF Environment.c <> '' THEN
+				SET outputRef.ns0:c = Environment.c;
+			END IF;
+			IF Environment.l <> '' THEN
+				SET outputRef.ns0:l = Environment.l;
+			END IF;
+			IF Environment.personalEMail <> '' THEN
+				SET outputRef.ns0:personalEMail = Environment.personalEMail;
+			END IF;
+			IF Environment.departmentName <> '' THEN
+				SET outputRef.ns0:departmentName = Environment.departmentName;
+			END IF;
+			IF Environment.managerEmployeeID <> '' THEN
+				SET outputRef.ns0:managerEmployeeID = Environment.managerEmployeeID;
+			END IF;
+			IF Environment.postalAddress <> '' THEN
+				SET outputRef.ns0:postalAddress = Environment.postalAddress;
+			END IF;
+			IF Environment.postalCode <> '' THEN
+				SET outputRef.ns0:postalCode = Environment.postalCode;
+			END IF;
+			IF Environment.st <> '' THEN
+				SET outputRef.ns0:st = Environment.st;
+			END IF;
+			IF Environment.title <> '' THEN
+				SET outputRef.ns0:title = Environment.title;
+			END IF;
+			IF Environment.jobCode <> '' THEN
+				SET outputRef.ns0:jobCode = Environment.jobCode;
+			END IF;
+			IF Environment.empStatus <> '' THEN
+				SET outputRef.ns0:employeeStatus = Environment.empStatus;
+			END IF;
+			IF Environment.LeadershipFlag <> '' THEN
+				SET outputRef.ns0:leadershipFlag = Environment.LeadershipFlag;
+			END IF;
+			IF Environment.BenefitEnrollFlag <> '' THEN
+				SET outputRef.ns0:benefitEnrollFlag = Environment.BenefitEnrollFlag;
+			END IF;
+
+			IF Environment.MajorGroup <> '' THEN
+				SET outputRef.ns0:MajorGroup = Environment.MajorGroup;
+			END IF;
+			IF Environment.SubGroup <> '' THEN
+				SET outputRef.ns0:SubGroup = Environment.SubGroup;
+			END IF;
+			IF Environment.DepartmentCode <> '' THEN
+				SET outputRef.ns0:DepartmentCode = Environment.DepartmentCode;
+			END IF;
+			IF Environment.hireDate <> '' THEN
+				SET outputRef.ns0:hireDate = Environment.hireDate;
+			END IF;
+			IF Environment.terminateDate <> '' THEN
+				SET outputRef.ns0:terminateDate = Environment.terminateDate;
+			END IF;
+			IF Environment.mobileIron <> '' THEN
+				SET outputRef.ns0:mobileIron = Environment.mobileIron;
+			END IF;
+			IF Environment.HRCostCenter <> '' THEN
+				SET outputRef.ns0:HRCostCenter = Environment.HRCostCenter;
+			END IF;
+			IF Environment.isDVP <> '' THEN
+				SET outputRef.ns0:isDVP = Environment.isDVP;
+			END IF;
+			IF Environment.isVP <> '' THEN
+				SET outputRef.ns0:isVP = Environment.isVP;
+			END IF;
+			IF Environment.isSVP <> '' THEN
+				SET outputRef.ns0:isSVP = Environment.isSVP;
+			END IF;
+			IF Environment.isMCWCorpPplMgr <> '' THEN
+				SET outputRef.ns0:isMCWCorpPplMgr = Environment.isMCWCorpPplMgr;
+			END IF;
+			IF Environment.isMCWCorpHR <> '' THEN
+				SET outputRef.ns0:isMCWCorpHR = Environment.isMCWCorpHR;
+			END IF;
+
+			IF Environment.temptopermindicator <> '' THEN
+				SET outputRef.ns0:temptopermindicator = Environment.temptopermindicator;
+			END IF;
+			IF Environment.oldemployeenumber <> '' THEN
+				SET outputRef.ns0:oldemployeenumber = Environment.oldemployeenumber;
+			END IF;
+			IF Environment.Company <> '' THEN
+				SET outputRef.ns0:Company = Environment.Company;
+			END IF;
+			-- IF LENGTH(OrgRS.PHONE_PERS_PHONE_NUMBER) > 0 THEN
+			-- SET outputRef.ns0:personalText = OrgRS.PHONE_PERS_PHONE_NUMBER;
+			-- END IF;
+			IF Environment.personalText <> '' THEN
+				SET outputRef.ns0:personalText = Environment.personalText;
+			END IF;
+			---------------changes made for KateSpade HRIS Integration--addition of a new field starts here-------------------------
+			IF Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID <> '' THEN
+				SET outputRef.ns0:oldkateemployeeid = Environment.Variables.OriginalInput.HRISData.EMPLOYMENT_CUSTOM_STRING9ACQID;
+			END IF;
+			IF Environment.JOB_PAY_GRADE_JOBAND <> '' THEN
+				SET outputRef.ns0:JOB_PAY_GRADE_JOBAND = Environment.JOB_PAY_GRADE_JOBAND;
+			END IF;
+			IF Environment.STORENUMBER <> '' THEN
+				SET outputRef.ns0:storenumber = Environment.STORENUMBER;
+			END IF;
+			---------------changes made for KateSpade HRIS Integration--addition of a new field ends here-------------------------
+			SET outputRef.ns0:hrEmploymentType = Environment.JOB_EMPLOYMENT_TYPE;
+
+
+		END IF;
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-----------------------------------------------------------------------------------------------------------
+CREATE COMPUTE MODULE TerminateUserRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		SET OutputRoot.MQMD = InputRoot.MQMD;
+		SET OutputRoot.MQRFH2 = InputRoot.MQRFH2;
+
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMCache.destinations.url;
+
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_id = IDMCache.username;
+		SET OutputRoot.SOAP.Body.ns0:TaskContext.ns0:admin_password = IDMCache.password;
+
+		SET OutputRoot.SOAP.Body.ns0:CoachModifyUser.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Field = 'employeeNumber';
+		SET OutputRoot.SOAP.Body.ns0:CoachModifyUser.ns0:CoachModifyUserSearch.ns0:Filter.(XMLNSC.Attribute)index = '0';
+		SET OutputRoot.SOAP.Body.ns0:CoachModifyUser.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Op = 'EQUALS';
+		SET OutputRoot.SOAP.Body.ns0:CoachModifyUser.ns0:CoachModifyUserSearch.ns0:Filter.ns0:Value = Environment.employeeNumber;
+		SET OutputRoot.SOAP.Body.ns0:CoachModifyUser.ns0:CoachModifyUserProfileTab.ns0:terminateDate = Environment.terminateDate;
+
+
+		SET OutputLocalEnvironment.Destination.File.Directory=IDMCache.DEST_WSREQUEST;
+		SET OutputLocalEnvironment.Destination.File.Name='IDM_CoachModifyUser2'||'_'||Environment.employeeNumber||'_'||CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyyMMddHHmmss')||'.txt';
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-----------------------------------------------------------------------------
+
+
+
+
+
+CREATE COMPUTE MODULE Action_SearchUser_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		--CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET Environment.variable.MQMD=InputRoot.MQMD;
+		SET Environment.variable.MQRFH2=InputRoot.MQRFH2;
+		SET OutputLocalEnvironment.Destination.SOAP.Request.Transport.HTTP.WebServiceURL = IDMCache.destinations.url;
+		SET OutputRoot.MQMD = NULL;
+		SET OutputRoot.MQRFH2 = NULL;
+
+		SET Environment.variable.RetryCount = 1;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+--------------------------------------------------------------------------------------
+
+
+
+
+CREATE COMPUTE MODULE Action_SearchUser_Retry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+----------------------------------------------------------------------------------
+
+CREATE COMPUTE MODULE Action_SearchUser_SetMQRFH2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DELETE FIELD OutputRoot.HTTPResponseHeader;
+		SET OutputRoot.MQMD=Environment.variable.MQMD;
+		SET OutputRoot.MQRFH2=Environment.variable.MQRFH2;
+		SET OutputRoot.XMLNSC=InputRoot.XMLNSC;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE removeMQRFH2_Create
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+---------------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_CreateUser_Retry_Create
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+----------------------------------------------------------------------------------
+
+CREATE COMPUTE MODULE Action_ModifyUser_removeMQRFH2_Modify
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+----------------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_ModifyUser_Retry_Modify
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+--------------------------------------------------------------------------------------------------
+
+
+
+
+CREATE COMPUTE MODULE Action_RetailToCorp_removeMQRFH2_RetailtoCorp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-----------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_RetailToCorp_Retry_RetailtoCorp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+----------------------------------------------------------------------------
+
+
+
+
+CREATE COMPUTE MODULE Action_CorpToRetail_removeMQRFH2_CorptoRetail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+--------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_CorpToRetail_Retry_CorpRetail
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+--------------------------------------------------------------------------------------
+
+CREATE COMPUTE MODULE Action_TerminateUser_removeMQRFH2_Terminate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+--------------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_TerminateUser_Retry_Terminate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+---------------------------------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_TempToPerm_removeMQRFH2_TemptoPerm
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		SET OutputRoot.MQRFH2 = NULL;
+		SET OutputRoot.MQMD = NULL;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+-------------------------------------------------------------------------------
+
+
+CREATE COMPUTE MODULE Action_TempToPerm_Retry_TempPerm
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+		CALL CopyMessageHeaders();
+
+
+		IF EXISTS(InputExceptionList.*[]) THEN
+
+			WHILE Environment.variable.RetryCount <= IDMCache.TOTALCOUNT
+				DO
+				SET OutputRoot.SOAP = InputRoot.SOAP;
+				SET Environment.variable.RetryCount = Environment.variable.RetryCount + 1;
+				Propagate to terminal 'out';
+			END WHILE;
+
+			SET OutputRoot.XMLNSC = Environment.Variables.OriginalInput;
+			Propagate to terminal 'out1';
+		END IF;
+		--CALL CopyEntireMessage();
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

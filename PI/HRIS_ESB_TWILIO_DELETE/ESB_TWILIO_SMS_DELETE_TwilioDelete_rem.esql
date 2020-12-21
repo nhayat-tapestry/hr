@@ -1,0 +1,34 @@
+DECLARE PULLDATA_HRISCache SHARED ROW;
+DECLARE isPULLDATA_HRISCacheExist SHARED BOOLEAN FALSE;
+
+CREATE COMPUTE MODULE ESB_TWILIO_SMS_DELETE_TwilioDelete_rem
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		SET OutputRoot.Properties				= InputRoot.Properties;
+		SET OutputRoot.MQMD						= InputRoot.MQMD;
+		SET OutputRoot.MQRFH2					= InputRoot.MQRFH2;					
+		--REM
+		SET OutputRoot.MQRFH2.usr.BusinessID 	= InputRoot.XMLNSC.HRISData.PERSON_ID_EXTERNAL;
+		SET OutputRoot.MQRFH2.usr.ID 			= CURRENT_TIMESTAMP;
+		SET OutputRoot.XMLNSC 					= InputRoot.XMLNSC;
+		--REM
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

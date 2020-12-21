@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmDatabase.msgnode="ComIbmDatabase.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmSOAPRequest.msgnode="ComIbmSOAPRequest.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="Action_ModifyUser.subflow" nsPrefix="Action_ModifyUser.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="Action_ModifyUser" bundleName="Action_ModifyUser" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj16/Action_ModifyUser.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ESB_IDM_EMPLOYEE_FEED/icons/full/obj30/Action_ModifyUser.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="24,125">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.Input" bundleName="Action_ModifyUser" pluginId="ESB_IDM_EMPLOYEE_FEED"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_16" location="215,116" wsdlFileName="ESB_IDMInboundWebService_MS/tews6/wsdl/secure.wsdl" selectedPortType="Tews6PortType" selectedBinding="Tews6SoapBinding" selectedOperation="CoachModifyUser" selectedPort="Tews6Port" targetNamespace="http://tews6/wsdl" useHTTPTransport="true" webServiceURL="https://njiqwidmapp05.global.coach.com:443/iam/im/TEWS6/secure" sslProtocol="TLSv1.2" messageSetProperty="ESB_IDMInboundWebService_MS"
+          parserXmlnscBuildTreeUsingXMLSchema="false" validateMaster="none">
+        <translation xmi:type="utility:ConstantString" string="CoachModifyUser"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_21" location="82,125" computeExpression="esql://routine/#ModifyUserRequest.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="ModifyUserRequest"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="390,115" statement="esql://routine/#WSSuccessResponse_Modify.Main">
+        <translation xmi:type="utility:ConstantString" string="SuccessModify"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="396,49" statement="esql://routine/#SetModifyError.Main">
+        <translation xmi:type="utility:ConstantString" string="ModifyError"/>
+      </nodes>
+      <nodes xmi:type="ComIbmDatabase.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="545,38" statement="esql://routine/#SetModifyFail.Main">
+        <translation xmi:type="utility:ConstantString" string="ModifyFail"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="155,218" computeExpression="esql://routine/#Action_ModifyUser_removeMQRFH2_Modify.Main">
+        <translation xmi:type="utility:ConstantString" string="removeMQRFH2_Modify"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="366,-25" computeExpression="esql://routine/#Action_ModifyUser_Retry_Modify.Main">
+        <translation xmi:type="utility:ConstantString" string="Retry_Modify"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="538,-24" queueName="QL.IDM.RETRY_USERMODIFY.OUT">
+        <translation xmi:type="utility:ConstantString" string="QL.IDM.RETRY_USERMODIFY.OUT"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_21" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.fault" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_21" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_16" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_16" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_16" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in">
+        <bendPoints>101,82,242,-59</bendPoints>
+        <bendPoints>104,184,245,43</bendPoints>
+        <bendPoints>-31,187,105,46</bendPoints>
+        <bendPoints>-121,186,15,45</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

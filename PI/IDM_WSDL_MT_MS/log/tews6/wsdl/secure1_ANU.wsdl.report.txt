@@ -1,0 +1,955 @@
+
+
+Importing file: C:\MT\PROJ_HA\IDM\WSDL\secure1_ANU.wsdl
+
+BIP0224W The message set has no XML Wire Format layer defined. Only the logical information will appear in the model.
+
+The following is a list of WS-I warning messages found when importing:
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23908, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23920, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23932, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23944, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23956, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23968, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23980, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 23992, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24004, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24016, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24028, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24040, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24052, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24064, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24076, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24088, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24100, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24112, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24124, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24136, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24148, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24160, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24172, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24184, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24196, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24208, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24220, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24232, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24244, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24256, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24268, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24280, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24292, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24304, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24316, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24328, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24340, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24352, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24364, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24376, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24388, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24400, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24412, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24424, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24436, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24448, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24460, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24472, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24484, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24496, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24508, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24520, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24532, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24544, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24556, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24568, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24580, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24592, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24604, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24616, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24628, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24640, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24652, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24664, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24676, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24688, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24700, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24712, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24724, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24736, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24748, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24760, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24772, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24784, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24796, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24808, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24820, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24832, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24844, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24856, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24868, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24880, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24892, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24904, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24916, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24928, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24940, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24952, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24964, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24976, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 24988, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25000, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25012, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25024, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25036, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25048, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25060, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25072, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25084, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25096, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25108, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25120, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25132, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25144, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25156, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25168, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25180, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25192, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25204, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25216, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25228, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25240, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25252, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25264, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25276, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25288, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25300, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25312, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25324, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25336, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25348, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25360, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25372, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25384, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25396, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25408, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25420, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25432, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25444, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25456, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25468, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25480, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25492, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25504, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25516, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25528, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25540, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25552, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25564, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25576, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25588, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25600, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25612, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25624, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25636, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25648, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25660, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25672, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25684, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25696, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25708, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25720, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25732, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25744, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25756, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25768, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25780, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25792, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25804, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25816, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25828, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25840, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25852, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25867, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25879, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25891, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25903, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25915, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25927, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25939, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25951, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25963, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25975, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25987, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 25999, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26011, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26023, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26035, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26047, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26059, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26071, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26083, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26095, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26107, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26119, Column: 17
+WS-I BP 1.1: (BP2119) The SOAP body must specify the parts attribute with a valid part name because the associated message declares more than one part., Line: 26131, Column: 17
+
+
+The WSDL import will proceed with bindings Tews6PublicSoapBinding, Tews6SoapBinding.
+Creating wsdl schema document for file:///C:/MT/PROJ_HA/IDM/WSDL/secure_WSDL_Original.wsdl.
+Parsing wsdl binding {http://tews6/wsdl}Tews6SoapBinding.
+Parsing wsdl binding input ChangeMyPassword.
+Parsing wsdl binding output ChangeMyPassword.
+Parsing wsdl binding fault ChangeMyPasswordFaultMessage.
+Parsing wsdl binding input ChangeMyPasswordQuery.
+Parsing wsdl binding output ChangeMyPasswordQuery.
+Parsing wsdl binding fault ChangeMyPasswordQueryFaultMessage.
+Parsing wsdl binding input CoachModifyMySecurityQuestions.
+Parsing wsdl binding output CoachModifyMySecurityQuestions.
+Parsing wsdl binding fault CoachModifyMySecurityQuestionsFaultMessage.
+Parsing wsdl binding input CoachModifyMySecurityQuestionsQuery.
+Parsing wsdl binding output CoachModifyMySecurityQuestionsQuery.
+Parsing wsdl binding fault CoachModifyMySecurityQuestionsQueryFaultMessage.
+Parsing wsdl binding input CoachResetUserPassword.
+Parsing wsdl binding output CoachResetUserPassword.
+Parsing wsdl binding fault CoachResetUserPasswordFaultMessage.
+Parsing wsdl binding input CoachResetUserPasswordQuery.
+Parsing wsdl binding output CoachResetUserPasswordQuery.
+Parsing wsdl binding fault CoachResetUserPasswordQueryFaultMessage.
+Parsing wsdl binding input CoachResetUserPasswordSearch.
+Parsing wsdl binding output CoachResetUserPasswordSearch.
+Parsing wsdl binding fault CoachResetUserPasswordSearchFaultMessage.
+Parsing wsdl binding input CorrelationAttributeConfiguration.
+Parsing wsdl binding output CorrelationAttributeConfiguration.
+Parsing wsdl binding fault CorrelationAttributeConfigurationFaultMessage.
+Parsing wsdl binding input CorrelationAttributeConfigurationQuery.
+Parsing wsdl binding output CorrelationAttributeConfigurationQuery.
+Parsing wsdl binding fault CorrelationAttributeConfigurationQueryFaultMessage.
+Parsing wsdl binding input ConvertCorptoRetail.
+Parsing wsdl binding output ConvertCorptoRetail.
+Parsing wsdl binding fault ConvertCorptoRetailFaultMessage.
+Parsing wsdl binding input ConvertCorptoRetailQuery.
+Parsing wsdl binding output ConvertCorptoRetailQuery.
+Parsing wsdl binding fault ConvertCorptoRetailQueryFaultMessage.
+Parsing wsdl binding input ConvertCorptoRetailSearch.
+Parsing wsdl binding output ConvertCorptoRetailSearch.
+Parsing wsdl binding fault ConvertCorptoRetailSearchFaultMessage.
+Parsing wsdl binding input ConvertEmployeeTypeOUChange.
+Parsing wsdl binding output ConvertEmployeeTypeOUChange.
+Parsing wsdl binding fault ConvertEmployeeTypeOUChangeFaultMessage.
+Parsing wsdl binding input ConvertEmployeeTypeOUChangeQuery.
+Parsing wsdl binding output ConvertEmployeeTypeOUChangeQuery.
+Parsing wsdl binding fault ConvertEmployeeTypeOUChangeQueryFaultMessage.
+Parsing wsdl binding input ConvertEmployeeTypeOUChangeSearch.
+Parsing wsdl binding output ConvertEmployeeTypeOUChangeSearch.
+Parsing wsdl binding fault ConvertEmployeeTypeOUChangeSearchFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorp.
+Parsing wsdl binding output ConvertRetailtoCorp.
+Parsing wsdl binding fault ConvertRetailtoCorpFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorpQuery.
+Parsing wsdl binding output ConvertRetailtoCorpQuery.
+Parsing wsdl binding fault ConvertRetailtoCorpQueryFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorpSearch.
+Parsing wsdl binding output ConvertRetailtoCorpSearch.
+Parsing wsdl binding fault ConvertRetailtoCorpSearchFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorpADAccess.
+Parsing wsdl binding output ConvertRetailtoCorpADAccess.
+Parsing wsdl binding fault ConvertRetailtoCorpADAccessFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorpADAccessQuery.
+Parsing wsdl binding output ConvertRetailtoCorpADAccessQuery.
+Parsing wsdl binding fault ConvertRetailtoCorpADAccessQueryFaultMessage.
+Parsing wsdl binding input ConvertRetailtoCorpADAccessSearch.
+Parsing wsdl binding output ConvertRetailtoCorpADAccessSearch.
+Parsing wsdl binding fault ConvertRetailtoCorpADAccessSearchFaultMessage.
+Parsing wsdl binding input ConvertTempToPerm.
+Parsing wsdl binding output ConvertTempToPerm.
+Parsing wsdl binding fault ConvertTempToPermFaultMessage.
+Parsing wsdl binding input ConvertTempToPermQuery.
+Parsing wsdl binding output ConvertTempToPermQuery.
+Parsing wsdl binding fault ConvertTempToPermQueryFaultMessage.
+Parsing wsdl binding input ConvertTempToPermSearch.
+Parsing wsdl binding output ConvertTempToPermSearch.
+Parsing wsdl binding fault ConvertTempToPermSearchFaultMessage.
+Parsing wsdl binding input CoachConvertUser.
+Parsing wsdl binding output CoachConvertUser.
+Parsing wsdl binding fault CoachConvertUserFaultMessage.
+Parsing wsdl binding input CoachConvertUserQuery.
+Parsing wsdl binding output CoachConvertUserQuery.
+Parsing wsdl binding fault CoachConvertUserQueryFaultMessage.
+Parsing wsdl binding input CoachConvertUserSearch.
+Parsing wsdl binding output CoachConvertUserSearch.
+Parsing wsdl binding fault CoachConvertUserSearchFaultMessage.
+Parsing wsdl binding input CreateExploreAndCorrelate.
+Parsing wsdl binding output CreateExploreAndCorrelate.
+Parsing wsdl binding fault CreateExploreAndCorrelateFaultMessage.
+Parsing wsdl binding input CreateExploreAndCorrelateSearch.
+Parsing wsdl binding output CreateExploreAndCorrelateSearch.
+Parsing wsdl binding fault CreateExploreAndCorrelateSearchFaultMessage.
+Parsing wsdl binding input CreateOwnerPoliciesForProvisioningRoles.
+Parsing wsdl binding output CreateOwnerPoliciesForProvisioningRoles.
+Parsing wsdl binding fault CreateOwnerPoliciesForProvisioningRolesFaultMessage.
+Parsing wsdl binding input CreateOwnerPoliciesForProvisioningRolesQuery.
+Parsing wsdl binding output CreateOwnerPoliciesForProvisioningRolesQuery.
+Parsing wsdl binding fault CreateOwnerPoliciesForProvisioningRolesQueryFaultMessage.
+Parsing wsdl binding input CreateOwnerPoliciesForProvisioningRolesSearch.
+Parsing wsdl binding output CreateOwnerPoliciesForProvisioningRolesSearch.
+Parsing wsdl binding fault CreateOwnerPoliciesForProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser.
+Parsing wsdl binding output CoachCreateUser.
+Parsing wsdl binding fault CoachCreateUserFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-GroupsSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser-Tab-DelegationSearch.
+Parsing wsdl binding output CoachCreateUser-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachCreateUser-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016FaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016Search.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016Search.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016SearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-GroupsSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserBackup4Mar2016-Tab-DelegationSearch.
+Parsing wsdl binding output CoachCreateUserBackup4Mar2016-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachCreateUserBackup4Mar2016-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016.
+Parsing wsdl binding output CoachCreateUser17Apr2016.
+Parsing wsdl binding fault CoachCreateUser17Apr2016FaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016Search.
+Parsing wsdl binding output CoachCreateUser17Apr2016Search.
+Parsing wsdl binding fault CoachCreateUser17Apr2016SearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-GroupsSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser17Apr2016-Tab-DelegationSearch.
+Parsing wsdl binding output CoachCreateUser17Apr2016-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachCreateUser17Apr2016-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1.
+Parsing wsdl binding output CoachCreateUser1.
+Parsing wsdl binding fault CoachCreateUser1FaultMessage.
+Parsing wsdl binding input CoachCreateUser1Search.
+Parsing wsdl binding output CoachCreateUser1Search.
+Parsing wsdl binding fault CoachCreateUser1SearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-GroupsSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUser1-Tab-DelegationSearch.
+Parsing wsdl binding output CoachCreateUser1-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachCreateUser1-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachCreateUserHCS.
+Parsing wsdl binding output CoachCreateUserHCS.
+Parsing wsdl binding fault CoachCreateUserHCSFaultMessage.
+Parsing wsdl binding input DeleteAllBOReports.
+Parsing wsdl binding output DeleteAllBOReports.
+Parsing wsdl binding fault DeleteAllBOReportsFaultMessage.
+Parsing wsdl binding input DeleteAllBOReportsQuery.
+Parsing wsdl binding output DeleteAllBOReportsQuery.
+Parsing wsdl binding fault DeleteAllBOReportsQueryFaultMessage.
+Parsing wsdl binding input DeleteAllBOReportsSearch.
+Parsing wsdl binding output DeleteAllBOReportsSearch.
+Parsing wsdl binding fault DeleteAllBOReportsSearchFaultMessage.
+Parsing wsdl binding input DummyCoachHelpdeskPasswordReset.
+Parsing wsdl binding output DummyCoachHelpdeskPasswordReset.
+Parsing wsdl binding fault DummyCoachHelpdeskPasswordResetFaultMessage.
+Parsing wsdl binding input DummyCoachHelpdeskPasswordResetQuery.
+Parsing wsdl binding output DummyCoachHelpdeskPasswordResetQuery.
+Parsing wsdl binding fault DummyCoachHelpdeskPasswordResetQueryFaultMessage.
+Parsing wsdl binding input DummyCoachHelpdeskPasswordResetSearch.
+Parsing wsdl binding output DummyCoachHelpdeskPasswordResetSearch.
+Parsing wsdl binding fault DummyCoachHelpdeskPasswordResetSearchFaultMessage.
+Parsing wsdl binding input ExtendContractor.
+Parsing wsdl binding output ExtendContractor.
+Parsing wsdl binding fault ExtendContractorFaultMessage.
+Parsing wsdl binding input ExtendContractorQuery.
+Parsing wsdl binding output ExtendContractorQuery.
+Parsing wsdl binding fault ExtendContractorQueryFaultMessage.
+Parsing wsdl binding input ExtendContractorSearch.
+Parsing wsdl binding output ExtendContractorSearch.
+Parsing wsdl binding fault ExtendContractorSearchFaultMessage.
+Parsing wsdl binding input GetPOSPwdPINQuery.
+Parsing wsdl binding output GetPOSPwdPINQuery.
+Parsing wsdl binding fault GetPOSPwdPINQueryFaultMessage.
+Parsing wsdl binding input GetPOSPwdPINSearch.
+Parsing wsdl binding output GetPOSPwdPINSearch.
+Parsing wsdl binding fault GetPOSPwdPINSearchFaultMessage.
+Parsing wsdl binding input CoachHelpDeskUnlockUser.
+Parsing wsdl binding output CoachHelpDeskUnlockUser.
+Parsing wsdl binding fault CoachHelpDeskUnlockUserFaultMessage.
+Parsing wsdl binding input CoachHelpDeskUnlockUserQuery.
+Parsing wsdl binding output CoachHelpDeskUnlockUserQuery.
+Parsing wsdl binding fault CoachHelpDeskUnlockUserQueryFaultMessage.
+Parsing wsdl binding input CoachHelpDeskUnlockUserSearch.
+Parsing wsdl binding output CoachHelpDeskUnlockUserSearch.
+Parsing wsdl binding fault CoachHelpDeskUnlockUserSearchFaultMessage.
+Parsing wsdl binding input CoachHelpdeskPasswordReset.
+Parsing wsdl binding output CoachHelpdeskPasswordReset.
+Parsing wsdl binding fault CoachHelpdeskPasswordResetFaultMessage.
+Parsing wsdl binding input CoachHelpdeskPasswordResetQuery.
+Parsing wsdl binding output CoachHelpdeskPasswordResetQuery.
+Parsing wsdl binding fault CoachHelpdeskPasswordResetQueryFaultMessage.
+Parsing wsdl binding input CoachHelpdeskPasswordResetSearch.
+Parsing wsdl binding output CoachHelpdeskPasswordResetSearch.
+Parsing wsdl binding fault CoachHelpdeskPasswordResetSearchFaultMessage.
+Parsing wsdl binding input HandleOrphanAccounts.
+Parsing wsdl binding output HandleOrphanAccounts.
+Parsing wsdl binding fault HandleOrphanAccountsFaultMessage.
+Parsing wsdl binding input HandleOrphanAccountsQuery.
+Parsing wsdl binding output HandleOrphanAccountsQuery.
+Parsing wsdl binding fault HandleOrphanAccountsQueryFaultMessage.
+Parsing wsdl binding input HandleOrphanAccountsSearch.
+Parsing wsdl binding output HandleOrphanAccountsSearch.
+Parsing wsdl binding fault HandleOrphanAccountsSearchFaultMessage.
+Parsing wsdl binding input ModifyExploreAndCorrelate.
+Parsing wsdl binding output ModifyExploreAndCorrelate.
+Parsing wsdl binding fault ModifyExploreAndCorrelateFaultMessage.
+Parsing wsdl binding input ModifyExploreAndCorrelateQuery.
+Parsing wsdl binding output ModifyExploreAndCorrelateQuery.
+Parsing wsdl binding fault ModifyExploreAndCorrelateQueryFaultMessage.
+Parsing wsdl binding input ModifyExploreAndCorrelateSearch.
+Parsing wsdl binding output ModifyExploreAndCorrelateSearch.
+Parsing wsdl binding fault ModifyExploreAndCorrelateSearchFaultMessage.
+Parsing wsdl binding input CoachModifyMyPersonalInformation.
+Parsing wsdl binding output CoachModifyMyPersonalInformation.
+Parsing wsdl binding fault CoachModifyMyPersonalInformationFaultMessage.
+Parsing wsdl binding input CoachModifyMyPersonalInformationQuery.
+Parsing wsdl binding output CoachModifyMyPersonalInformationQuery.
+Parsing wsdl binding fault CoachModifyMyPersonalInformationQueryFaultMessage.
+Parsing wsdl binding input CoachModifyUser.
+Parsing wsdl binding output CoachModifyUser.
+Parsing wsdl binding fault CoachModifyUserFaultMessage.
+Parsing wsdl binding input CoachModifyUserQuery.
+Parsing wsdl binding output CoachModifyUserQuery.
+Parsing wsdl binding fault CoachModifyUserQueryFaultMessage.
+Parsing wsdl binding input CoachModifyUserSearch.
+Parsing wsdl binding output CoachModifyUserSearch.
+Parsing wsdl binding fault CoachModifyUserSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-GroupsSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser-Tab-DelegationSearch.
+Parsing wsdl binding output CoachModifyUser-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachModifyUser-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016FaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016Query.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016Query.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016QueryFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016Search.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016Search.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016SearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-GroupsSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserBackup4Mar2016-Tab-DelegationSearch.
+Parsing wsdl binding output CoachModifyUserBackup4Mar2016-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachModifyUserBackup4Mar2016-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016.
+Parsing wsdl binding output CoachModifyUser17Apr2016.
+Parsing wsdl binding fault CoachModifyUser17Apr2016FaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016Query.
+Parsing wsdl binding output CoachModifyUser17Apr2016Query.
+Parsing wsdl binding fault CoachModifyUser17Apr2016QueryFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016Search.
+Parsing wsdl binding output CoachModifyUser17Apr2016Search.
+Parsing wsdl binding fault CoachModifyUser17Apr2016SearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-AccessRolesSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-AccessRolesSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-AdminRolesSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-AdminRolesSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-GroupsSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-GroupsSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUser17Apr2016-Tab-DelegationSearch.
+Parsing wsdl binding output CoachModifyUser17Apr2016-Tab-DelegationSearch.
+Parsing wsdl binding fault CoachModifyUser17Apr2016-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserKevin.
+Parsing wsdl binding output CoachModifyUserKevin.
+Parsing wsdl binding fault CoachModifyUserKevinFaultMessage.
+Parsing wsdl binding input CoachModifyUserKevinQuery.
+Parsing wsdl binding output CoachModifyUserKevinQuery.
+Parsing wsdl binding fault CoachModifyUserKevinQueryFaultMessage.
+Parsing wsdl binding input CoachModifyUserKevinSearch.
+Parsing wsdl binding output CoachModifyUserKevinSearch.
+Parsing wsdl binding fault CoachModifyUserKevinSearchFaultMessage.
+Parsing wsdl binding input CoachPutUserInExtendedLeave.
+Parsing wsdl binding output CoachPutUserInExtendedLeave.
+Parsing wsdl binding fault CoachPutUserInExtendedLeaveFaultMessage.
+Parsing wsdl binding input CoachPutUserInExtendedLeaveQuery.
+Parsing wsdl binding output CoachPutUserInExtendedLeaveQuery.
+Parsing wsdl binding fault CoachPutUserInExtendedLeaveQueryFaultMessage.
+Parsing wsdl binding input CoachPutUserInExtendedLeaveSearch.
+Parsing wsdl binding output CoachPutUserInExtendedLeaveSearch.
+Parsing wsdl binding fault CoachPutUserInExtendedLeaveSearchFaultMessage.
+Parsing wsdl binding input Redirecting.
+Parsing wsdl binding output Redirecting.
+Parsing wsdl binding fault RedirectingFaultMessage.
+Parsing wsdl binding input RedirectingQuery.
+Parsing wsdl binding output RedirectingQuery.
+Parsing wsdl binding fault RedirectingQueryFaultMessage.
+Parsing wsdl binding input RedirectPage.
+Parsing wsdl binding output RedirectPage.
+Parsing wsdl binding fault RedirectPageFaultMessage.
+Parsing wsdl binding input RedirectPageQuery.
+Parsing wsdl binding output RedirectPageQuery.
+Parsing wsdl binding fault RedirectPageQueryFaultMessage.
+Parsing wsdl binding input ManageReportServerConnection.
+Parsing wsdl binding output ManageReportServerConnection.
+Parsing wsdl binding fault ManageReportServerConnectionFaultMessage.
+Parsing wsdl binding input ManageReportServerConnectionSearch.
+Parsing wsdl binding output ManageReportServerConnectionSearch.
+Parsing wsdl binding fault ManageReportServerConnectionSearchFaultMessage.
+Parsing wsdl binding input ResetProvisioningRoleOwners.
+Parsing wsdl binding output ResetProvisioningRoleOwners.
+Parsing wsdl binding fault ResetProvisioningRoleOwnersFaultMessage.
+Parsing wsdl binding input ResetProvisioningRoleOwnersQuery.
+Parsing wsdl binding output ResetProvisioningRoleOwnersQuery.
+Parsing wsdl binding fault ResetProvisioningRoleOwnersQueryFaultMessage.
+Parsing wsdl binding input ResetProvisioningRoleOwnersSearch.
+Parsing wsdl binding output ResetProvisioningRoleOwnersSearch.
+Parsing wsdl binding fault ResetProvisioningRoleOwnersSearchFaultMessage.
+Parsing wsdl binding input CoachReturnUserFrmExtendedLeave.
+Parsing wsdl binding output CoachReturnUserFrmExtendedLeave.
+Parsing wsdl binding fault CoachReturnUserFrmExtendedLeaveFaultMessage.
+Parsing wsdl binding input CoachReturnUserFrmExtendedLeaveQuery.
+Parsing wsdl binding output CoachReturnUserFrmExtendedLeaveQuery.
+Parsing wsdl binding fault CoachReturnUserFrmExtendedLeaveQueryFaultMessage.
+Parsing wsdl binding input CoachReturnUserFrmExtendedLeaveSearch.
+Parsing wsdl binding output CoachReturnUserFrmExtendedLeaveSearch.
+Parsing wsdl binding fault CoachReturnUserFrmExtendedLeaveSearchFaultMessage.
+Parsing wsdl binding input SetPOSPwdPIN.
+Parsing wsdl binding output SetPOSPwdPIN.
+Parsing wsdl binding fault SetPOSPwdPINFaultMessage.
+Parsing wsdl binding input SetPOSPwdPINQuery.
+Parsing wsdl binding output SetPOSPwdPINQuery.
+Parsing wsdl binding fault SetPOSPwdPINQueryFaultMessage.
+Parsing wsdl binding input SetPOSPwdPINSearch.
+Parsing wsdl binding output SetPOSPwdPINSearch.
+Parsing wsdl binding fault SetPOSPwdPINSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser.
+Parsing wsdl binding output TerminateModifyUser.
+Parsing wsdl binding fault TerminateModifyUserFaultMessage.
+Parsing wsdl binding input TerminateModifyUserQuery.
+Parsing wsdl binding output TerminateModifyUserQuery.
+Parsing wsdl binding fault TerminateModifyUserQueryFaultMessage.
+Parsing wsdl binding input TerminateModifyUserSearch.
+Parsing wsdl binding output TerminateModifyUserSearch.
+Parsing wsdl binding fault TerminateModifyUserSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-AccessRolesSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-AccessRolesSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-AdminRolesSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-AdminRolesSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-ProvisioningRolesSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-ProvisioningRolesSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-ProvisioningRolesIndirectSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-GroupsSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-GroupsSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-GroupsSearchFaultMessage.
+Parsing wsdl binding input TerminateModifyUser-Tab-DelegationSearch.
+Parsing wsdl binding output TerminateModifyUser-Tab-DelegationSearch.
+Parsing wsdl binding fault TerminateModifyUser-Tab-DelegationSearchFaultMessage.
+Parsing wsdl binding input CoachModifyUserDNT.
+Parsing wsdl binding output CoachModifyUserDNT.
+Parsing wsdl binding fault CoachModifyUserDNTFaultMessage.
+Parsing wsdl binding input CoachModifyUserDNTQuery.
+Parsing wsdl binding output CoachModifyUserDNTQuery.
+Parsing wsdl binding fault CoachModifyUserDNTQueryFaultMessage.
+Parsing wsdl binding input CoachModifyUserDNTSearch.
+Parsing wsdl binding output CoachModifyUserDNTSearch.
+Parsing wsdl binding fault CoachModifyUserDNTSearchFaultMessage.
+Parsing wsdl binding input Test.
+Parsing wsdl binding output Test.
+Parsing wsdl binding fault TestFaultMessage.
+Parsing wsdl binding input TestQuery.
+Parsing wsdl binding output TestQuery.
+Parsing wsdl binding fault TestQueryFaultMessage.
+Parsing wsdl binding input TestSearch.
+Parsing wsdl binding output TestSearch.
+Parsing wsdl binding fault TestSearchFaultMessage.
+Parsing wsdl binding input ViewAllBOReportsQuery.
+Parsing wsdl binding output ViewAllBOReportsQuery.
+Parsing wsdl binding fault ViewAllBOReportsQueryFaultMessage.
+Parsing wsdl binding input ViewAllBOReportsSearch.
+Parsing wsdl binding output ViewAllBOReportsSearch.
+Parsing wsdl binding fault ViewAllBOReportsSearchFaultMessage.
+Parsing wsdl binding input ViewExploreAndCorrelateQuery.
+Parsing wsdl binding output ViewExploreAndCorrelateQuery.
+Parsing wsdl binding fault ViewExploreAndCorrelateQueryFaultMessage.
+Parsing wsdl binding input ViewExploreAndCorrelateSearch.
+Parsing wsdl binding output ViewExploreAndCorrelateSearch.
+Parsing wsdl binding fault ViewExploreAndCorrelateSearchFaultMessage.
+Parsing wsdl binding input ViewMyRoles.
+Parsing wsdl binding output ViewMyRoles.
+Parsing wsdl binding fault ViewMyRolesFaultMessage.
+Parsing wsdl binding input ViewMyRolesQuery.
+Parsing wsdl binding output ViewMyRolesQuery.
+Parsing wsdl binding fault ViewMyRolesQueryFaultMessage.
+Parsing wsdl binding input ViewMyRoles-Tab-AccessRolesSearch.
+Parsing wsdl binding output ViewMyRoles-Tab-AccessRolesSearch.
+Parsing wsdl binding fault ViewMyRoles-Tab-AccessRolesSearchFaultMessage.
+Parsing wsdl binding input ViewMyRoles-Tab-AdminRolesSearch.
+Parsing wsdl binding output ViewMyRoles-Tab-AdminRolesSearch.
+Parsing wsdl binding fault ViewMyRoles-Tab-AdminRolesSearchFaultMessage.
+Parsing wsdl binding input CoachViewUserQuery.
+Parsing wsdl binding output CoachViewUserQuery.
+Parsing wsdl binding fault CoachViewUserQueryFaultMessage.
+Parsing wsdl binding input CoachViewUserSearch.
+Parsing wsdl binding output CoachViewUserSearch.
+Parsing wsdl binding fault CoachViewUserSearchFaultMessage.
+Parsing wsdl binding input TaskStatusQuery.
+Parsing wsdl binding output TaskStatusQuery.
+Parsing wsdl binding fault TaskStatusQueryFaultMessage.
+Parsing wsdl binding {http://tews6/wsdl}Tews6PublicSoapBinding.
+Parsing wsdl binding input CoachForgottenPassword.
+Parsing wsdl binding output CoachForgottenPassword.
+Parsing wsdl binding fault CoachForgottenPasswordFaultMessage.
+Parsing wsdl binding input CoachForgottenPasswordQuery.
+Parsing wsdl binding output CoachForgottenPasswordQuery.
+Parsing wsdl binding fault CoachForgottenPasswordQueryFaultMessage.
+Parsing wsdl binding input CoachForgottenPasswordSearch.
+Parsing wsdl binding output CoachForgottenPasswordSearch.
+Parsing wsdl binding fault CoachForgottenPasswordSearchFaultMessage.
+Parsing wsdl binding input CoachForgottenUserID.
+Parsing wsdl binding output CoachForgottenUserID.
+Parsing wsdl binding fault CoachForgottenUserIDFaultMessage.
+Parsing wsdl binding input CoachForgottenUserIDQuery.
+Parsing wsdl binding output CoachForgottenUserIDQuery.
+Parsing wsdl binding fault CoachForgottenUserIDQueryFaultMessage.
+Parsing wsdl binding input CoachForgottenUserIDSearch.
+Parsing wsdl binding output CoachForgottenUserIDSearch.
+Parsing wsdl binding fault CoachForgottenUserIDSearchFaultMessage.
+Parsing wsdl binding input MailOTP.
+Parsing wsdl binding output MailOTP.
+Parsing wsdl binding fault MailOTPFaultMessage.
+Parsing wsdl binding input MailOTPQuery.
+Parsing wsdl binding output MailOTPQuery.
+Parsing wsdl binding fault MailOTPQueryFaultMessage.
+Parsing wsdl binding input MailOTPSearch.
+Parsing wsdl binding output MailOTPSearch.
+Parsing wsdl binding fault MailOTPSearchFaultMessage.
+Parsing wsdl binding input SMSOTP.
+Parsing wsdl binding output SMSOTP.
+Parsing wsdl binding fault SMSOTPFaultMessage.
+Parsing wsdl binding input SMSOTPQuery.
+Parsing wsdl binding output SMSOTPQuery.
+Parsing wsdl binding fault SMSOTPQueryFaultMessage.
+Parsing wsdl binding input SMSOTPSearch.
+Parsing wsdl binding output SMSOTPSearch.
+Parsing wsdl binding fault SMSOTPSearchFaultMessage.
+Parsing wsdl binding input SMSOTPCoachPhone.
+Parsing wsdl binding output SMSOTPCoachPhone.
+Parsing wsdl binding fault SMSOTPCoachPhoneFaultMessage.
+Parsing wsdl binding input SMSOTPCoachPhoneQuery.
+Parsing wsdl binding output SMSOTPCoachPhoneQuery.
+Parsing wsdl binding fault SMSOTPCoachPhoneQueryFaultMessage.
+Parsing wsdl binding input SMSOTPCoachPhoneSearch.
+Parsing wsdl binding output SMSOTPCoachPhoneSearch.
+Parsing wsdl binding fault SMSOTPCoachPhoneSearchFaultMessage.
+Parsing wsdl binding input CoachForgottenPasswordReset.
+Parsing wsdl binding output CoachForgottenPasswordReset.
+Parsing wsdl binding fault CoachForgottenPasswordResetFaultMessage.
+Parsing wsdl binding input CoachForgottenPasswordResetQuery.
+Parsing wsdl binding output CoachForgottenPasswordResetQuery.
+Parsing wsdl binding fault CoachForgottenPasswordResetQueryFaultMessage.
+Parsing wsdl binding input CoachForgottenPasswordResetSearch.
+Parsing wsdl binding output CoachForgottenPasswordResetSearch.
+Parsing wsdl binding fault CoachForgottenPasswordResetSearchFaultMessage.
+Parsing wsdl binding input CoachAnswerSecurityQ.
+Parsing wsdl binding output CoachAnswerSecurityQ.
+Parsing wsdl binding fault CoachAnswerSecurityQFaultMessage.
+Parsing wsdl binding input CoachAnswerSecurityQQuery.
+Parsing wsdl binding output CoachAnswerSecurityQQuery.
+Parsing wsdl binding fault CoachAnswerSecurityQQueryFaultMessage.
+Parsing wsdl binding input CoachAnswerSecurityQSearch.
+Parsing wsdl binding output CoachAnswerSecurityQSearch.
+Parsing wsdl binding fault CoachAnswerSecurityQSearchFaultMessage.
+Parsing wsdl binding input CoachSetSecurityQA.
+Parsing wsdl binding output CoachSetSecurityQA.
+Parsing wsdl binding fault CoachSetSecurityQAFaultMessage.
+Parsing wsdl binding input CoachSetSecurityQAQuery.
+Parsing wsdl binding output CoachSetSecurityQAQuery.
+Parsing wsdl binding fault CoachSetSecurityQAQueryFaultMessage.
+Processing doc style for operation ChangeMyPassword.
+Processing doc style for operation ChangeMyPasswordQuery.
+Processing doc style for operation CoachModifyMySecurityQuestions.
+Processing doc style for operation CoachModifyMySecurityQuestionsQuery.
+Processing doc style for operation CoachResetUserPassword.
+Processing doc style for operation CoachResetUserPasswordQuery.
+Processing doc style for operation CoachResetUserPasswordSearch.
+Processing doc style for operation CorrelationAttributeConfiguration.
+Processing doc style for operation CorrelationAttributeConfigurationQuery.
+Processing doc style for operation ConvertCorptoRetail.
+Processing doc style for operation ConvertCorptoRetailQuery.
+Processing doc style for operation ConvertCorptoRetailSearch.
+Processing doc style for operation ConvertEmployeeTypeOUChange.
+Processing doc style for operation ConvertEmployeeTypeOUChangeQuery.
+Processing doc style for operation ConvertEmployeeTypeOUChangeSearch.
+Processing doc style for operation ConvertRetailtoCorp.
+Processing doc style for operation ConvertRetailtoCorpQuery.
+Processing doc style for operation ConvertRetailtoCorpSearch.
+Processing doc style for operation ConvertRetailtoCorpADAccess.
+Processing doc style for operation ConvertRetailtoCorpADAccessQuery.
+Processing doc style for operation ConvertRetailtoCorpADAccessSearch.
+Processing doc style for operation ConvertTempToPerm.
+Processing doc style for operation ConvertTempToPermQuery.
+Processing doc style for operation ConvertTempToPermSearch.
+Processing doc style for operation CoachConvertUser.
+Processing doc style for operation CoachConvertUserQuery.
+Processing doc style for operation CoachConvertUserSearch.
+Processing doc style for operation CreateExploreAndCorrelate.
+Processing doc style for operation CreateExploreAndCorrelateSearch.
+Processing doc style for operation CreateOwnerPoliciesForProvisioningRoles.
+Processing doc style for operation CreateOwnerPoliciesForProvisioningRolesQuery.
+Processing doc style for operation CreateOwnerPoliciesForProvisioningRolesSearch.
+Processing doc style for operation CoachCreateUser.
+Processing doc style for operation CoachCreateUser-Tab-AccessRolesSearch.
+Processing doc style for operation CoachCreateUser-Tab-AdminRolesSearch.
+Processing doc style for operation CoachCreateUser-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachCreateUser-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachCreateUser-Tab-GroupsSearch.
+Processing doc style for operation CoachCreateUser-Tab-DelegationSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016.
+Processing doc style for operation CoachCreateUserBackup4Mar2016Search.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-AccessRolesSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-AdminRolesSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-GroupsSearch.
+Processing doc style for operation CoachCreateUserBackup4Mar2016-Tab-DelegationSearch.
+Processing doc style for operation CoachCreateUser17Apr2016.
+Processing doc style for operation CoachCreateUser17Apr2016Search.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-AccessRolesSearch.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-AdminRolesSearch.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-GroupsSearch.
+Processing doc style for operation CoachCreateUser17Apr2016-Tab-DelegationSearch.
+Processing doc style for operation CoachCreateUser1.
+Processing doc style for operation CoachCreateUser1Search.
+Processing doc style for operation CoachCreateUser1-Tab-AccessRolesSearch.
+Processing doc style for operation CoachCreateUser1-Tab-AdminRolesSearch.
+Processing doc style for operation CoachCreateUser1-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachCreateUser1-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachCreateUser1-Tab-GroupsSearch.
+Processing doc style for operation CoachCreateUser1-Tab-DelegationSearch.
+Processing doc style for operation CoachCreateUserHCS.
+Processing doc style for operation DeleteAllBOReports.
+Processing doc style for operation DeleteAllBOReportsQuery.
+Processing doc style for operation DeleteAllBOReportsSearch.
+Processing doc style for operation DummyCoachHelpdeskPasswordReset.
+Processing doc style for operation DummyCoachHelpdeskPasswordResetQuery.
+Processing doc style for operation DummyCoachHelpdeskPasswordResetSearch.
+Processing doc style for operation ExtendContractor.
+Processing doc style for operation ExtendContractorQuery.
+Processing doc style for operation ExtendContractorSearch.
+Processing doc style for operation GetPOSPwdPINQuery.
+Processing doc style for operation GetPOSPwdPINSearch.
+Processing doc style for operation CoachHelpDeskUnlockUser.
+Processing doc style for operation CoachHelpDeskUnlockUserQuery.
+Processing doc style for operation CoachHelpDeskUnlockUserSearch.
+Processing doc style for operation CoachHelpdeskPasswordReset.
+Processing doc style for operation CoachHelpdeskPasswordResetQuery.
+Processing doc style for operation CoachHelpdeskPasswordResetSearch.
+Processing doc style for operation HandleOrphanAccounts.
+Processing doc style for operation HandleOrphanAccountsQuery.
+Processing doc style for operation HandleOrphanAccountsSearch.
+Processing doc style for operation ModifyExploreAndCorrelate.
+Processing doc style for operation ModifyExploreAndCorrelateQuery.
+Processing doc style for operation ModifyExploreAndCorrelateSearch.
+Processing doc style for operation CoachModifyMyPersonalInformation.
+Processing doc style for operation CoachModifyMyPersonalInformationQuery.
+Processing doc style for operation CoachModifyUser.
+Processing doc style for operation CoachModifyUserQuery.
+Processing doc style for operation CoachModifyUserSearch.
+Processing doc style for operation CoachModifyUser-Tab-AccessRolesSearch.
+Processing doc style for operation CoachModifyUser-Tab-AdminRolesSearch.
+Processing doc style for operation CoachModifyUser-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachModifyUser-Tab-GroupsSearch.
+Processing doc style for operation CoachModifyUser-Tab-DelegationSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016.
+Processing doc style for operation CoachModifyUserBackup4Mar2016Query.
+Processing doc style for operation CoachModifyUserBackup4Mar2016Search.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-AccessRolesSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-AdminRolesSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-GroupsSearch.
+Processing doc style for operation CoachModifyUserBackup4Mar2016-Tab-DelegationSearch.
+Processing doc style for operation CoachModifyUser17Apr2016.
+Processing doc style for operation CoachModifyUser17Apr2016Query.
+Processing doc style for operation CoachModifyUser17Apr2016Search.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-AccessRolesSearch.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-AdminRolesSearch.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-ProvisioningRolesSearch.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-GroupsSearch.
+Processing doc style for operation CoachModifyUser17Apr2016-Tab-DelegationSearch.
+Processing doc style for operation CoachModifyUserKevin.
+Processing doc style for operation CoachModifyUserKevinQuery.
+Processing doc style for operation CoachModifyUserKevinSearch.
+Processing doc style for operation CoachPutUserInExtendedLeave.
+Processing doc style for operation CoachPutUserInExtendedLeaveQuery.
+Processing doc style for operation CoachPutUserInExtendedLeaveSearch.
+Processing doc style for operation Redirecting.
+Processing doc style for operation RedirectingQuery.
+Processing doc style for operation RedirectPage.
+Processing doc style for operation RedirectPageQuery.
+Processing doc style for operation ManageReportServerConnection.
+Processing doc style for operation ManageReportServerConnectionSearch.
+Processing doc style for operation ResetProvisioningRoleOwners.
+Processing doc style for operation ResetProvisioningRoleOwnersQuery.
+Processing doc style for operation ResetProvisioningRoleOwnersSearch.
+Processing doc style for operation CoachReturnUserFrmExtendedLeave.
+Processing doc style for operation CoachReturnUserFrmExtendedLeaveQuery.
+Processing doc style for operation CoachReturnUserFrmExtendedLeaveSearch.
+Processing doc style for operation SetPOSPwdPIN.
+Processing doc style for operation SetPOSPwdPINQuery.
+Processing doc style for operation SetPOSPwdPINSearch.
+Processing doc style for operation TerminateModifyUser.
+Processing doc style for operation TerminateModifyUserQuery.
+Processing doc style for operation TerminateModifyUserSearch.
+Processing doc style for operation TerminateModifyUser-Tab-AccessRolesSearch.
+Processing doc style for operation TerminateModifyUser-Tab-AdminRolesSearch.
+Processing doc style for operation TerminateModifyUser-Tab-ProvisioningRolesSearch.
+Processing doc style for operation TerminateModifyUser-Tab-ProvisioningRolesIndirectSearch.
+Processing doc style for operation TerminateModifyUser-Tab-GroupsSearch.
+Processing doc style for operation TerminateModifyUser-Tab-DelegationSearch.
+Processing doc style for operation CoachModifyUserDNT.
+Processing doc style for operation CoachModifyUserDNTQuery.
+Processing doc style for operation CoachModifyUserDNTSearch.
+Processing doc style for operation Test.
+Processing doc style for operation TestQuery.
+Processing doc style for operation TestSearch.
+Processing doc style for operation ViewAllBOReportsQuery.
+Processing doc style for operation ViewAllBOReportsSearch.
+Processing doc style for operation ViewExploreAndCorrelateQuery.
+Processing doc style for operation ViewExploreAndCorrelateSearch.
+Processing doc style for operation ViewMyRoles.
+Processing doc style for operation ViewMyRolesQuery.
+Processing doc style for operation ViewMyRoles-Tab-AccessRolesSearch.
+Processing doc style for operation ViewMyRoles-Tab-AdminRolesSearch.
+Processing doc style for operation CoachViewUserQuery.
+Processing doc style for operation CoachViewUserSearch.
+Processing doc style for operation TaskStatusQuery.
+Processing doc style for operation CoachForgottenPassword.
+Processing doc style for operation CoachForgottenPasswordQuery.
+Processing doc style for operation CoachForgottenPasswordSearch.
+Processing doc style for operation CoachForgottenUserID.
+Processing doc style for operation CoachForgottenUserIDQuery.
+Processing doc style for operation CoachForgottenUserIDSearch.
+Processing doc style for operation MailOTP.
+Processing doc style for operation MailOTPQuery.
+Processing doc style for operation MailOTPSearch.
+Processing doc style for operation SMSOTP.
+Processing doc style for operation SMSOTPQuery.
+Processing doc style for operation SMSOTPSearch.
+Processing doc style for operation SMSOTPCoachPhone.
+Processing doc style for operation SMSOTPCoachPhoneQuery.
+Processing doc style for operation SMSOTPCoachPhoneSearch.
+Processing doc style for operation CoachForgottenPasswordReset.
+Processing doc style for operation CoachForgottenPasswordResetQuery.
+Processing doc style for operation CoachForgottenPasswordResetSearch.
+Processing doc style for operation CoachAnswerSecurityQ.
+Processing doc style for operation CoachAnswerSecurityQQuery.
+Processing doc style for operation CoachAnswerSecurityQSearch.
+Processing doc style for operation CoachSetSecurityQA.
+Processing doc style for operation CoachSetSecurityQAQuery.
+Populating WSDL schema file:///C:/MT/PROJ_HA/IDM/WSDL/secure_WSDL_Original.wsdl.
+Creating file IDM_WSDL_MT_MS/tews6/wsdl/secure1_ANU.mxsd in the workspace.
+Creating file IDM_WSDL_MT_MS/tews6/wsdl/secure1_ANU_InlineSchema2.mxsd in the workspace.
+Copying source WSDL secure1_ANU.wsdl to secure1_ANU.wsdl.
+
+Elapsed time processing this message definition file: 204.2 seconds
+Number of warnings for this message definition file: 1
+
+
+Number of files processed: 1
+
+

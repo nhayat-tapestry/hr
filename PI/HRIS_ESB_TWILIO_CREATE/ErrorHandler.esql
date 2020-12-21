@@ -1,0 +1,299 @@
+
+
+CREATE COMPUTE MODULE ErrorHandler_Areacode_Search
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception- Twilio Areacode Search' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_Phonenumber_RespRouting
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio Areacode Response Routing' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+				
+		RETURN TRUE;
+	END;
+	
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_PurchaseNumber
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio Purchase Number' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+CREATE COMPUTE MODULE ErrorHandler_PurchaseResp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject 	= 'Exception-Twilio Purchase Response' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB = CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_PurchaseRetry
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 	 	= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 	 	= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject 	= 'Exception-Twilio PurchaseRetry-' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_ZipcodeResp
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio Zipcode Search Resposne' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+			
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_ZipcodeSearch
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio Zipcode Search' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+				
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_State_RespRouting
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception-Twilio State Search Response Routing' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+
+
+
+
+
+CREATE COMPUTE MODULE ErrorHandler_State_Search
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE envref REFERENCE to Environment;
+		CALL SetConfigurations(envref);
+		
+		DECLARE Text CHAR '';
+		DECLARE InsertText CHAR '';
+		DECLARE cErrorText CHARACTER '';
+					
+		DECLARE Listhandle REFERENCE TO InputExceptionList.*[1];
+		WHILE Listhandle.Text IS NOT NULL DO
+			SET Text = Text || ' ' || Listhandle.Text || ' ';
+			DECLARE insertCount INTEGER CARDINALITY(Listhandle.Insert[]);
+			IF insertCount > 0 THEN
+				SET Text = Text || ' ' ||Listhandle.Insert[insertCount].Text || ' ';
+			END IF;
+			MOVE Listhandle LASTCHILD;
+		END WHILE;
+				
+		SET OutputRoot.EmailOutputHeader.From 		= PULLDATA_HRISCache.FROM_EMAIL;
+		SET OutputRoot.EmailOutputHeader.To 		= PULLDATA_HRISCache.TO_EMAIL;	
+		SET OutputRoot.EmailOutputHeader.Subject	= 'Exception- Twilio State Search' || 'For User :' || InputRoot.MQRFH2.usr.user_id ;
+		SET cErrorText 								= ' Error Description : ' || Text ;
+		SET OutputRoot.BLOB.BLOB 					= CAST( cErrorText AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
+

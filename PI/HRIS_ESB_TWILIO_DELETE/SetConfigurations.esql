@@ -1,0 +1,55 @@
+CREATE PROCEDURE SetConfigurations(INOUT Environment REFERENCE) 
+	BEGIN
+		IF isPULLDATA_HRISCacheExist THEN
+
+		ELSE
+			--SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.dbo.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+			SET Environment.Variables.Destination[] = SELECT T.IDENTIFIER,T.ATTRIBUTES FROM Database.ESB_CONFIG as T WHERE T.INTERFACE= 'HRIS';
+
+			DECLARE noOfRecords INTEGER CARDINALITY(Environment.Variables.Destination[]);
+
+			IF noOfRecords ='0' THEN
+				THROW USER EXCEPTION MESSAGE 1000 VALUES
+				('No Rows found in ESB_CONFIG for interface-HRIS to fetch');
+			END IF;
+
+			DECLARE Y INTEGER 1;
+
+			WHILE Y <= noOfRecords DO
+
+								IF Environment.Variables.Destination[Y].IDENTIFIER ='FROM_EMAIL' THEN
+					SET PULLDATA_HRISCache.FROM_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TO_EMAIL' THEN
+					SET PULLDATA_HRISCache.TO_EMAIL = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='SUBJECT_TWILIO' THEN
+					SET PULLDATA_HRISCache.SUBJECT = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_AUTH' THEN
+					SET PULLDATA_HRISCache.TWILIO_AUTH = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_SID' THEN
+					SET PULLDATA_HRISCache.TWILIO_SID = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='TWILIO_DELETE_URI' THEN
+					SET PULLDATA_HRISCache.TWILIO_DELETE_URI = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+								
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='ErrorMessage1' THEN
+					SET PULLDATA_HRISCache.ErrorMessage1 = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;
+				
+				IF Environment.Variables.Destination[Y].IDENTIFIER ='ErrorMessage2' THEN
+					SET PULLDATA_HRISCache.ErrorMessage2 = Environment.Variables.Destination[Y].ATTRIBUTES;
+				END IF;						
+				SET Y = Y + 1;
+
+			END WHILE;
+
+			SET isPULLDATA_HRISCacheExist = TRUE;
+
+		END IF;
+	END;
