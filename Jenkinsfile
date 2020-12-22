@@ -7,8 +7,7 @@ pipeline {
     //choice(name: 'Bar_Applications',
      // choices: 'one\ntwo\nthree\nfour',
      // description: 'What door do you choose?')
-       extendedChoice description: '', multiSelectDelimiter: ',', name: 'Applications_Name', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_CHECKBOX', value:'AREACODE_SEARCH_AR
-,HRIS_ESB_PULL_DATA,HRIS_ESB_TWILIO_CREATE,HRIS_ESB_TWILIO_DELETE,IDM_TERMINATEDUSERS,PURCHSE_PHONENUMBER_AR,SMSURL_UPDATE_TWILIO_AR,STATECODE_SEARCH_AR,TWILIO_PHONENUMBER_DELETE_AR', visibleItemCount: 3
+       extendedChoice description: '', multiSelectDelimiter: ',', name: 'Applications_Name', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_CHECKBOX', value:'AREACODE_SEARCH_AR,HRIS_ESB_PULL_DATA,HRIS_ESB_TWILIO_CREATE,HRIS_ESB_TWILIO_DELETE,IDM_TERMINATEDUSERS,PURCHSE_PHONENUMBER_AR,SMSURL_UPDATE_TWILIO_AR,STATECODE_SEARCH_AR,TWILIO_PHONENUMBER_DELETE_AR', visibleItemCount:8
    }
    stages{
       // wrap([$class: 'Xvfb']) {
@@ -35,7 +34,7 @@ pipeline {
                      sh "chmod 700 buildbar.sh"
                     sh './buildbar.sh'
                      echo "Trying: ${params.Bar_Applications}"
-                         echo "${params.NAMES}" 
+                         echo "${params.Applications_Name}" 
                      }
                        // }//end of dir
                      }  //end of step
