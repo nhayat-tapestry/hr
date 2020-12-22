@@ -34,7 +34,7 @@ pipeline {
                      sh "chmod 700 buildbar.sh"
                     sh './buildbar.sh'
                      echo "Trying: ${params.Bar_Applications}"
-                         echo "${params.Applications_Name}| tr ',' ' '" 
+                        // echo "${params.Applications_Name}| tr ',' ' '" 
                          
                      }
                        // }//end of dir
