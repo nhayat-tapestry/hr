@@ -3,9 +3,9 @@
 echo 'building bar file'
 cd /opt/ace-11.0.0.9/tools
 
-test=${params.Applications_Name}
+test="${params.Applications_Name}"
 
-appsbuil=$(echo $test| tr ',' ' ')
+appsbuil="$(echo $test| tr ',' ' ')"
 #test5=$(echo $test| tr ',' ' ')
 
 
