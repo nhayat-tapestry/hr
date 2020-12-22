@@ -4,9 +4,10 @@ pipeline {
         CI = 'true'
     }
    parameters {
-    choice(name: 'Bar_Applications',
-      choices: 'one\ntwo\nthree\nfour',
-      description: 'What door do you choose?')
+    //choice(name: 'Bar_Applications',
+     // choices: 'one\ntwo\nthree\nfour',
+     // description: 'What door do you choose?')
+       extendedChoice description: '', multiSelectDelimiter: ',', name: 'NAMES', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_CHECKBOX', value:'a,b,c', visibleItemCount: 3
    }
    stages{
       // wrap([$class: 'Xvfb']) {
