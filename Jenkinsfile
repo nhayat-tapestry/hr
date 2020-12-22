@@ -3,7 +3,11 @@ pipeline {
     environment {
         CI = 'true'
     }
-   
+   parameters {
+    choice(name: 'Bar_Applications',
+      choices: 'one\ntwo\nthree\nfour',
+      description: 'What door do you choose?')
+   }
    stages{
       // wrap([$class: 'Xvfb']) {
        
@@ -28,6 +32,7 @@ pipeline {
                      {   
                      sh "chmod 700 buildbar.sh"
                     sh './buildbar.sh'
+                     echo "Trying: ${params.Bar_Applications}"
                      }
                        // }//end of dir
                      }  //end of step
