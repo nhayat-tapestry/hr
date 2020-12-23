@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/usr/bin/env sh
 
 echo 'building bar file'
 cd /opt/ace-11.0.0.9/tools
