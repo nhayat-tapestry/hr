@@ -32,9 +32,9 @@ pipeline {
                        wrap([$class: 'Xvfb'])
                      {   
                      sh '''chmod 700 buildbar.sh
-                         ./buildbar.sh '''
+                         ./buildbar.sh ${params.Bar_Applications}'''
                   //  sh 'def chosen_app="${params.Bar_Applications}" ./buildbar.sh '$chosen_app'''
-                     echo "Trying: ${params.Bar_Applications}"
+                    // echo "Trying: ${params.Bar_Applications}"
                         // echo "${params.Applications_Name}| tr ',' ' '" 
                          
                      }
