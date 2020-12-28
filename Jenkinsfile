@@ -8,6 +8,8 @@ pipeline {
      // choices: 'one\ntwo\nthree\nfour',
      // description: 'What door do you choose?')
        extendedChoice description: '', multiSelectDelimiter: ',', name: 'Applications_Name', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_CHECKBOX', value:'AREACODE_SEARCH_AR,HRIS_ESB_PULL_DATA,HRIS_ESB_TWILIO_CREATE,HRIS_ESB_TWILIO_DELETE,IDM_TERMINATEDUSERS,PURCHSE_PHONENUMBER_AR,SMSURL_UPDATE_TWILIO_AR,STATECODE_SEARCH_AR,TWILIO_PHONENUMBER_DELETE_AR', visibleItemCount:8
+        extendedChoice description: '', multiSelectDelimiter: ',', name: 'library_Name', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_CHECKBOX', value:'ESB_IDMInboundWebService_MSPLIB', visibleItemCount:3
+  
    }
    stages{
       // wrap([$class: 'Xvfb']) {
@@ -32,7 +34,8 @@ pipeline {
                        wrap([$class: 'Xvfb'])
                      {   
                      sh "chmod 700 buildbar.sh"
-                     sh "./buildbar.sh ${params.Applications_Name}"
+                   //  sh "./buildbar.sh ${params.Applications_Name}"
+                         sh "./buildbar.sh ${params.Applications_Name} ${params.library_Name}"
                   //  sh 'def chosen_app="${params.Bar_Applications}" ./buildbar.sh '$chosen_app'''
                     // echo "Trying: ${params.Bar_Applications}"
                         // echo "${params.Applications_Name}| tr ',' ' '" 
