@@ -26,7 +26,7 @@ else
 
     #  echo "\$my_var is NOT NULL"
 fi
-
+cd /$WORKSPACE/Misc/BARfiles
 git add . -A
 git commit -m "hi"
 git push
