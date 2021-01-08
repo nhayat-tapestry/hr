@@ -30,8 +30,8 @@ cd /$WORKSPACE/
 git add . -A
 git commit -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git push https://github.com/nhayat-tapestry/hr.git
-#git remote set-url origin "https://github.com/nhayat-tapestry/hr.git"
-git remote set-url origin git@github.com:nhayat-tapestry/hr.git
+git remote set-url origin "https://github.com/nhayat-tapestry/hr.git"
+#git remote set-url origin git@github.com:nhayat-tapestry/hr.git
 #git remote add origin "https://github.com/nhayat-tapestry/hr.git"
 git push -u origin master
 
