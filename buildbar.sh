@@ -38,7 +38,7 @@ git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.b
 git remote set-url origin "https://github.com/nhayat-tapestry/hr.git"
 #git remote set-url origin git@github.com:nhayat-tapestry/hr.git
 #git remote add origin "https://github.com/nhayat-tapestry/hr.git"
-git push  origin master
+git push -u origin master
 
 # . /opt/ace-11.0.0.9/server/bin/mqsiprofile && mqsicreatebar -data $WORKSPACE/PI -b $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar  -a AREACODE_SEARCH_AR HRIS_ESB_PULL_DATA HRIS_ESB_TWILIO_CREATE -compileOnly -v createbartrace.txt -cleanBuild 
 # . /opt/ace-11.0.0.9/server/bin/mqsiprofile && mqsicreatebar -data $WORKSPACE/PI -b $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar  -a ESB_IDM_EMPLOYEE_FEED PURCHSE_PHONENUMBER_AR -l ESB_IDMInboundWebService_MSPLIB  -compileOnly -v createbartrace.txt -cleanBuild 
