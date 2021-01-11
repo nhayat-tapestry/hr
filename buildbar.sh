@@ -31,6 +31,8 @@ cd /$WORKSPACE/
 git add . -A
 git config --global user.name "nhayat-tapestry"
 git config --global user.email "nhayat@tapestry.com"
+git remote rm origin
+git remote add origin "https://nhayat-tapestry:13b89db28090e683d1d238681112d28cf944d712@github.com/nhayat-tapestry/hr.git"
 git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit --author="nhayat-tapestry <>" -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
@@ -40,10 +42,10 @@ git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.b
 #git remote set-url origin "git@github.com:nhayat-tapestry/hr.git"
 #git remote set-url origin git@github.com:nhayat-tapestry/hr.git
 #git remote add origin "https://github.com/nhayat-tapestry/hr.git"
-git remote set-url origin "https://nhayat-tapestry:13b89db28090e683d1d238681112d28cf944d712@github.com/nhayat-tapestry/hr.git"
+#git remote set-url origin "https://nhayat-tapestry:13b89db28090e683d1d238681112d28cf944d712@github.com/nhayat-tapestry/hr.git"
 #git remote set-url origin "https://nhayat-tapestry:13b89db28090e683d1d238681112d28cf944d712@github.com/nhayat-tapestry/hr.git"
 #git push origin master
-  git config --global push.default matching
+  #git config --global push.default matching
 #git push https://13b89db28090e683d1d238681112d28cf944d712@github.com/nhayat-tapestry/hr.git
 git push origin master
 
