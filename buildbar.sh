@@ -30,8 +30,8 @@ cd /$WORKSPACE/
 git add . -A
 git config --global user.name "nhayat-tapestry"
 git config --global user.email "nhayat@tapestry.com"
-git commit --amend --reset-author 
-git commit -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
+git commit --amend --reset-author -m "hi"
+#git commit -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit --author="nhayat-tapestry <>" -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit --author="Name <>" -m "whatever"
 #git push https://github.com/nhayat-tapestry/hr.git
