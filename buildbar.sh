@@ -33,7 +33,7 @@ git add . -A
 ##git config --global user.email "nhayat@tapestry.com"
 git config --global --unset https.proxy
 git remote rm origin
-git remote add origin "https://nhayat-tapestry:!@System12@github.com/nhayat-tapestry/hr.git"
+git remote add origin "https://github.com/nhayat-tapestry/hr.git"
 git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit -m "hi" $WORKSPACE/Misc/BARfiles/${BUIL:D_ID}.bar
 #git commit --author="nhayat-tapestry <>" -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
