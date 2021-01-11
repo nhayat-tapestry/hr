@@ -31,6 +31,7 @@ cd /$WORKSPACE/
 git add . -A
 ##git config --global user.name "nhayat-tapestry"
 ##git config --global user.email "nhayat@tapestry.com"
+git config --global --unset https.proxy
 git remote rm origin
 git remote add origin "https://nhayat-tapestry:!@System12@github.com/nhayat-tapestry/hr.git"
 git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
