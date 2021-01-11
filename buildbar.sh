@@ -35,8 +35,8 @@ git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.b
 #git commit --author="nhayat-tapestry <>" -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit --author="Name <>" -m "whatever"
 #git push https://github.com/nhayat-tapestry/hr.git
-#git remote set-url origin "https://github.com/nhayat-tapestry/hr.git"
-git remote set-url origin git@github.com:nhayat-tapestry/hr.git
+git remote set-url origin "https://github.com/nhayat-tapestry/hr.git"
+#git remote set-url origin git@github.com:nhayat-tapestry/hr.git
 #git remote add origin "https://github.com/nhayat-tapestry/hr.git"
 git push  origin master
 
