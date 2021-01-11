@@ -28,6 +28,7 @@ else
 fi
 cd /$WORKSPACE/
 git add . -A
+
 git commit --author="nhayat-tapestry <>" -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
 #git commit --author="Name <>" -m "whatever"
 #git push https://github.com/nhayat-tapestry/hr.git
