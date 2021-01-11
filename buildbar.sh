@@ -29,8 +29,8 @@ fi
 cd /$WORKSPACE/
 #git init
 git add . -A
-git config --global user.name "nhayat-tapestry"
-git config --global user.email "nhayat@tapestry.com"
+##git config --global user.name "nhayat-tapestry"
+##git config --global user.email "nhayat@tapestry.com"
 git remote rm origin
 git remote add origin "https://nhayat-tapestry:b969d179539adb50131c1ad50eef1297351b00b1@github.com/nhayat-tapestry/hr.git"
 git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
