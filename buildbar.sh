@@ -27,6 +27,7 @@ else
     #  echo "\$my_var is NOT NULL"
 fi
 cd /$WORKSPACE/
+git init
 git add . -A
 git config --global user.name "nhayat-tapestry"
 git config --global user.email "nhayat@tapestry.com"
