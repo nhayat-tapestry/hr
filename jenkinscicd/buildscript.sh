@@ -31,6 +31,7 @@ cd /$WORKSPACE/
 git add . -A
 ##git config --global user.name "nhayat-tapestry"
 ##git config --global user.email "nhayat@tapestry.com"
+echo "changedir"
 git config --global --unset https.proxy
 git remote rm origin
 git remote add origin "https://nhayat-tapestry:09f738f07d7eda4f8a5157fc1591d51920fa48b2@github.com/nhayat-tapestry/hr.git"
