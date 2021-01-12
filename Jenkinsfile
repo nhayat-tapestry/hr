@@ -33,7 +33,8 @@ pipeline {
                          sh "pwd"   
                        wrap([$class: 'Xvfb'])
                      {   
-                     sh "chmod 700 buildbar.sh"
+                     //sh "chmod 700 buildbar.sh"
+                         sh "chmod 700 jenkinscicd/buildscript.sh"
                    //  sh "./buildbar.sh ${params.Applications_Name}"
                          //sh "./buildbar.sh ${params.Applications_Name} ${params.library_Name}"
                          sh "./jenkinscicd/buildscript.sh ${params.Applications_Name} ${params.library_Name}"
