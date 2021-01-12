@@ -35,7 +35,8 @@ pipeline {
                      {   
                      sh "chmod 700 buildbar.sh"
                    //  sh "./buildbar.sh ${params.Applications_Name}"
-                         sh "./buildbar.sh ${params.Applications_Name} ${params.library_Name}"
+                         //sh "./buildbar.sh ${params.Applications_Name} ${params.library_Name}"
+                         sh "./jenkinscicd/buildscript.sh ${params.Applications_Name} ${params.library_Name}"
                   //  sh 'def chosen_app="${params.Bar_Applications}" ./buildbar.sh '$chosen_app'''
                     // echo "Trying: ${params.Bar_Applications}"
                         // echo "${params.Applications_Name}| tr ',' ' '" 
