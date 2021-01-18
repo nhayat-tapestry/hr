@@ -18,7 +18,7 @@ reponame='hris_batch1'
 if [ -z "$test2" ]
 then
      
-    . /opt/ace-11.0.0.9/server/bin/mqsiprofile && mqsicreatebar -data $WORKSPACE/PI -b $WORKSPACE/Misc/BARfiles/${reponame}${BUILD_ID}.bar  -a ${appsbuild}  -deployAsSource -v createbartrace.txt -cleanBuild 
+    . /opt/ace-11.0.0.9/server/bin/mqsiprofile && mqsicreatebar -data $WORKSPACE/PI -b $WORKSPACE/Misc/BARfiles/${reponame}_${BUILD_ID}.bar  -a ${appsbuild}  -deployAsSource -v createbartrace.txt -cleanBuild 
 
       #echo "\$my_var is NULL"
 else
