@@ -27,7 +27,8 @@ else
 
     #  echo "\$my_var is NOT NULL"
 fi
-cd /$WORKSPACE/
+cd /$WORKSPACE/Misc/BARfiles
+ls
 #git init
 
 #git commit --amend --reset-author -m "hi" $WORKSPACE/Misc/BARfiles/${BUILD_ID}.bar
