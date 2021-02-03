@@ -42,7 +42,7 @@ pipeline {
                   //  sh 'def chosen_app="${params.Bar_Applications}" ./buildbar.sh '$chosen_app'''
                     // echo "Trying: ${params.Bar_Applications}"
                         // echo "${params.Applications_Name}| tr ',' ' '" 
-                         url=scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
+                       //  url=scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
                          echo "${url}"
                      }
                        // }//end of dir
