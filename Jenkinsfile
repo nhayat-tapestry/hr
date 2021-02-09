@@ -22,23 +22,23 @@ pipeline {
                     
                             emailext (
                             subject: "Build fail! Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                                body:'''${SCRIPT,template="/var/lib/jenkins/workspace/hrisace/email-html.template"}''',
+                               // body:'''${SCRIPT,template="/var/lib/jenkins/workspace/hrisace/email-html.template"}''',
                          //   body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                            //   """,
-                              // body: """
-                             //  '$env.JOB_NAME - Build # $env.BUILD_NUMBER - $env.BUILD_STATUS'.<br/>
-                              // <br/>
-                              //  Check console <a href="$env.BUILD_URL">output</a> to view full results.<br/>
-                              //  If you cannot connect to the build server, check the attached logs.<br/>
-                               // <br/>                               
-                           // Following is the last 100 lines of the log.<br/>
-                          //  <br/>
-                      //  --LOG-BEGIN--<br/>
-                      //  <pre style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
-//'${env.BUILD_LOG}' 
-//</pre>
-//--LOG-END--
-//""",
+                              body: """
+                               '$env.JOB_NAME - Build # $env.BUILD_NUMBER - $env.build.result'.<br/>
+                               <br/>
+                               Check console <a href="$env.build.url">output</a> to view full results.<br/>
+                                If you cannot connect to the build server, check the attached logs.<br/>
+                                <br/>                               
+                            Following is the last 100 lines of the log.<br/>
+                            <br/>
+                        --LOG-BEGIN--<br/>
+                        <pre style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
+
+</pre>
+--LOG-END--
+""",
                                 
                              mimeType: "text/html",
                             to: "nida.hayat@systemsltd.com"
