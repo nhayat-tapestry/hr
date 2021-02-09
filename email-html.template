@@ -44,15 +44,20 @@
                     <!-- news -->
                     <div class="content round_border">
                             <div class="status">
-                                    <p class="info">The build success </p>
+                                    <p class="info">The build ${build.result} </p>
                             </div>
                             <!-- status -->
                             <div class="main round_border">
                                     <table>
                                             <tbody>
                                                     <tr>
-                                                            <th>App:</th>
-                                                            <td>${Name}</td>
+                                                            <th>JOB:</th>
+                                                            <td>${$env.JOB_NAME}</td>
+            
+                                                    </tr>
+                                                    <tr>
+                                                            <th>Build ID:</th>
+                                                            <td>${$env.BUILD_NUMBER}</td>
             
                                                     </tr>
                                                             <tr>
@@ -61,9 +66,10 @@
                                                                     href="http://localhost:7080/ ">Server-Link</a></td>
                                                     </tr>
                                                     <tr>
-                                                            <th>Release Note:</th>
-                                                            <td><a
-                                                                    href="http://localhost:7080/version/1.2.23">Release-Version</a></td>
+                                                            <th> Note:</th>
+                                                            <td>
+                                                            Check console <a href="${env.build.url}">output</a> to view full results.<br/
+                                                           </td>
                                                     </tr>
                                                     <tr>
                                                             <th>Release Time:</th>
