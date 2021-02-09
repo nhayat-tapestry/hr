@@ -26,7 +26,7 @@ pipeline {
                               //  body:'''${JELLY_SCRIPT,template="/var/lib/jenkins/workspace/hrisace/detailed_email"}''',
                            // body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                              // """,
-                             mimeType: 'text/html',
+                             mimeType: "text/html",
                             to: "nida.hayat@systemsltd.com"
                                         )
                            }
