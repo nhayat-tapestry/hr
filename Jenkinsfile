@@ -28,7 +28,7 @@ pipeline {
                               body: """
                                '$env.JOB_NAME - Build # $env.BUILD_NUMBER - $currentBuild.currentResult'.<br/>
                                <br/>
-                               Check console <a href='${build.url}'>output</a> to view full results.<br/>
+                               Check console <a href='${env.build.url}'>output</a> to view full results.<br/>
                                 If you cannot connect to the build server, check the attached logs.<br/>
                                 <br/>                               
                             Following is the last 100 lines of the log.<br/>
