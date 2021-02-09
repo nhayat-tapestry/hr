@@ -23,7 +23,7 @@ pipeline {
                     sh "pwd"
                             emailext (
                             subject: "Build fail! Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                                body: '''${SCRIPT, template="/var/lib/jenkins/workspace/hrisace/email-html.template"}''',
+                                body: '''${SCRIPT, template="/var/lib/jenkins/workspace/hrisace/detailed_email.jelly"}''',
                            // body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                              // """,
                             to: "nida.hayat@systemsltd.com"
