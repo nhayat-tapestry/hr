@@ -19,6 +19,8 @@ pipeline {
            stage('Build') {            
              post {
                 failure {
+                     sh "cd $WORKSPACE"
+                    sh "pwd"
                             emailext (
                             subject: "Build fail! Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                                 body: '''${SCRIPT, template="$WORKSPACE/email-html.template"}''',
