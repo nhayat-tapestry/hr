@@ -21,8 +21,9 @@ pipeline {
                 failure {
                             emailext (
                             subject: "Build fail! Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                            body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-                              """,
+                             body: '''${SCRIPT, template="/email-html.template"}'''
+                           // body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                            //  """,
                             to: 'nida.hayat@systemsltd.com'
                                         )
                            }
