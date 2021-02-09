@@ -26,7 +26,7 @@ pipeline {
                          //   body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
                            //   """,
                               body: """
-                               '$env.JOB_NAME - Build # $env.BUILD_NUMBER - $env.build.result'.<br/>
+                               '$env.JOB_NAME - Build # $env.BUILD_NUMBER - $build.status'.<br/>
                                <br/>
                                Check console <a href="$env.build.url">output</a> to view full results.<br/>
                                 If you cannot connect to the build server, check the attached logs.<br/>
