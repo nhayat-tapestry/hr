@@ -28,17 +28,15 @@ pipeline {
                               body: """
                                Dear All,<br/>
                                <br/>
-                               This message is to notify you that build <b>**Build # '$env.BUILD_NUMBER'**</b> for <b>**'$env.JOB_NAME'**</b>has been failed. please contact your administrator and check  log<a href="${env.BUILD_URL}">output</a>  for further investigation.
-                              
-                                If you cannot connect to the build server, check the attached logs.<br/>
-                                <br/>                               
-                            Following is the last 100 lines of the log.<br/>
-                            <br/>
-                        --LOG-BEGIN--<br/>
-                        < style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
-${env.BUILD_LOG}
-</style>
---LOG-END--
+                              <pre style='line-height: 22px; display: block; color: #333; font-family: Monaco,Menlo,Consolas,"Courier New",monospace; padding: 10.5px; margin: 0 0 11px; font-size: 13px; word-break: break-all; word-wrap: break-word; white-space: pre-wrap; background-color: #f5f5f5; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px;'>
+
+                             This message is to notify you that build <b>**Build # '$env.BUILD_NUMBER'**</b> for <b>**'$env.JOB_NAME'**</b>has been failed. please contact your administrator and check  log <a href="${env.BUILD_URL}">output</a>  for further investigation.
+                              </pre>
+                                
+                                <br/>                        
+                                     
+
+
 """,
                                 
                              mimeType: "text/html",
